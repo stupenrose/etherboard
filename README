@@ -1,0 +1,9 @@
+This is a sweet new virtual scrumboard, complete with buckets, stickies, and avatars.  Build it with:
+
+mvn clean install
+
+Then run it with:
+
+java -jar target/etherboard-0.0.1-SNAPSHOT.one-jar.jar
+
+Then open your browser to http://localhost:40180 and go nuts!

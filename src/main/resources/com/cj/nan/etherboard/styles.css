@@ -1,0 +1,133 @@
+/**
+ * Copyright (C) 2011, 2012 Commission Junction
+ *
+ * This file is part of etherboard.
+ *
+ * etherboard is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * etherboard is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with etherboard; see the file COPYING.  If not, write to the
+ * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301 USA.
+ *
+ * Linking this library statically or dynamically with other modules is
+ * making a combined work based on this library.  Thus, the terms and
+ * conditions of the GNU General Public License cover the whole
+ * combination.
+ *
+ * As a special exception, the copyright holders of this library give you
+ * permission to link this library with independent modules to produce an
+ * executable, regardless of the license terms of these independent
+ * modules, and to copy and distribute the resulting executable under
+ * terms of your choice, provided that you also meet, for each linked
+ * independent module, the terms and conditions of the license of that
+ * module.  An independent module is a module which is not derived from
+ * or based on this library.  If you modify this library, you may extend
+ * this exception to your version of the library, but you are not
+ * obligated to do so.  If you do not wish to do so, delete this
+ * exception statement from your version.
+ */
+
+div.column {
+	width: 200px;
+	border: 1px solid grey;
+	float: left;
+	height: 100%;
+}
+
+body {
+	text-align: center;
+}
+
+div.columnHeader {
+	width: 200px;
+	font-family: sans-serif;
+	font-weight: bold;
+	border-bottom: 2px solid grey;
+	margin: 0px;
+}
+
+div.sticky, div.bucket {
+	z-index: 2;
+	width:150px;
+	min-height:150px;
+	display: inline-block;
+    position: absolute;
+}
+
+div.sticky {
+    border: 2px solid #FBB917;
+    background-color: #FFF380;
+}
+
+img.stickyEditButton {
+    float:left;
+    margin:5px;
+    height:10px;
+    width:10px;
+}
+
+img.stickyCloseButton {
+    margin:5px;
+    float:right;
+    height:10px;
+    width:10px;
+}
+
+div.stickyContent {
+    vertical-align:middle;
+    margin-top:10px;
+}
+
+div.sticky > div.stickyContent {
+    height:100%;
+}
+
+div.bucket {
+    background-repeat: no-repeat;
+    background-image: url('bucket.png');
+    background-size:100% 100%;
+    border: none;
+}
+
+div.bucket li {
+    list-style-image: url('bucket-entry.gif');
+}
+
+div.bucket .bucketList .remove{
+    padding-left: .5em;
+}
+
+div.header {
+	font-size: 24pt;
+	font-family: sans-serif;
+	font-weight: bold;
+	text-align: center;
+}
+
+img.avatar {
+	z-index: 3;
+	max-width: 75px;
+	max-height: 75px;
+    position: absolute;
+}
+
+div.editLink {
+	text-align: right;
+}
+
+iframe.browseriframe {
+	width: 99%;
+	height: 99%;
+	margin: 0px;
+	padding: 0px;
+	overflow-x: hidden;
+}
