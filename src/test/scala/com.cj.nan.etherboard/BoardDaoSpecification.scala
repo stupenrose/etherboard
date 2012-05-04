@@ -46,6 +46,8 @@ import java.io.FileInputStream
 import java.io.File
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
+import org.junit.After
+import util.Random
 
 @RunWith(classOf[JUnitRunner])
 class BoardDaoSpecification extends Spec with ShouldMatchers with GivenWhenThen {
@@ -54,49 +56,66 @@ class BoardDaoSpecification extends Spec with ShouldMatchers with GivenWhenThen 
         it("should save a Board object") {
             given("A BoardDao and a new Board to save")
                 val boardObject: BoardObject = new BoardObject(1, "some name", "some kind", new Position())
+                val boardName:String = Random.alphanumeric take 30 mkString
     
-                val aBoard: Board = new Board("myBoard", boardObject)
+                val aBoard: Board = new Board(boardName, boardObject)
                 val boardDao = BoardDaoImpl()
             when("saving the board")
                 boardDao.saveBoard(aBoard)
             then("a text file with the board contents should be saved")
-                val file:File = new File("target/data", "myBoard")
+                val file:File = new File("target/data", boardName)
                 file.exists() should  be (true)
                 val jackson = new ObjectMapper()
                 val retrievedBoard = jackson.readValue(new FileInputStream(file), classOf[Board])
                 retrievedBoard.name should equal (aBoard.name)
+                file.delete() should  be (true)
         }
 
         it("should be able to retrieve an existing Board") {
             given("a saved board")
                 val boardObject: BoardObject = new BoardObject(1, "some name", "some kind", new Position())
-                val aBoard: Board = new Board("aBoard", boardObject)
+                val boardName:String = Random.alphanumeric take 30 mkString
+
+                val aBoard: Board = new Board(boardName, boardObject)
                 BoardDaoImpl().saveBoard(aBoard)
             when("getting the saved board")
-                val retrievedBoard:Board = BoardDaoImpl().getBoard("aBoard")
+                val retrievedBoard:Board = BoardDaoImpl().getBoard(boardName)
             then("the board should be retrieved successfully")
                 retrievedBoard.name should equal (aBoard.name)
                 val retrievedBoardObject:BoardObject = retrievedBoard.findObject(1)
                 retrievedBoardObject.name should equal ("some name")
                 retrievedBoardObject.kind should equal ("some kind")
+                val file:File = new File("target/data", boardName)
+                file.exists() should  be (true)
+                file.delete() should  be (true)
         }
 
         it("should import stickie as sticky") {
             given("a saved board")
+                val boardName:String = Random.alphanumeric take 30 mkString
+
                 val boardObject: BoardObject = new BoardObject(1, "some name", "stickie", new Position())
                 boardObject.kind should equal ("sticky")
 
                 boardObject.kind = "stickie"
                 boardObject.kind should equal ("stickie")
 
-                val aBoard: Board = new Board("aBoard", boardObject)
+                val aBoard: Board = new Board(boardName, boardObject)
                 BoardDaoImpl().saveBoard(aBoard)
             when("getting the saved board")
-                val retrievedBoard:Board = BoardDaoImpl().getBoard("aBoard")
+                val retrievedBoard:Board = BoardDaoImpl().getBoard(boardName)
             then("the board's stickie should now be a sticky")
                 val retrievedBoardObject:BoardObject = retrievedBoard.findObject(1)
                 retrievedBoardObject.kind should equal ("sticky")
+                val file:File = new File("target/data", boardName)
+                file.exists() should  be (true)
+                file.delete() should  be (true)
         }
     }
+
+  @After
+  def cleanup() {
+    val dataDirectory:File = new File("target")
+  }
 
 }
