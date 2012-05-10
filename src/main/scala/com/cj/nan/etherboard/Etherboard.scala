@@ -39,8 +39,8 @@
 package com.cj.nan.etherboard
 
 import java.io.{File => Path}
-import scala.reflect.BeanProperty
 import scala.collection.JavaConversions._
+import reflect.BeanProperty
 
 class Position(@BeanProperty var left: Int = 0, @BeanProperty var top: Int = 0) {
     def this() = this(left = 0, top = 0)
@@ -84,6 +84,7 @@ class BoardObject(@BeanProperty var id: Int,
 class Board(@BeanProperty var name: String, stuff: BoardObject*) {
     @BeanProperty var objects: java.util.List[BoardObject] = new java.util.ArrayList[BoardObject](java.util.Arrays.asList(stuff: _*))
     @BeanProperty var id_sequence: Int = objects.map(_.id).fold(0)((m, x) => m.max(x))
+    @BeanProperty var boardUpdatesWebSocket = ""
 
     def this() = this(null)
 

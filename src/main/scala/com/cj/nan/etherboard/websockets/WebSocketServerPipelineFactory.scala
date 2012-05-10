@@ -1,7 +1,4 @@
-/*jslint newcap: false*/
-/*global $ alert */
-
-/*
+/**
  * Copyright (C) 2011, 2012 Commission Junction
  *
  * This file is part of etherboard.
@@ -39,31 +36,19 @@
  * exception statement from your version.
  */
 
-function Avatar(avatar, parent, boardId, webSocketClient){
-    var widgetId = 'widget' + avatar.id;
-	$('<img id="' + widgetId + '" class="avatar" src="' + avatar.name + '"></img>').css(avatar.pos).appendTo(parent)
-	.draggable({
-        drag: function(event, ui) {
-                        var msg = {
-                            type: "positionChange",
-                            widgetId: widgetId,
-                            position:  $(this).offset()
-                        };
-                        webSocketClient.send( JSON.stringify(msg));
-                    },
-		stop: function(event){
-            event.stopPropagation();
-			avatar.pos = $(this).offset();
-            $.ajax('/board/' + boardId + '/objects/' + avatar.id,{
-                dataType:'json',
-                data:JSON.stringify(avatar),
-                type:'PUT',
-                success:function(createdObject){
-                },
-                error:function(jqXHR, textStatus, errorThrown){
-                    alert("ERROR:" + textStatus);
-                }
-            });
-        }
-	});
+package com.cj.nan.etherboard.websockets
+
+import org.jboss.netty.handler.codec.http.{HttpResponseEncoder, HttpChunkAggregator, HttpRequestDecoder}
+import org.jboss.netty.channel.{Channels, Channel, ChannelPipeline, ChannelPipelineFactory}
+
+
+class WebSocketServerPipelineFactory(connectionHandler: (String, Channel) => Unit, messageHandler: (String, Channel) => Unit) extends ChannelPipelineFactory {
+    def getPipeline = {
+        val thePipeline: ChannelPipeline = Channels.pipeline()
+        thePipeline.addLast("decoder", new HttpRequestDecoder)
+        thePipeline.addLast("aggregator", new HttpChunkAggregator(65536))
+        thePipeline.addLast("encoder", new HttpResponseEncoder)
+        thePipeline.addLast("handler", new WebSocketServerHandler(connectionHandler, messageHandler))
+        thePipeline
+    }
 }

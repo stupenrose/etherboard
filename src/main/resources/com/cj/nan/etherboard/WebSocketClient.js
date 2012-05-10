@@ -1,6 +1,3 @@
-/*jslint newcap: false*/
-/*global $ alert */
-
 /*
  * Copyright (C) 2011, 2012 Commission Junction
  *
@@ -38,32 +35,31 @@
  * obligated to do so.  If you do not wish to do so, delete this
  * exception statement from your version.
  */
+/*global window console WebSocket*/
+function WebSocketClient(url) {
+    var socket;
 
-function Avatar(avatar, parent, boardId, webSocketClient){
-    var widgetId = 'widget' + avatar.id;
-	$('<img id="' + widgetId + '" class="avatar" src="' + avatar.name + '"></img>').css(avatar.pos).appendTo(parent)
-	.draggable({
-        drag: function(event, ui) {
-                        var msg = {
-                            type: "positionChange",
-                            widgetId: widgetId,
-                            position:  $(this).offset()
-                        };
-                        webSocketClient.send( JSON.stringify(msg));
-                    },
-		stop: function(event){
-            event.stopPropagation();
-			avatar.pos = $(this).offset();
-            $.ajax('/board/' + boardId + '/objects/' + avatar.id,{
-                dataType:'json',
-                data:JSON.stringify(avatar),
-                type:'PUT',
-                success:function(createdObject){
-                },
-                error:function(jqXHR, textStatus, errorThrown){
-                    alert("ERROR:" + textStatus);
-                }
-            });
-        }
-	});
+    if (!window.WebSocket) {
+      window.WebSocket = window.MozWebSocket;
+    }
+
+    if (window.WebSocket) {
+      socket = new WebSocket(url);
+    } else {
+        console.log("Your browser does not support Web Socket.");
+    }
+
+
+    return {
+        onMessage: function(handler) { socket.onmessage = handler;},
+        onOpen:  function(handler) { socket.onopen = handler;},
+        onClose:  function(handler) { socket.onclose = handler;},
+        send: function(message) {
+                if (socket.readyState === WebSocket.OPEN) {
+                    socket.send(message);
+                  } else {
+                    console.log("The socket is not open.");
+                  }
+               }
+    };
 }

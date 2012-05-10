@@ -60,10 +60,12 @@
     <script src="components/Board.js" type="text/javascript"></script>
     <script src="components/StickyEditor.js" type="text/javascript"></script>
 
+    <script src="WebSocketClient.js" type="text/javascript"></script>
+
     <script type="text/javascript">
         $(document).ready(function () {
             var body = $("body"),
-                    boardId = getQueryParam("board");
+            boardId = getQueryParam("board");
 
             if(boardId) {
                 body.addClass("board");

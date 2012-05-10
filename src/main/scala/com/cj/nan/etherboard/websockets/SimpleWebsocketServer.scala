@@ -1,7 +1,4 @@
-/*jslint newcap: false*/
-/*global $ alert */
-
-/*
+/**
  * Copyright (C) 2011, 2012 Commission Junction
  *
  * This file is part of etherboard.
@@ -39,31 +36,17 @@
  * exception statement from your version.
  */
 
-function Avatar(avatar, parent, boardId, webSocketClient){
-    var widgetId = 'widget' + avatar.id;
-	$('<img id="' + widgetId + '" class="avatar" src="' + avatar.name + '"></img>').css(avatar.pos).appendTo(parent)
-	.draggable({
-        drag: function(event, ui) {
-                        var msg = {
-                            type: "positionChange",
-                            widgetId: widgetId,
-                            position:  $(this).offset()
-                        };
-                        webSocketClient.send( JSON.stringify(msg));
-                    },
-		stop: function(event){
-            event.stopPropagation();
-			avatar.pos = $(this).offset();
-            $.ajax('/board/' + boardId + '/objects/' + avatar.id,{
-                dataType:'json',
-                data:JSON.stringify(avatar),
-                type:'PUT',
-                success:function(createdObject){
-                },
-                error:function(jqXHR, textStatus, errorThrown){
-                    alert("ERROR:" + textStatus);
-                }
-            });
-        }
-	});
+package com.cj.nan.etherboard.websockets
+
+import org.jboss.netty.channel.Channel
+import org.jboss.netty.bootstrap.ServerBootstrap
+import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory
+import java.util.concurrent.Executors
+import java.net.InetSocketAddress
+
+class SimpleWebsocketServer(val port: Int, connectionHandler: (String, Channel) => Unit, messageHandler: (String, Channel) => Unit) {
+    var bootstrap: ServerBootstrap = new ServerBootstrap(new NioServerSocketChannelFactory(Executors.newCachedThreadPool, Executors.newCachedThreadPool))
+    bootstrap.setPipelineFactory(new WebSocketServerPipelineFactory(connectionHandler, messageHandler))
+
+    def run = bootstrap.bind(new InetSocketAddress(port))
 }

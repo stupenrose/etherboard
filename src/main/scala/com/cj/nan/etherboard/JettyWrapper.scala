@@ -43,13 +43,14 @@ import us.penrose.httpobjects.{Request, HttpObject}
 import us.penrose.httpobjects.HttpObject._
 import us.penrose.httpobjects.demo.freemarker.FreemarkerDSL._
 import us.penrose.httpobjects.util.ClasspathResourcesObject
-import org.codehaus.jackson.map.ObjectMapper
 import org.apache.log4j.BasicConfigurator
 import freemarker.cache.TemplateLoader
 import java.io.{InputStreamReader, Reader, ByteArrayInputStream, ByteArrayOutputStream}
 import java.util.regex.Pattern
 import java.util.Locale
 import freemarker.template.{DefaultObjectWrapper, Configuration}
+import org.codehaus.jackson.map.ObjectMapper
+import java.net.InetAddress
 
 object JettyWrapper {
 
@@ -59,6 +60,9 @@ object JettyWrapper {
         val freemarker = freemarkerConfig();
 
         val lock = new Object();
+        val websocketPort = 40181
+
+        new BoardRealtimeUpdateServer(40181).run()
 
         HttpObjectsJettyHandler.launchServer(40180,
             new HttpObject("/") {
@@ -72,8 +76,9 @@ object JettyWrapper {
                     val jackson = new ObjectMapper()
 
                     //					OK(Bytes("application/json", getClass().getResourceAsStream("/objects.json")));
-
-                    OK(Json(jackson.writeValueAsString(boardDao.getBoard(boardId))));
+                    val board = boardDao.getBoard(boardId)
+                    board.boardUpdatesWebSocket = "ws://%s:%d/websocket?boardName=%s".format("192.168.15.76", websocketPort, board.name)
+                    OK(Json(jackson.writeValueAsString(board)));
                 }
                 override def post(req: Request) = lock.synchronized {
                     val boardId = req.pathVars().valueFor("boardId")

@@ -39,16 +39,20 @@
  * exception statement from your version.
  */
 
-function Issue(issue, parent, boardId) {
-    var widget = $('<div class="sticky">' +
+function Issue(issue, parent, boardId, webSocketClient) {
+    var widgetId, widget, bar;
+
+    widgetId = 'widget' + issue.id;
+    widget = $('<div  id="' + widgetId + '" class="sticky">' +
                        '<div class="stickyHeader" style="opacity: 0; background:#FBB917;">' +
                            '<img class="stickyEditButton" src="pencil.png" />' +
                            '<img class="stickyCloseButton" src="close_icon.gif" />' +
                            '<div style="clear:both"></div>' +
                        '</div>' +
                        '<div class="stickyContent"></div>' +
-                   '</div>').css(issue.pos).appendTo(parent),
-        bar = widget.find('.stickyHeader');
+                   '</div>').css(issue.pos).appendTo(parent);
+
+    bar = widget.find('.stickyHeader');
 
     function doSave() {
         $.ajax('/board/' + boardId + '/objects/' + issue.id, {
@@ -56,6 +60,12 @@ function Issue(issue, parent, boardId) {
             data: JSON.stringify(issue),
             type: 'PUT',
             success: function (createdObject) {
+                var msg = {
+                    type: "stickyContentChanged",
+                    widgetId: widgetId,
+                    content: createdObject.name
+                };
+                webSocketClient.send( JSON.stringify(msg));
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 console.log("ERROR:" + textStatus);
@@ -78,6 +88,14 @@ function Issue(issue, parent, boardId) {
             bar.stop(true, false).fadeTo(100, 0);
         }
     ).draggable({
+            drag: function(event, ui) {
+                var msg = {
+                    type: "positionChange",
+                    widgetId: widgetId,
+                    position: widget.offset()
+                };
+                webSocketClient.send( JSON.stringify(msg));
+            },
             stop: function (event, ui) {
                 if(widget.data("living")) {
                     event.stopPropagation();
@@ -104,6 +122,11 @@ function Issue(issue, parent, boardId) {
             type: 'DELETE',
             success: function (createdObject) {
                 widget.remove();
+                var msg = {
+                    type: "deleteWidget",
+                    widgetId: widgetId
+                };
+                webSocketClient.send( JSON.stringify(msg));
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 console.log("ERROR:" + textStatus);

@@ -38,11 +38,14 @@
  * obligated to do so.  If you do not wish to do so, delete this
  * exception statement from your version.
  */
-
+/*global WebSocketClient */
 function Board(parent, boardId) {
-    var handleError = function (jqXHR, textStatus, errorThrown) {
+    var webSocketClient,
+        handleError = function (jqXHR, textStatus, errorThrown) {
         console.log("ERROR:" + textStatus);
     };
+
+
 
     $.ajax('/components/Board.html', {
         success: function (html) {
@@ -53,13 +56,20 @@ function Board(parent, boardId) {
                         data: JSON.stringify(theSticky),
                         type: 'POST',
                         success: function (createdObject) {
-                            Issue(createdObject, parent, boardId);
+                            Issue(createdObject, parent, boardId, webSocketClient);
+
+                            var newStickyMessage = {
+                                type: "newSticky",
+                                object: createdObject
+                            };
+                            webSocketClient.send(JSON.stringify(newStickyMessage));
 
                         },
                         error: function (jqXHR, textStatus, errorThrown) {
                             alert("ERROR:" + textStatus);
                         }
                     });
+
                 };
 
             parent.append(html);
@@ -88,7 +98,13 @@ function Board(parent, boardId) {
                         data: JSON.stringify(theImageObject),
                         type: 'POST',
                         success: function (createdObject) {
-                            Avatar(createdObject, view.body, boardId);
+                            Avatar(createdObject, view.body, boardId, webSocketClient);
+
+                            var newImageMessage = {
+                                type: "newImage",
+                                object: createdObject
+                            };
+                            webSocketClient.send(JSON.stringify(newImageMessage));
                         },
                         error: function (jqXHR, textStatus, errorThrown) {
                             alert("ERROR:" + textStatus);
@@ -121,6 +137,41 @@ function Board(parent, boardId) {
                 success: function (data) {
                     var columnCount = 1;
 
+                    webSocketClient = WebSocketClient(data.boardUpdatesWebSocket);
+
+                    webSocketClient.onMessage(function(event) {
+                        var msg, newPosition, widgetId;
+                        msg = JSON.parse(event.data);
+                        console.log(msg.type);
+                        if(msg.type === 'positionChange') {
+                            console.log("processing position change msg");
+                            newPosition = msg.position;
+                            widgetId = msg.widgetId;
+                            $("#"+widgetId).offset(newPosition);
+                        }
+                        else if(msg.type === 'newSticky') {
+                            console.log("processing newSticky msg");
+                            Issue(msg.object, parent, boardId, webSocketClient);
+                        }
+                        else if(msg.type === 'newImage') {
+                            console.log("processing newAvatar msg");
+                            Avatar(msg.object, view.body, boardId, webSocketClient);
+                        }
+                        else if(msg.type === "deleteWidget") {
+                            widgetId = msg.widgetId;
+                            $("#"+widgetId).remove();
+                        }
+                        else if(msg.type === 'stickyContentChanged') {
+                            widgetId = msg.widgetId;
+                            $("#"+widgetId).find('.stickyContent').html(msg.content);
+                        }
+                        else {
+                            console.log("unknow message type");
+                        }
+
+
+                    });
+
                     view.title.append(decodeURIComponent(data.name));
 
                     $(data.objects).each(function (n, item) {
@@ -128,9 +179,9 @@ function Board(parent, boardId) {
                             Column(item.name, view.body);
                             columnCount++;
                         } else if (item.kind === "sticky") {
-                            Issue(item, view.body, boardId);
+                            Issue(item, view.body, boardId, webSocketClient);
                         } else if (item.kind === "image") {
-                            Avatar(item, view.body, boardId);
+                            Avatar(item, view.body, boardId, webSocketClient);
                         }  else if (item.kind === "bucket") {
                             Bucket(item, view.body, boardId, createSticky);
                         }
