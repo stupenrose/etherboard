@@ -75,9 +75,8 @@ object JettyWrapper {
                     val boardId = req.pathVars().valueFor("boardId")
                     val jackson = new ObjectMapper()
 
-                    //					OK(Bytes("application/json", getClass().getResourceAsStream("/objects.json")));
                     val board = boardDao.getBoard(boardId)
-                    board.boardUpdatesWebSocket = "ws://%s:%d/websocket?boardName=%s".format("192.168.15.76", websocketPort, board.name)
+                    board.boardUpdatesWebSocket = "ws://%s:%d/websocket?boardName=%s".format(InetAddress.getLocalHost.getHostName, websocketPort, board.name)
                     OK(Json(jackson.writeValueAsString(board)));
                 }
                 override def post(req: Request) = lock.synchronized {
