@@ -148,7 +148,6 @@ function Board(parent, boardId) {
 
                     webSocketClient.onMessage(function(event) {
                         var msg, newPosition, widgetId;
-                        console.dir(event.data);
                         msg = JSON.parse(event.data);
                         console.log(msg.type);
                         if(msg.type === 'positionChange') {
@@ -164,6 +163,12 @@ function Board(parent, boardId) {
                         else if(msg.type === 'newBucket') {
                             console.log("processing newBucket msg");
                             Bucket(msg.object, parent, boardId, createSticky, webSocketClient);
+                        }
+                        else if(msg.type === 'addBucketItem') {
+                            var itemContents = msg.itemContents;
+                            widgetId = msg.widgetId;
+                            console.log('processing addBucketItem msg');
+                            $("#"+widgetId).trigger('addBucketItem', [itemContents]);
                         }
                         else if(msg.type === 'newImage') {
                             console.log("processing newAvatar msg");
