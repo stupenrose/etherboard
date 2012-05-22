@@ -90,14 +90,29 @@ function Bucket(bucket, parent, boardId, createIssueCallback, webSocketClient) {
             bucketList.append(item);
         }
         bucketList.find(".remove").click(function (e) {
-            createIssueCallback({name: $(this).parent().find("span").text(), kind: "sticky"});
+            var stickyContent = $(this).parent().find("span").text();
+            createIssueCallback({name: stickyContent, kind: "sticky"});
             $(this).parent().remove();
+
+            webSocketClient.send(JSON.stringify({
+                type: "removeBucketItem",
+                widgetId: bucketId,
+                content: stickyContent
+            }));
+
             bucketSave();
         });
     }
 
     widget.bind('addBucketItem', function (event, bucketItem) {
         bucket.contents.push(bucketItem);
+        update();
+    });
+    widget.bind('removeBucketItem', function(event, bucketItem) {
+        var indexToRemove = $.inArray(bucketItem, bucket.contents);
+        if(indexToRemove !== -1) {
+            bucket.contents.splice(indexToRemove,1);
+        }
         update();
     });
 

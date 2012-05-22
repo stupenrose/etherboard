@@ -169,6 +169,11 @@ function Board(parent, boardId) {
                             console.log('processing addBucketItem msg');
                             $("#"+widgetId).trigger('addBucketItem', [msg.itemContents]);
                         }
+                        else if(msg.type === 'removeBucketItem') {
+                            widgetId = msg.widgetId;
+                            console.log('processing removeBucketItem msg');
+                            $("#"+widgetId).trigger('removeBucketItem', [msg.content]);
+                        }
                         else if(msg.type === 'newImage') {
                             console.log("processing newAvatar msg");
                             Avatar(msg.object, view.body, boardId, webSocketClient);
