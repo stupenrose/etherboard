@@ -148,6 +148,7 @@ function Board(parent, boardId) {
 
                     webSocketClient.onMessage(function(event) {
                         var msg, newPosition, widgetId;
+                        console.dir(event.data);
                         msg = JSON.parse(event.data);
                         console.log(msg.type);
                         if(msg.type === 'positionChange') {

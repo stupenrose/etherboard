@@ -152,6 +152,12 @@ function Bucket(bucket, parent, boardId, createIssueCallback, webSocketClient) {
         StickyEditor(bucket, parent, function (newSticky) {
             doSave();
             update();
+            var titleChangeMessage = {
+                type: "stickyContentChanged",
+                widgetId: bucketId,
+                content: bucket.name
+            };
+            webSocketClient.send(JSON.stringify(titleChangeMessage));
         });
     });
 
