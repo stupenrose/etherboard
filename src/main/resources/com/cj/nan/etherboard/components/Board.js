@@ -165,10 +165,9 @@ function Board(parent, boardId) {
                             Bucket(msg.object, parent, boardId, createSticky, webSocketClient);
                         }
                         else if(msg.type === 'addBucketItem') {
-                            var itemContents = msg.itemContents;
                             widgetId = msg.widgetId;
                             console.log('processing addBucketItem msg');
-                            $("#"+widgetId).trigger('addBucketItem', [itemContents]);
+                            $("#"+widgetId).trigger('addBucketItem', [msg.itemContents]);
                         }
                         else if(msg.type === 'newImage') {
                             console.log("processing newAvatar msg");

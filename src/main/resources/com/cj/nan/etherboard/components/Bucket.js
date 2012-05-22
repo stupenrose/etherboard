@@ -73,11 +73,6 @@ function Bucket(bucket, parent, boardId, createIssueCallback, webSocketClient) {
         doSave();
     }
 
-    widget.bind('addBucketItem', function (event, bucketItem) {
-        bucket.contents.push(bucketItem);
-        update();
-    })
-
     function update() {
         var bucketList = widget.find('.bucketList').empty().sortable({
                 stop: function () {
@@ -100,6 +95,11 @@ function Bucket(bucket, parent, boardId, createIssueCallback, webSocketClient) {
             bucketSave();
         });
     }
+
+    widget.bind('addBucketItem', function (event, bucketItem) {
+        bucket.contents.push(bucketItem);
+        update();
+    });
 
     update();
 
@@ -140,7 +140,7 @@ function Bucket(bucket, parent, boardId, createIssueCallback, webSocketClient) {
                         type: 'addBucketItem',
                         widgetId: bucketId,
                         itemContents: sticky.text()
-                    }))
+                    }));
 
                     doSave();
                     update();
