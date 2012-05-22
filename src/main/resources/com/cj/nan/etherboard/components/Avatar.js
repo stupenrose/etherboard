@@ -1,5 +1,5 @@
 /*jslint newcap: false*/
-/*global $ alert */
+/*global $ alert console confirm */
 
 /*
  * Copyright (C) 2011, 2012 Commission Junction
@@ -48,8 +48,8 @@ function Avatar(avatar, parent, boardId, webSocketClient){
                 '<div style="clear:both"></div>' +
             '</div>' +
             '<img src="' + avatar.name + '">' +
-        '</div>').css(avatar.pos).appendTo(parent);
-    bar = widget.find(".avatarHeader");
+        '</div>').css(avatar.pos).appendTo(parent),
+        bar = widget.find(".avatarHeader");
     widget.hover(
         function () {
             bar.stop(true, true).delay(3000).fadeTo(300, 1);
