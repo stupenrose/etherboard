@@ -166,7 +166,7 @@ function Board(parent, boardId) {
                             $("#"+widgetId).find('.stickyContent').html(msg.content);
                         }
                         else {
-                            console.log("unknow message type");
+                            console.log("unknown message type");
                         }
 
 

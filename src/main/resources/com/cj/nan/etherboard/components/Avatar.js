@@ -40,9 +40,24 @@
  */
 
 function Avatar(avatar, parent, boardId, webSocketClient){
-    var widgetId = 'widget' + avatar.id;
-	$('<img id="' + widgetId + '" class="avatar" src="' + avatar.name + '"></img>').css(avatar.pos).appendTo(parent)
-	.draggable({
+    var widgetId = 'widget' + avatar.id,
+    widget = $(
+        '<div id="' + widgetId + '" class="avatar">' +
+            '<div class="avatarHeader" style="opacity: 0;">' +
+                '<img class="avatarDeleteButton" src="close_icon.gif" />' +
+                '<div style="clear:both"></div>' +
+            '</div>' +
+            '<img src="' + avatar.name + '">' +
+        '</div>').css(avatar.pos).appendTo(parent);
+    bar = widget.find(".avatarHeader");
+    widget.hover(
+        function () {
+            bar.stop(true, true).delay(3000).fadeTo(300, 1);
+        },
+        function () {
+            bar.stop(true, false).fadeTo(100, 0);
+        })
+        .draggable({
         drag: function(event, ui) {
                         var msg = {
                             type: "positionChange",
@@ -66,4 +81,28 @@ function Avatar(avatar, parent, boardId, webSocketClient){
             });
         }
 	});
+
+    widget.bind("deleteSticky", function () {
+        $.ajax('/board/' + boardId + '/objects/' + avatar.id, {
+            dataType: 'json',
+            type: 'DELETE',
+            success: function (createdObject) {
+                widget.remove();
+                var msg = {
+                    type: "deleteWidget",
+                    widgetId: widgetId
+                };
+                webSocketClient.send( JSON.stringify(msg));
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                console.log("ERROR:" + textStatus);
+            }
+        });
+    });
+
+    widget.find('.avatarDeleteButton').click(function () {
+        if(confirm("DELETE is permanent! :(")) {
+            widget.trigger("deleteSticky");
+        }
+    });
 }

@@ -82,6 +82,11 @@ img.stickyCloseButton {
     width:10px;
 }
 
+img.avatarDeleteButton {
+    height:10px;
+    width:10px;
+}
+
 div.stickyContent {
     vertical-align:middle;
     margin-top:10px;
@@ -113,11 +118,14 @@ div.header {
 	text-align: center;
 }
 
-img.avatar {
+div.avatar {
 	z-index: 3;
-	max-width: 75px;
-	max-height: 75px;
     position: absolute;
+}
+
+div.avatar img {
+    max-width: 75px;
+    max-height: 75px;
 }
 
 div.editLink {
