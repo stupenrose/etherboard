@@ -121,7 +121,14 @@ function Board(parent, boardId) {
                             data: JSON.stringify(theBucket),
                             type: 'POST',
                             success: function (createdObject) {
-                                Bucket(createdObject, parent, boardId, createSticky);
+                                Bucket(createdObject, parent, boardId, createSticky, webSocketClient);
+
+                                var newBucketMessage = {
+                                    type: "newBucket",
+                                    object: createdObject
+                                };
+                                webSocketClient.send(JSON.stringify(newBucketMessage));
+
                             },
                             error: function (jqXHR, textStatus, errorThrown) {
                                 alert("ERROR:" + textStatus);
@@ -153,6 +160,10 @@ function Board(parent, boardId) {
                             console.log("processing newSticky msg");
                             Issue(msg.object, parent, boardId, webSocketClient);
                         }
+                        else if(msg.type === 'newBucket') {
+                            console.log("processing newBucket msg");
+                            Bucket(msg.object, parent, boardId, createSticky, webSocketClient);
+                        }
                         else if(msg.type === 'newImage') {
                             console.log("processing newAvatar msg");
                             Avatar(msg.object, view.body, boardId, webSocketClient);
@@ -183,7 +194,7 @@ function Board(parent, boardId) {
                         } else if (item.kind === "image") {
                             Avatar(item, view.body, boardId, webSocketClient);
                         }  else if (item.kind === "bucket") {
-                            Bucket(item, view.body, boardId, createSticky);
+                            Bucket(item, view.body, boardId, createSticky, webSocketClient);
                         }
                     });
 

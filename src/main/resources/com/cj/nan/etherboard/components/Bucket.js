@@ -39,8 +39,9 @@
  * exception statement from your version.
  */
 
-function Bucket(bucket, parent, boardId, createIssueCallback) {
-    var widget = $('<div class="bucket">' +
+function Bucket(bucket, parent, boardId, createIssueCallback, webSocketClient) {
+    var bucketId= 'bucket' + bucket.id,
+        widget = $('<div id= ' + bucketId + ' class="bucket">' +
                        '<div class="stickyHeader" style="opacity: 0; background:#ff0000;">' +
                            '<img class="stickyEditButton" src="pencil.png" />' +
                            '<img class="stickyCloseButton" src="close_icon.gif" />' +
@@ -106,6 +107,14 @@ function Bucket(bucket, parent, boardId, createIssueCallback) {
             bar.stop(true, false).fadeTo(100, 0);
         })
         .draggable({
+            drag: function (event, ui) {
+                var msg = {
+                    type: "positionChange",
+                    widgetId: bucketId,
+                    position: widget.offset()
+                };
+                webSocketClient.send( JSON.stringify(msg));
+            },
             stop: function (event, ui) {
                 event.stopPropagation();
                 bucket.pos = widget.offset();
@@ -153,6 +162,11 @@ function Bucket(bucket, parent, boardId, createIssueCallback) {
                 type: 'DELETE',
                 success: function (createdObject) {
                     widget.remove();
+                    var msg = {
+                        type: "deleteWidget",
+                        widgetId: bucketId
+                    };
+                    webSocketClient.send( JSON.stringify(msg));
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
                     console.log("ERROR:" + textStatus);
