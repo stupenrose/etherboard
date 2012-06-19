@@ -38,7 +38,6 @@
 
 package com.cj.nan.etherboard
 
-import websockets.SimpleWebsocketServer
 import org.jboss.netty.channel.Channel
 
 
@@ -97,7 +96,7 @@ object BoardUpdatesActor extends Actor {
                         println("could not find what board this connection belongs to")
                     }
                 }
-                case _ => println("unkown message sent to BoardUpdateActor")
+                case _ => println("unknown message sent to BoardUpdateActor")
             }
         }
     }

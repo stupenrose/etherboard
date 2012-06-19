@@ -52,6 +52,21 @@ object BoardDaoImpl extends BoardDao {
 
     def storagePathForBoard(id: String) = new Path(dataPath, id)
 
+    def unhideContents(board: Board) {
+        board.objects.foreach(
+            boardObject => {
+                val position: Position = boardObject.getPos();
+                if (position.getLeft() < 0) {
+                    position.setLeft(0);
+                }
+                if (position.getTop() < 0) {
+                    position.setTop(0);
+                }
+
+            }
+        )
+    }
+    
     def deduplicate(board: Board) {
         var previousIds: List[Int] = List[Int]();
         board.objects.foreach(
@@ -81,6 +96,7 @@ object BoardDaoImpl extends BoardDao {
                     }
                 )
                 deduplicate(board);
+                unhideContents(board);
                 return board;
             } finally {
                 input.close

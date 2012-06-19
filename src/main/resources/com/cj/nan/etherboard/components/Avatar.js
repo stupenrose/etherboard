@@ -58,29 +58,30 @@ function Avatar(avatar, parent, boardId, webSocketClient){
             bar.stop(true, false).fadeTo(100, 0);
         })
         .draggable({
-        drag: function(event, ui) {
-                        var msg = {
-                            type: "positionChange",
-                            widgetId: widgetId,
-                            position:  $(this).offset()
-                        };
-                        webSocketClient.send( JSON.stringify(msg));
+            containment: [0, 0, Infinity, Infinity],
+            drag: function (event, ui) {
+                var msg = {
+                    type: "positionChange",
+                    widgetId: widgetId,
+                    position: $(this).offset()
+                };
+                webSocketClient.send(JSON.stringify(msg));
+            },
+            stop: function (event) {
+                event.stopPropagation();
+                avatar.pos = $(this).offset();
+                $.ajax('/board/' + boardId + '/objects/' + avatar.id, {
+                    dataType: 'json',
+                    data: JSON.stringify(avatar),
+                    type: 'PUT',
+                    success: function (createdObject) {
                     },
-		stop: function(event){
-            event.stopPropagation();
-			avatar.pos = $(this).offset();
-            $.ajax('/board/' + boardId + '/objects/' + avatar.id,{
-                dataType:'json',
-                data:JSON.stringify(avatar),
-                type:'PUT',
-                success:function(createdObject){
-                },
-                error:function(jqXHR, textStatus, errorThrown){
-                    alert("ERROR:" + textStatus);
-                }
-            });
-        }
-	});
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        alert("ERROR:" + textStatus);
+                    }
+                });
+            }
+        });
 
     widget.bind("deleteSticky", function () {
         $.ajax('/board/' + boardId + '/objects/' + avatar.id, {

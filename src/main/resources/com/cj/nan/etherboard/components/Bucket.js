@@ -127,6 +127,7 @@ function Bucket(bucket, parent, boardId, createIssueCallback, webSocketClient) {
             bar.stop(true, false).fadeTo(100, 0);
         })
         .draggable({
+            containment: [0,0,Infinity,Infinity],
             drag: function (event, ui) {
                 var msg = {
                     type: "positionChange",
