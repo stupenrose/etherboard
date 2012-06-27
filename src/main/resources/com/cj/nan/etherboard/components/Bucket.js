@@ -84,7 +84,7 @@ function Bucket(bucket, parent, boardId, createIssueCallback, webSocketClient) {
         widget.height(bucket.height || 150);
         widget.width(bucket.width || 150);
 
-        for(i = 0; i < bucket.contents.length; i++) {
+        for (i = 0; i < bucket.contents.length; i++) {
             item = $("<li></li>").append(
 			$("<span></span>").html(bucket.contents[i])
 		   );
@@ -93,7 +93,8 @@ function Bucket(bucket, parent, boardId, createIssueCallback, webSocketClient) {
         }
         bucketList.find(".remove").click(function (e) {
             var stickyContent = $(this).parent().find("span").html();
-            createIssueCallback({name: stickyContent, kind: "sticky"});
+
+            createIssueCallback({ name: stickyContent, kind: "sticky", pos: { top: $(this).offset().top - 75, left: $(this).offset().left - 75 } });
             $(this).parent().remove();
 
             webSocketClient.send(JSON.stringify({
