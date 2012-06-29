@@ -45,6 +45,15 @@ div.column {
 
 body {
 	text-align: center;
+	font-family: "Questrial", sans-serif;
+}
+
+li {
+    list-style: none;
+}
+
+li a {
+    padding: 8px;
 }
 
 div.columnHeader {
@@ -288,4 +297,17 @@ iframe.browseriframe {
 	margin: 0px;
 	padding: 0px;
 	overflow-x: hidden;
+}
+
+a {
+  text-decoration: none;
+  color: #666;
+  text-transform: uppercase;
+}
+a:hover {
+  color: black;
+  text-decoration: underline;
+}
+a:visited {
+  color: #666;
 }

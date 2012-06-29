@@ -82,7 +82,7 @@ function Board(parent, boardId) {
             view.newImageButton = $("#newImageButton");
 
             view.newImageButton.button().click(function () {
-                var dialog = $('#newImage').dialog().show(),
+                var dialog = $('#newImage').dialog({title: "New image"}).show(),
                     urlField = dialog.find("input[type=text]");
 
                 dialog.find("form").submit(function (e) {
