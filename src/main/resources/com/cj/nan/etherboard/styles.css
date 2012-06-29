@@ -97,6 +97,7 @@ div.stickyFront, div.stickyBack {
   	width:150px;
   	min-height:150px;
     position: absolute;
+    overflow-y: hidden;
 }
 
 div.stickyeditor > textarea { 
@@ -132,6 +133,7 @@ div.stickyContent, div.extraNotes {
 
 .sticky .stickyFront {
     opacity: 1;
+    max-height: 5000px;
     -webkit-transform: rotateY(0deg);
     -webkit-transform-style: preserve-3d;
     -webkit-extraNotesface-visibility: hidden;
@@ -150,12 +152,14 @@ div.stickyContent, div.extraNotes {
 
 .sticky.flip .stickyFront {
     opacity: 0;
+    max-height: 150px;
     -webkit-transform: rotateY(180deg);
     -moz-transform: rotateY(180deg);            
 }
 
 .sticky .stickyBack {          
     opacity: 0;
+    max-height: 150px;
     -webkit-transform: rotateY(-180deg);
     -webkit-transform-style: preserve-3d;
     -webkit-extraNotesface-visibility: hidden;
@@ -174,6 +178,7 @@ div.stickyContent, div.extraNotes {
 
 .sticky.flip .stickyBack {
     opacity: 0.8;
+    max-height: 5000px;
     background: hsl(50, 70%, 75%);
     border-color: hsl(50, 30%, 40%);
     -webkit-transform: rotateY(0deg);
@@ -211,7 +216,7 @@ div.header {
 }
 
 div.avatar {
-	z-index: 3;
+  	z-index: 1001;
     position: absolute;
 }
 
