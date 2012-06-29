@@ -129,6 +129,16 @@ div.bucket {
     position: absolute;
 }
 
+div.bucket .stickyContent {
+    margin-top: 10%;
+    font-size: 1.5em;
+    padding: 5px;
+    border-radius: 10px;
+    width: 70%;
+    display: inline-block;
+    background-color: hsla(357, 62%, 50%, 0.41);
+}
+
 div.stickyeditor textarea {
     font-size: 1.3em;
     height: 100px;
@@ -204,7 +214,7 @@ div.stickyContent, div.extraNotes {
 
 div.stickyFront, div.flip div.stickyBack {
     font-family: "Questrial", sans-serif;
-    font-size: 1.2em;
+    font-size: 1em;
     box-shadow: #ccc 2px 2px 2px;
     padding: 5px;
     border: 1px solid #FAF5AC;
@@ -213,6 +223,10 @@ div.stickyFront, div.flip div.stickyBack {
   	min-height:150px;
     position: absolute;
     overflow-y: hidden;
+}
+
+div.sticky div.stickyBack, div.sticky div.stickyFront {
+    min-width: 150px;
 }
 
 div.stickyFront {
@@ -243,9 +257,8 @@ div.sticky.flip div.stickyBack {
 
 .sticky .stickyFront {
     opacity: 1;
-    max-width: 150px;
     max-height: 5000px;
-    overflow: auto;
+    overflow: hidden;
     -webkit-transform: rotateY(0deg);
     -webkit-transform-style: preserve-3d;
     -webkit-extraNotesface-visibility: hidden;
@@ -265,7 +278,6 @@ div.sticky.flip div.stickyBack {
 .sticky.flip .stickyFront {
     opacity: 0;
     max-height: 1px;
-    max-width: 1px;
     overflow: hidden;
     position: absolute;
     -webkit-transform: rotateY(180deg);
@@ -275,7 +287,6 @@ div.sticky.flip div.stickyBack {
 .sticky .stickyBack {          
     opacity: 0;
     max-height: 1px;
-    max-width: 1px;
     overflow: hidden;
     position: absolute;
     -webkit-transform: rotateY(-180deg);
@@ -296,7 +307,6 @@ div.sticky.flip div.stickyBack {
 
 .sticky.flip .stickyBack {
     opacity: 0.8;
-    max-width: 150px;
     max-height: 5000px;
     overflow: hidden;
     border-color: #EFDEA0;
@@ -328,10 +338,15 @@ div.bucket .bucketList .remove{
 }
 
 div.header {
-	font-size: 24pt;
+	font-size: 2em;
+    margin-top: 20px;
 	font-family: "Questrial", sans-serif;
 	font-weight: bold;
 	text-align: center;
+}
+
+div.header a {
+    margin-right: 15px;
 }
 
 div.avatar {
