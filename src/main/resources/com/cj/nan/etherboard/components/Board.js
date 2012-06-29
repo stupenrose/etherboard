@@ -40,101 +40,102 @@
  */
 /*global WebSocketClient */
 function Board(parent, boardId) {
-    var webSocketClient,
-        handleError = function (jqXHR, textStatus, errorThrown) {
-        console.log("ERROR:" + textStatus);
-    };
-
-
+    var ws,
+        err = function (xhr, status, error) {
+          console.log(xhr, error);
+          alert("ERROR: " + status);
+        };
 
     $.ajax('/components/Board.html', {
         success: function (html) {
             var view = {},
-                createSticky = function (theSticky) {
-                    $.ajax('/board/' + boardId + '/objects', {
-                        dataType: 'json',
-                        data: JSON.stringify(theSticky),
-                        type: 'POST',
-                        success: function (createdObject) {
-                            Issue(createdObject, parent, boardId, webSocketClient);
+                createSticky;
 
-                            var newStickyMessage = {
-                                type: "newSticky",
-                                object: createdObject
-                            };
-                            webSocketClient.send(JSON.stringify(newStickyMessage));
-
-                        },
-                        error: function (jqXHR, textStatus, errorThrown) {
-                            alert("ERROR:" + textStatus);
-                        }
-                    });
-
-                };
+            createSticky = function (sticky) {
+                $.ajax('/board/' + boardId + '/objects', {
+                    dataType: 'json',
+                    data: JSON.stringify(sticky),
+                    type: 'POST',
+                    success: function (newSticky) {
+                        var msg = {
+                            type: "newSticky",
+                            object: newSticky
+                        };
+                        ws.send(JSON.stringify(msg));
+                        Issue(newSticky, parent, boardId, ws);
+                    },
+                    error: err});
+            };
 
             parent.append(html);
 
-            view.title = parent.find("#title");
-            view.body = parent.find('#board').empty();
+            view.title = $("#title");
+            view.body = $('#board');
 
-            view.newStickyButton = parent.find("#newStickyButton").button().click(function () {
+            view.newStickyButton = $("#newStickyButton");
+              
+            view.newStickyButton.button().click(function (e) {
                 var newSticky = {name: "", kind: "sticky"};
-
                 StickyEditor(newSticky, $('body'), createSticky);
             });
 
-            view.newImageButton = parent.find("#newImageButton").button().click(function () {
-                var dialog = $('<div style="display:none;"><form><div>URL: <input type="text"/></div><div><input type="submit" value="OK" /></div></form></div>').appendTo(parent).dialog().show(),
+            view.newImageButton = $("#newImageButton");
+
+            view.newImageButton.button().click(function () {
+                var dialog = $('#newImage').dialog().show(),
                     urlField = dialog.find("input[type=text]");
 
                 dialog.find("form").submit(function (e) {
-                    var theImageObject = {kind: "image", name: urlField.val()};
+                    var img = {
+                        kind: "image",
+                        name: urlField.val()
+                    };
 
                     e.preventDefault();
-                    dialog.dialog("destroy").remove();
+                    dialog.hide();
+                    dialog.dialog('close');
 
                     $.ajax('/board/' + boardId + '/objects', {
                         dataType: 'json',
-                        data: JSON.stringify(theImageObject),
+                        data: JSON.stringify(img),
                         type: 'POST',
-                        success: function (createdObject) {
-                            Avatar(createdObject, view.body, boardId, webSocketClient);
+                        success: function (newImage) {
+                            urlField.val("");
+                            Avatar(newImage, view.body, boardId, ws);
 
-                            var newImageMessage = {
+                            var msg = {
                                 type: "newImage",
-                                object: createdObject
+                                object: newImage
                             };
-                            webSocketClient.send(JSON.stringify(newImageMessage));
+                            ws.send(JSON.stringify(msg));
                         },
-                        error: function (jqXHR, textStatus, errorThrown) {
-                            alert("ERROR:" + textStatus);
-                        }
+                        error: err
                     });
                 });
             });
 
-            view.newBucketButton = parent.find("#newBucketButton").button().click(function () {
+            view.newBucketButton = $("#newBucketButton");
+            
+            view.newBucketButton.button().click(function (e) {
                 var newBucket = {name: "", kind: "bucket", contents: []},
-                    createBucket = function (theBucket) {
-                        $.ajax('/board/' + boardId + '/objects', {
-                            dataType: 'json',
-                            data: JSON.stringify(theBucket),
-                            type: 'POST',
-                            success: function (createdObject) {
-                                Bucket(createdObject, parent, boardId, createSticky, webSocketClient);
+                    createBucket;
 
-                                var newBucketMessage = {
-                                    type: "newBucket",
-                                    object: createdObject
-                                };
-                                webSocketClient.send(JSON.stringify(newBucketMessage));
-
-                            },
-                            error: function (jqXHR, textStatus, errorThrown) {
-                                alert("ERROR:" + textStatus);
-                            }
-                        });
-                    };
+                createBucket = function (bucket) {
+                    $.ajax('/board/' + boardId + '/objects', {
+                        dataType: 'json',
+                        data: JSON.stringify(bucket),
+                        type: 'POST',
+                        success: function (newBucket) {
+                            Bucket(newBucket, parent, boardId, createSticky, ws);
+                            var msg = {
+                                type: "newBucket",
+                                object: newBucket
+                            };
+                            ws.send(JSON.stringify(msg));
+                        },
+                        error: err
+                    });
+                };
 
                 StickyEditor(newBucket, $('body'), createBucket);
             });
@@ -144,9 +145,10 @@ function Board(parent, boardId) {
                 success: function (data) {
                     var columnCount = 1;
 
-                    webSocketClient = WebSocketClient(data.boardUpdatesWebSocket);
+                    ws = WebSocketClient(data.boardUpdatesWebSocket);
 
-                    webSocketClient.onMessage(function(event) {
+                    // END REFACTOR -- tomans
+                    ws.onMessage(function (event) {
                         var msg, newPosition, widgetId;
                         msg = JSON.parse(event.data);
                         console.log(msg.type);
@@ -158,11 +160,11 @@ function Board(parent, boardId) {
                         }
                         else if(msg.type === 'newSticky') {
                             console.log("processing newSticky msg");
-                            Issue(msg.object, parent, boardId, webSocketClient);
+                            Issue(msg.object, parent, boardId, ws);
                         }
                         else if(msg.type === 'newBucket') {
                             console.log("processing newBucket msg");
-                            Bucket(msg.object, parent, boardId, createSticky, webSocketClient);
+                            Bucket(msg.object, parent, boardId, createSticky, ws);
                         }
                         else if(msg.type === 'addBucketItem') {
                             widgetId = msg.widgetId;
@@ -175,7 +177,7 @@ function Board(parent, boardId) {
                         }
                         else if(msg.type === 'newImage') {
                             console.log("processing newAvatar msg");
-                            Avatar(msg.object, view.body, boardId, webSocketClient);
+                            Avatar(msg.object, view.body, boardId, ws);
                         }
                         else if(msg.type === "deleteWidget") {
                             widgetId = msg.widgetId;
@@ -199,19 +201,19 @@ function Board(parent, boardId) {
                             Column(item.name, view.body);
                             columnCount++;
                         } else if (item.kind === "sticky") {
-                            Issue(item, view.body, boardId, webSocketClient);
+                            Issue(item, view.body, boardId, ws);
                         } else if (item.kind === "image") {
-                            Avatar(item, view.body, boardId, webSocketClient);
+                            Avatar(item, view.body, boardId, ws);
                         }  else if (item.kind === "bucket") {
-                            Bucket(item, view.body, boardId, createSticky, webSocketClient);
+                            Bucket(item, view.body, boardId, createSticky, ws);
                         }
                     });
 
                     $("body").width(columnCount * 200);
                 },
-                error: handleError
+                error: err
             });
         },
-        error: handleError
+        error: err
     });
 }

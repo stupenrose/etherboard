@@ -42,6 +42,7 @@
 <html>
 <head>
     <link href='http://fonts.googleapis.com/css?family=Coming+Soon' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Questrial' rel='stylesheet' type='text/css'>
 
     <!-- load jQuery -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js" type="text/javascript"></script>
@@ -49,7 +50,7 @@
     <!-- load jQuery ui -->
     <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js" type="text/javascript"></script>
     <link rel="stylesheet" href="http://static.jquery.com/ui/css/demo-docs-theme/ui.theme.css" type="text/css"></link>
-    <link href="http://addyosmani.github.com/jquery-ui-bootstrap/css/custom-theme/jquery-ui-1.8.16.custom.css" rel="stylesheet" />
+    <link href="jquery-ui-bootstrap.css" rel="stylesheet" />
 
     <!-- load custom scripts and styles -->
     <link rel="stylesheet" href="styles.css" type="text/css" media="all"/>
@@ -97,7 +98,8 @@
     </script>
 </head>
 <body>
-    <script type="x/template" id="newBoardTemplate">
+
+<script type="x/template" id="newBoardTemplate">
     <h1>Boards</h1>
     <ul>
         <%
@@ -116,6 +118,33 @@
             </form>
         </li>
     </ul>
-    </script>
+</script>
+
+<script type="x/template" id="stickyTemplate">
+    <div id="<%= id %>" class="sticky">
+        <div class="stickyHeader">
+            <img class="stickyEditButton" title="Edit" src="pencil.png" />
+            <img class="stickyFlipButton" title="Flip" src="flip.png" />
+            <img class="stickyCloseButton" title="Delete" src="close_icon.gif" />
+            <div style="clear:both"></div>
+        </div>
+        <div class="stickyFront">
+            <div class="stickyContent"></div>
+        </div>
+        <div class="stickyBack">
+            <div class="extraNotes"></div>
+        </div>
+    </div>
+</script>
+
+<script type="x/template" id="stickyEditor">
+    <div class="stickyeditor" style="display:none;">
+        <textarea class="titleText"></textarea>
+        <textarea class="notesText" style="display:none;"></textarea>
+        <button class="ui-button flip">Flip</button>
+        <button class="ui-button save">Save</button>
+    </div>
+</script>
+
 </body>
 </html>

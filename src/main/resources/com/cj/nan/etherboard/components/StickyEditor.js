@@ -40,19 +40,29 @@
  */
 
 function StickyEditor(theSticky, parent, saveHandler) {
-    var dialog = $("<div/>").hide().addClass("stickyeditor").appendTo(parent),
-        labelFront = $("<span/>").text("Front:").appendTo(dialog),
-        labelBack = $("<span/>").text("Back:").hide().appendTo(dialog),
-        nameInput = $("<textarea/>").appendTo(dialog),
-        extraNotesInput = $("<textarea/>").appendTo(dialog).hide(),
-        toggleWidget = $("<button>Flip</button>").appendTo(dialog),
-        saveButton = $("<button>OK</button>").appendTo(dialog);
+    var toggleTitle,
+        html = $("#stickyEditor").html(),
+        dialog = $(html),
+        nameInput = dialog.find('.titleText'),
+        extraNotesInput = dialog.find('.notesText'),
+        toggleWidget = dialog.find('.flip'),
+        saveButton = dialog.find('.save');
+
+    toggleTitle = function() {
+      var title = dialog.parent().find('.ui-dialog-title');
+      if (title.text() === "Sticky Title") {
+        title.text("Notes");
+      } else {
+        title.text("Title");
+      }
+    };
+
+    parent.append(dialog);
 
     toggleWidget.button().click(function (e) {
         nameInput.toggle();
         extraNotesInput.toggle();
-        labelFront.toggle();
-        labelBack.toggle();
+        toggleTitle();
     });
 
     saveButton.button().click(function (e) {

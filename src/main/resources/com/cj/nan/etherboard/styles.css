@@ -49,7 +49,7 @@ body {
 
 div.columnHeader {
 	width: 200px;
-	font-family: sans-serif;
+	font-family: "Questrial", sans-serif;
 	font-weight: bold;
 	border-bottom: 2px solid grey;
 	margin: 0px;
@@ -210,7 +210,7 @@ div.bucket .bucketList .remove{
 
 div.header {
 	font-size: 24pt;
-	font-family: sans-serif;
+	font-family: "Questrial", sans-serif;
 	font-weight: bold;
 	text-align: center;
 }

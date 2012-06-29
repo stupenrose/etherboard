@@ -1,5 +1,5 @@
 /*jslint newcap: false*/
-/*global $ console confirm StickyEditor */
+/*global $ console confirm tmpl StickyEditor */
 
 /*
  * Copyright (C) 2011, 2012 Commission Junction
@@ -41,21 +41,11 @@
 
 function Issue(issue, parent, boardId, webSocketClient) {
     var widgetId = "widget" + issue.id,
-        // yuck inline html in MY javascript???
-        widget = $("<div  id='" + widgetId + "' class='sticky'>" +
-                       "<div class='stickyHeader'>" +
-                           "<img class='stickyEditButton' title='Edit' src='pencil.png' />" +
-                           "<img class='stickyFlipButton' title='Flip' src='flip.png' />" +
-                           "<img class='stickyCloseButton' title='Delete' src='close_icon.gif' />" +
-                           "<div style='clear:both'></div>" +
-                       "</div>" +
-                       "<div class='stickyFront'>" +
-                           "<div class='stickyContent'></div>" +
-                       "</div>" +
-                       "<div class='stickyBack'>" +
-                           "<div class='extraNotes'></div>" +
-                       "</div>" +
-                   "</div>").css(issue.pos).appendTo(parent);
+        html = tmpl("stickyTemplate", {id: widgetId}),
+        widget;
+
+    parent.append(html);
+    widget = $("#" + widgetId).css(issue.pos);
 
     function doSave() {
         $.ajax("/board/" + boardId + "/objects/" + issue.id, {
@@ -109,9 +99,6 @@ function Issue(issue, parent, boardId, webSocketClient) {
         });
 
     widget.find(".stickyEditButton").click(function (e) {
-        console.log("edit!");
-        console.log(e.target);
-
         StickyEditor(issue, parent, function (newSticky) {
             widget.trigger("doSave");
             update();
@@ -123,9 +110,6 @@ function Issue(issue, parent, boardId, webSocketClient) {
     });
 
     widget.find(".stickyCloseButton").click(function (e) {
-        console.log("close!");
-        console.log(e.target);
-
         if (confirm("DELETE is permanent! :(")) {
             widget.trigger("deleteSticky");
         }
