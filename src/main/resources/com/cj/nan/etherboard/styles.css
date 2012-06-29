@@ -49,10 +49,21 @@ body {
 
 div.columnHeader {
 	width: 200px;
-	font-family: "Questrial", sans-serif;
-	font-weight: bold;
-	border-bottom: 2px solid grey;
+    padding: 3px;
 	margin: 0px;
+	font-family: "Questrial", sans-serif;
+    font-size: 1.4em;
+	border-bottom: 2px solid grey;
+}
+
+div.buttons {
+    padding: 15px 0px;
+}
+
+div.buttons button {
+    width: 150px;
+    height: 40px;
+    font-size: 1.2em;
 }
 
 div.bucket {
@@ -63,6 +74,20 @@ div.bucket {
     position: absolute;
 }
 
+div.stickyeditor textarea {
+    font-size: 1.3em;
+    height: 100px;
+    padding: 10px 5px;
+    margin: 5px;
+}
+
+div.stickyeditor button {
+    font-size: 1.2em;
+    width: 75px;
+    height: 30px;
+    margin: 3px;
+}
+
 div.sticky {
   z-index: 500;
   position: absolute;
@@ -70,9 +95,10 @@ div.sticky {
 }
 
 div.stickyHeader {
-  background:#FBB917;
-  width:154px;
+  background:#EBE7A8;
+  width:162px;
   opacity: 0;
+  box-shadow: #ccc 2px 2px 2px;  
   -webkit-transition: all 0.3s ease-in-out;
   -moz-transition: all 0.3s ease-in-out;
   -o-transition: all 0.3s ease-in-out;
@@ -91,14 +117,6 @@ div.sticky:hover > .stickyHeader {
   opacity: 1;
 }
 
-div.stickyFront, div.stickyBack {
-    border: 2px solid #FBB917;
-    background-color: #FFF380;
-  	width:150px;
-  	min-height:150px;
-    position: absolute;
-    overflow-y: hidden;
-}
 
 div.stickyeditor > textarea { 
   width: 600px;
@@ -127,6 +145,42 @@ img.avatarDeleteButton {
 div.stickyContent, div.extraNotes {
     vertical-align:middle;
     margin-top:10px;
+}
+
+div.stickyFront, div.stickyBack {
+    font-family: "Questrial", sans-serif;
+    font-size: 1.2em;
+    box-shadow: #ccc 2px 2px 2px;
+    padding: 5px;
+    border: 1px solid #FAF5AC;
+    background-color: #FFF380;
+  	width:150px;
+  	min-height:150px;
+    position: absolute;
+    overflow-y: hidden;
+}
+
+div.stickyFront {
+    background: rgb(251,251,203); /* Old browsers */
+    background: -moz-linear-gradient(top, rgba(251,251,203,1) 0%, rgba(238,233,169,1) 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(251,251,203,1)), color-stop(100%,rgba(238,233,169,1))); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top, rgba(251,251,203,1) 0%,rgba(238,233,169,1) 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top, rgba(251,251,203,1) 0%,rgba(238,233,169,1) 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top, rgba(251,251,203,1) 0%,rgba(238,233,169,1) 100%); /* IE10+ */
+    background: linear-gradient(to bottom, rgba(251,251,203,1) 0%,rgba(238,233,169,1) 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#fbfbcb', endColorstr='#eee9a9',GradientType=0 ); /* IE6-9 */
+}
+
+.sticky div.stickyBack {
+    font-family: "Coming Soon", sans-serif;
+background: rgb(249,243,207); /* Old browsers */
+background: -moz-linear-gradient(top, rgba(249,243,207,1) 0%, rgba(237,220,159,1) 100%, rgba(239,222,160,1) 100%); /* FF3.6+ */
+background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(249,243,207,1)), color-stop(100%,rgba(237,220,159,1)), color-stop(100%,rgba(239,222,160,1))); /* Chrome,Safari4+ */
+background: -webkit-linear-gradient(top, rgba(249,243,207,1) 0%,rgba(237,220,159,1) 100%,rgba(239,222,160,1) 100%); /* Chrome10+,Safari5.1+ */
+background: -o-linear-gradient(top, rgba(249,243,207,1) 0%,rgba(237,220,159,1) 100%,rgba(239,222,160,1) 100%); /* Opera 11.10+ */
+background: -ms-linear-gradient(top, rgba(249,243,207,1) 0%,rgba(237,220,159,1) 100%,rgba(239,222,160,1) 100%); /* IE10+ */
+background: linear-gradient(to bottom, rgba(249,243,207,1) 0%,rgba(237,220,159,1) 100%,rgba(239,222,160,1) 100%); /* W3C */
+filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f9f3cf', endColorstr='#efdea0',GradientType=0 ); /* IE6-9 */
 }
 
 /* ---- page flip animation begin ------ */
@@ -179,14 +233,13 @@ div.stickyContent, div.extraNotes {
 .sticky.flip .stickyBack {
     opacity: 0.8;
     max-height: 5000px;
-    background: hsl(50, 70%, 75%);
-    border-color: hsl(50, 30%, 40%);
+    border-color: #EFDEA0;
     -webkit-transform: rotateY(0deg);
     -moz-transform: rotateY(0deg);
 }
 
 .flip .stickyHeader {
-    background: hsl(50, 30%, 40%);
+    background: #EFDEA0;
 }
 
 /* ---- page flip animation end ------ */

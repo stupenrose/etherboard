@@ -50,7 +50,7 @@ function StickyEditor(theSticky, parent, saveHandler) {
 
     toggleTitle = function() {
       var title = dialog.parent().find('.ui-dialog-title');
-      if (title.text() === "Sticky Title") {
+      if (title.text() === "Title") {
         title.text("Notes");
       } else {
         title.text("Title");
@@ -75,5 +75,5 @@ function StickyEditor(theSticky, parent, saveHandler) {
 
     nameInput.val(theSticky.name);
     extraNotesInput.val(theSticky.extraNotes);
-    dialog.dialog({width: "auto"});
+    dialog.dialog({width: "auto", title: "Title"});
 }
