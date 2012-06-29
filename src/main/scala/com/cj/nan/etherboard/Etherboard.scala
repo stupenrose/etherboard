@@ -46,28 +46,35 @@ class Position(@BeanProperty var left: Int = 0, @BeanProperty var top: Int = 0) 
     def this() = this(left = 0, top = 0)
 }
 
+class Sticky(@BeanProperty var name: String, @BeanProperty var extraNotes: String) {
+    def this() = this(name = null, extraNotes = null)
+    def this(_name: String) = this(name = _name, extraNotes = null)
+}
+
 class BoardObject(@BeanProperty var id: Int,
                   @BeanProperty var name: String,
+                  @BeanProperty var extraNotes: String,
                   @BeanProperty() var kind: String,
                   @BeanProperty var pos: Position = new Position(),
                   @BeanProperty var height: Int = 150,
                   @BeanProperty var width: Int = 150,
-                  @BeanProperty var contents: java.util.List[String] = new java.util.ArrayList[String]()) {
+                  @BeanProperty var contents: java.util.List[Sticky] = new java.util.ArrayList[Sticky]()) {
 
     if (kind == "stickie") {
         kind = "sticky"
     }
 
-    def this() = this(id = Integer.MIN_VALUE, name = null, kind = null, height = 150, width = 150)
+    def this() = this(id = Integer.MIN_VALUE, name = null, extraNotes = null, kind = null, height = 150, width = 150)
 
-    def this(_id: Int, other: BoardObject) = this(id = _id, name = other.name, kind = other.kind, pos = other.pos, height = other.height, width = other.width)
+    def this(_id: Int, other: BoardObject) = this(id = _id, name = other.name, extraNotes = other.extraNotes, kind = other.kind, pos = other.pos, height = other.height, width = other.width)
 
-    def this(_id: Int) = this(id = _id, name = null, kind = null, height = 150, width = 150)
+    def this(_id: Int) = this(id = _id, name = null, extraNotes = null, kind = null, height = 150, width = 150)
 
     def updateFrom(other: BoardObject) {
         if (other != null) {
             pos = other.pos
             name = other.name
+            extraNotes = other.extraNotes
             contents = other.contents
             height = other.height
             width = other.width
@@ -76,7 +83,7 @@ class BoardObject(@BeanProperty var id: Int,
 
     override def equals(other: Any): Boolean = other match {
         case x: BoardObject =>
-            this.id == x.id && this.name == x.name && this.kind == x.kind && pos.left == x.pos.left && pos.top == x.pos.top && height == x.height && width == x.width
+            this.id == x.id && this.name == x.name && this.extraNotes == x.extraNotes && this.kind == x.kind && pos.left == x.pos.left && pos.top == x.pos.top && height == x.height && width == x.width
         case _ => false
     }
 }

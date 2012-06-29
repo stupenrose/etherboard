@@ -40,32 +40,40 @@
  */
 
 function Issue(issue, parent, boardId, webSocketClient) {
-    var widgetId, widget, bar;
-
-    widgetId = 'widget' + issue.id;
-    widget = $('<div  id="' + widgetId + '" class="sticky">' +
-                       '<div class="stickyHeader" style="opacity: 0; background:#FBB917;">' +
-                           '<img class="stickyEditButton" src="pencil.png" />' +
-                           '<img class="stickyCloseButton" src="close_icon.gif" />' +
-                           '<div style="clear:both"></div>' +
-                       '</div>' +
-                       '<div class="stickyContent"></div>' +
-                   '</div>').css(issue.pos).appendTo(parent);
-
-    bar = widget.find('.stickyHeader');
+    var widgetId = "widget" + issue.id,
+        // yuck inline html in MY javascript???
+        widget = $("<div  id='" + widgetId + "' class='sticky'>" +
+                       "<div class='stickyHeader'>" +
+                           "<img class='stickyEditButton' title='Edit' src='pencil.png' />" +
+                           "<img class='stickyFlipButton' title='Flip' src='flip.png' />" +
+                           "<img class='stickyCloseButton' title='Delete' src='close_icon.gif' />" +
+                           "<div style='clear:both'></div>" +
+                       "</div>" +
+                       "<div class='stickyFront'>" +
+                           "<div class='stickyContent'></div>" +
+                       "</div>" +
+                       "<div class='stickyBack'>" +
+                           "<div class='extraNotes'></div>" +
+                       "</div>" +
+                   "</div>").css(issue.pos).appendTo(parent);
 
     function doSave() {
-        $.ajax('/board/' + boardId + '/objects/' + issue.id, {
-            dataType: 'json',
+        $.ajax("/board/" + boardId + "/objects/" + issue.id, {
+            dataType: "json",
             data: JSON.stringify(issue),
-            type: 'PUT',
+            type: "PUT",
             success: function (createdObject) {
                 var msg = {
                     type: "stickyContentChanged",
                     widgetId: widgetId,
-                    content: createdObject.name
+                    content: createdObject.name,
+                    extraNotes: createdObject.extraNotes
                 };
-                webSocketClient.send( JSON.stringify(msg));
+
+                console.log("doSave: ");
+                console.dir(createdObject);
+
+                webSocketClient.send(JSON.stringify(msg));
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 console.log("ERROR:" + textStatus);
@@ -74,31 +82,25 @@ function Issue(issue, parent, boardId, webSocketClient) {
     }
 
     function update() {
-        widget.find('.stickyContent').html(issue.name);
+        widget.find(".stickyContent").html(issue.name);
+        widget.find(".extraNotes").html(issue.extraNotes);
     }
 
     update();
     widget.data("living", true);
 
-    widget.hover(
-        function () {
-            bar.stop(true, true).delay(300).fadeTo(300, 1);
-        },
-        function () {
-            bar.stop(true, false).fadeTo(100, 0);
-        }
-    ).draggable({
-            containment: [0,0,Infinity,Infinity],
-            drag: function(event, ui) {
+    widget.draggable({
+            containment: [0, 0, Infinity, Infinity],
+            drag: function (event, ui) {
                 var msg = {
                     type: "positionChange",
                     widgetId: widgetId,
                     position: widget.offset()
                 };
-                webSocketClient.send( JSON.stringify(msg));
+                webSocketClient.send(JSON.stringify(msg));
             },
             stop: function (event, ui) {
-                if(widget.data("living")) {
+                if (widget.data("living")) {
                     event.stopPropagation();
                     issue.pos = widget.offset();
                     widget.trigger("doSave");
@@ -106,38 +108,46 @@ function Issue(issue, parent, boardId, webSocketClient) {
             }
         });
 
-    widget.find('.stickyEditButton').click(function (event) {
+    widget.find(".stickyEditButton").click(function (e) {
+        console.log("edit!");
+        console.log(e.target);
+
         StickyEditor(issue, parent, function (newSticky) {
             widget.trigger("doSave");
             update();
         });
     });
 
-    widget.bind("doSave", function () {
-        doSave();
+    widget.find(".stickyFlipButton").click(function (e) {
+        widget.toggleClass("flip");
     });
 
+    widget.find(".stickyCloseButton").click(function (e) {
+        console.log("close!");
+        console.log(e.target);
+
+        if (confirm("DELETE is permanent! :(")) {
+            widget.trigger("deleteSticky");
+        }
+    });
+
+    widget.bind("doSave", doSave);
+
     widget.bind("deleteSticky", function () {
-        $.ajax('/board/' + boardId + '/objects/' + issue.id, {
-            dataType: 'json',
-            type: 'DELETE',
+        $.ajax("/board/" + boardId + "/objects/" + issue.id, {
+            dataType: "json",
+            type: "DELETE",
             success: function (createdObject) {
                 widget.remove();
                 var msg = {
                     type: "deleteWidget",
                     widgetId: widgetId
                 };
-                webSocketClient.send( JSON.stringify(msg));
+                webSocketClient.send(JSON.stringify(msg));
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 console.log("ERROR:" + textStatus);
             }
         });
-    });
-
-    widget.find('.stickyCloseButton').click(function () {
-        if(confirm("DELETE is permanent! :(")) {
-            widget.trigger("deleteSticky");
-        }
     });
 }

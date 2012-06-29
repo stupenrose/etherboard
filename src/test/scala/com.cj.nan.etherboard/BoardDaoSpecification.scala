@@ -55,7 +55,7 @@ class BoardDaoSpecification extends Spec with ShouldMatchers with GivenWhenThen 
     describe("A BoardDao") {
         it("should save a Board object") {
             given("A BoardDao and a new Board to save")
-                val boardObject: BoardObject = new BoardObject(1, "some name", "some kind", new Position())
+                val boardObject: BoardObject = new BoardObject(1, "some name", "some extra note", "some kind", new Position())
                 val boardName:String = Random.alphanumeric take 30 mkString
     
                 val aBoard: Board = new Board(boardName, boardObject)
@@ -73,7 +73,7 @@ class BoardDaoSpecification extends Spec with ShouldMatchers with GivenWhenThen 
 
         it("should be able to retrieve an existing Board") {
             given("a saved board")
-                val boardObject: BoardObject = new BoardObject(1, "some name", "some kind", new Position())
+                val boardObject: BoardObject = new BoardObject(1, "some name", "some extra note", "some kind", new Position())
                 val boardName:String = Random.alphanumeric take 30 mkString
 
                 val aBoard: Board = new Board(boardName, boardObject)
@@ -94,7 +94,7 @@ class BoardDaoSpecification extends Spec with ShouldMatchers with GivenWhenThen 
             given("a saved board")
                 val boardName:String = Random.alphanumeric take 30 mkString
 
-                val boardObject: BoardObject = new BoardObject(1, "some name", "stickie", new Position())
+                val boardObject: BoardObject = new BoardObject(1, "some name", "some extra note", "stickie", new Position())
                 boardObject.kind should equal ("sticky")
 
                 boardObject.kind = "stickie"

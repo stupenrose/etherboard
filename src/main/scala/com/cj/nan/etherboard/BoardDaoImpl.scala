@@ -103,15 +103,15 @@ object BoardDaoImpl extends BoardDao {
             }
         } else {
             return new Board(id,
-                new BoardObject(id = 1, name = "OnDeck", kind = "column"),
-                new BoardObject(id = 2, name = "InProgress", kind = "column"),
-                new BoardObject(id = 3, name = "DevDone", kind = "column"),
-                new BoardObject(id = 4, name = "QRing", kind = "column"),
-                new BoardObject(id = 5, name = "ReadyForDemo", kind = "column"),
-                new BoardObject(id = 6, name = "NeedsSoxing", kind = "column"),
-                new BoardObject(id = 7, name = "Soxing", kind = "column"),
-                new BoardObject(id = 8, name = "NeedsDeploy", kind = "column"),
-                new BoardObject(id = 9, name = "NeedsClosing", kind = "column")
+                new BoardObject(id = 1, name = "OnDeck", extraNotes = "", kind = "column"),
+                new BoardObject(id = 2, name = "InProgress", extraNotes = "", kind = "column"),
+                new BoardObject(id = 3, name = "DevDone", extraNotes = "", kind = "column"),
+                new BoardObject(id = 4, name = "QRing", extraNotes = "", kind = "column"),
+                new BoardObject(id = 5, name = "ReadyForDemo", extraNotes = "", kind = "column"),
+                new BoardObject(id = 6, name = "NeedsSoxing", extraNotes = "", kind = "column"),
+                new BoardObject(id = 7, name = "Soxing", extraNotes = "", kind = "column"),
+                new BoardObject(id = 8, name = "NeedsDeploy", extraNotes = "", kind = "column"),
+                new BoardObject(id = 9, name = "NeedsClosing", extraNotes = "", kind = "column")
             )
         }
     }

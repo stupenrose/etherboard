@@ -55,8 +55,8 @@ div.columnHeader {
 	margin: 0px;
 }
 
-div.sticky, div.bucket {
-	z-index: 2;
+div.bucket {
+	z-index: 1;
 	width:150px;
 	min-height:150px;
 	display: inline-block;
@@ -64,22 +64,58 @@ div.sticky, div.bucket {
 }
 
 div.sticky {
+  z-index: 500;
+  position: absolute;
+  min-height:150px;
+}
+
+div.stickyHeader {
+  background:#FBB917;
+  width:154px;
+  opacity: 0;
+  -webkit-transition: all 0.3s ease-in-out;
+  -moz-transition: all 0.3s ease-in-out;
+  -o-transition: all 0.3s ease-in-out;
+  transition: all 0.3s ease-in-out;
+}
+
+.bucket > .stickyHeader {
+  background:#FF0000;
+}
+
+div.bucket:hover .stickyHeader {
+  opacity: 0.3;
+}
+
+div.sticky:hover > .stickyHeader {
+  opacity: 1;
+}
+
+div.stickyFront, div.stickyBack {
     border: 2px solid #FBB917;
     background-color: #FFF380;
+  	width:150px;
+  	min-height:150px;
+    position: absolute;
+}
+
+div.stickyeditor > textarea { 
+  width: 600px;
+  display: block;
+}
+
+.stickyHeader > img {
+    height:15px;
+    width:15px;
+    cursor: pointer;
 }
 
 img.stickyEditButton {
     float:left;
-    margin:5px;
-    height:10px;
-    width:10px;
 }
 
 img.stickyCloseButton {
-    margin:5px;
     float:right;
-    height:10px;
-    width:10px;
 }
 
 img.avatarDeleteButton {
@@ -87,14 +123,70 @@ img.avatarDeleteButton {
     width:10px;
 }
 
-div.stickyContent {
+div.stickyContent, div.extraNotes {
     vertical-align:middle;
     margin-top:10px;
 }
 
-div.sticky > div.stickyContent {
-    height:100%;
+/* ---- page flip animation begin ------ */
+
+.sticky .stickyFront {
+    opacity: 1;
+    -webkit-transform: rotateY(0deg);
+    -webkit-transform-style: preserve-3d;
+    -webkit-extraNotesface-visibility: hidden;
+
+    -moz-transform: rotateY(0deg);
+    -moz-transform-style: preserve-3d;
+    -moz-extraNotesface-visibility: hidden;
+
+    /* -- transition is the magic sauce for animation -- */
+    -o-transition: all .4s ease-in-out;
+    -ms-transition: all .4s ease-in-out;
+    -moz-transition: all .4s ease-in-out;
+    -webkit-transition: all .4s ease-in-out;
+    transition: all .4s ease-in-out;
 }
+
+.sticky.flip .stickyFront {
+    opacity: 0;
+    -webkit-transform: rotateY(180deg);
+    -moz-transform: rotateY(180deg);            
+}
+
+.sticky .stickyBack {          
+    opacity: 0;
+    -webkit-transform: rotateY(-180deg);
+    -webkit-transform-style: preserve-3d;
+    -webkit-extraNotesface-visibility: hidden;
+
+    -moz-transform: rotateY(-180deg);
+    -moz-transform-style: preserve-3d;
+    -moz-extraNotesface-visibility: hidden;
+
+    /* -- transition is the magic sauce for animation -- */
+    -o-transition: all .4s ease-in-out;
+    -ms-transition: all .4s ease-in-out;
+    -moz-transition: all .4s ease-in-out;
+    -webkit-transition: all .4s ease-in-out;
+    transition: all .4s ease-in-out;
+}
+
+.sticky.flip .stickyBack {
+    opacity: 0.8;
+    background: hsl(50, 70%, 75%);
+    border-color: hsl(50, 30%, 40%);
+    -webkit-transform: rotateY(0deg);
+    -moz-transform: rotateY(0deg);
+}
+
+.flip .stickyHeader {
+    background: hsl(50, 30%, 40%);
+}
+
+/* ---- page flip animation end ------ */
+
+
 
 div.bucket {
     background-repeat: no-repeat;

@@ -39,22 +39,31 @@
  * exception statement from your version.
  */
 
-function StickyEditor(theSticky, parent, saveHandler){
-    var dialog = $(
-		'<div id="newStickyDialog" style="display:none;">' + 
-			'<textarea style="width:90%;" rows="4" cols="20"></textarea>' +
-			'<button id="createStickyButton">OK</button>' + 
-		'</div>'
-	).appendTo(parent);
+function StickyEditor(theSticky, parent, saveHandler) {
+    var dialog = $("<div/>").hide().addClass("stickyeditor").appendTo(parent),
+        labelFront = $("<span/>").text("Front:").appendTo(dialog),
+        labelBack = $("<span/>").text("Back:").hide().appendTo(dialog),
+        nameInput = $("<textarea/>").appendTo(dialog),
+        extraNotesInput = $("<textarea/>").appendTo(dialog).hide(),
+        toggleWidget = $("<button>Flip</button>").appendTo(dialog),
+        saveButton = $("<button>OK</button>").appendTo(dialog);
 
-    dialog.find("#createStickyButton").button().click(function(e) {
-        theSticky.name = dialog.find("textarea").val();
+    toggleWidget.button().click(function (e) {
+        nameInput.toggle();
+        extraNotesInput.toggle();
+        labelFront.toggle();
+        labelBack.toggle();
+    });
+
+    saveButton.button().click(function (e) {
+        theSticky.name = nameInput.val();
+        theSticky.extraNotes = extraNotesInput.val();
 
         saveHandler(theSticky);
-
         dialog.dialog("destroy").remove();
     });
 
-    dialog.find("textarea").val(theSticky.name);
-    dialog.dialog().show();
+    nameInput.val(theSticky.name);
+    extraNotesInput.val(theSticky.extraNotes);
+    dialog.dialog({width: "auto"});
 }

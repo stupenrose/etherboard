@@ -171,7 +171,6 @@ function Board(parent, boardId) {
                         }
                         else if(msg.type === 'removeBucketItem') {
                             widgetId = msg.widgetId;
-                            console.log('processing removeBucketItem msg');
                             $("#"+widgetId).trigger('removeBucketItem', [msg.content]);
                         }
                         else if(msg.type === 'newImage') {
