@@ -190,7 +190,7 @@ function Bucket(bucket, parent, boardId, createIssueCallback, webSocketClient) {
             doSave();
             update();
             var titleChangeMessage = {
-                type: "stickyContentChanged",
+                type: "bucketContentChanged",
                 widgetId: bucketId,
                 content: bucket.name
             };
@@ -219,4 +219,9 @@ function Bucket(bucket, parent, boardId, createIssueCallback, webSocketClient) {
     });
 
     widget.find(".stickyHeader").width(widget.width() + 4);
+
+    widget.bind("setContents", function (event, bucketInfo) {
+        bucket.name = bucketInfo.content;
+        update();
+    });
 }

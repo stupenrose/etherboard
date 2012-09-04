@@ -134,4 +134,10 @@ function Issue(issue, parent, boardId, webSocketClient) {
             }
         });
     });
+
+    widget.bind("setContents", function (event, issueInfo) {
+        issue.name = issueInfo.content;
+        issue.extraNotes = issueInfo.extraNotes;
+        update();
+    });
 }

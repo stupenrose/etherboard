@@ -185,13 +185,15 @@ function Board(parent, boardId) {
                         }
                         else if(msg.type === 'stickyContentChanged') {
                             widgetId = msg.widgetId;
-                            $("#"+widgetId).find('.stickyContent').html(msg.content);
+                            $("#"+widgetId).trigger("setContents", msg);
+                        }
+                        else if(msg.type === 'bucketContentChanged') {
+                            widgetId = msg.widgetId;
+                            $("#"+widgetId).trigger("setContents", msg);
                         }
                         else {
                             console.log("unknown message type");
                         }
-
-
                     });
 
                     view.title.append(decodeURIComponent(data.name));
