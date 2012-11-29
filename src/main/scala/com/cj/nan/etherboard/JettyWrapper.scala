@@ -38,11 +38,10 @@
 
 package com.cj.nan.etherboard
 
-import us.penrose.httpobjects.jetty.HttpObjectsJettyHandler
-import us.penrose.httpobjects.{Request, HttpObject}
-import us.penrose.httpobjects.HttpObject._
-import us.penrose.httpobjects.demo.freemarker.FreemarkerDSL._
-import us.penrose.httpobjects.util.ClasspathResourcesObject
+import org.httpobjects.jetty.HttpObjectsJettyHandler
+import org.httpobjects.{Request, HttpObject}
+import org.httpobjects.freemarker.FreemarkerDSL._
+import org.httpobjects.util.ClasspathResourcesObject
 import org.apache.log4j.BasicConfigurator
 import freemarker.cache.TemplateLoader
 import java.io.{InputStreamReader, Reader, ByteArrayInputStream, ByteArrayOutputStream}
@@ -51,6 +50,8 @@ import java.util.Locale
 import freemarker.template.{DefaultObjectWrapper, Configuration}
 import org.codehaus.jackson.map.ObjectMapper
 import java.net.InetAddress
+
+import org.httpobjects.DSL._
 
 object JettyWrapper {
 
