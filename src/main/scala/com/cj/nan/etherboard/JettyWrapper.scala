@@ -68,7 +68,7 @@ object JettyWrapper {
       Integer.parseInt(envPort)
     }
 
-    val websockets = System.getProperty("websockets", "on") == "on"
+    val websockets = System.getenv("websockets") == "on"
     val websocketPort = Integer.parseInt(System.getProperty("WEBSOCKET_PORT", "40181"))
 
     if (websockets) {
