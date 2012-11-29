@@ -55,107 +55,119 @@ import org.httpobjects.DSL._
 
 object JettyWrapper {
 
-    def launchServer(boardDao:BoardDao) {
-        BasicConfigurator.configure();
+  def launchServer(boardDao: BoardDao) {
+    BasicConfigurator.configure();
 
-        val freemarker = freemarkerConfig();
+    val freemarker = freemarkerConfig();
 
-        val lock = new Object();
-        val websocketPort = 40181
-
-        new BoardRealtimeUpdateServer(40181).run()
-
-        HttpObjectsJettyHandler.launchServer(40180,
-            new HttpObject("/") {
-                override def get(req: Request) = OK(FreemarkerTemplate("ui.html", null, freemarker))
-            },
-            new ClasspathResourcesObject("/{resource*}", EtherboardMain.getClass()),
-            new HttpObject("/board/{boardId}/objects") {
-                override def get(req: Request) = lock.synchronized {
-
-                    val boardId = req.pathVars().valueFor("boardId")
-                    val jackson = new ObjectMapper()
-
-                    val board = boardDao.getBoard(boardId)
-                    board.boardUpdatesWebSocket = "ws://%s:%d/websocket?boardName=%s".format(InetAddress.getLocalHost.getHostName, websocketPort, board.name)
-                    OK(Json(jackson.writeValueAsString(board)));
-                }
-                override def post(req: Request) = lock.synchronized {
-                    val boardId = req.pathVars().valueFor("boardId")
-                    val jackson = new ObjectMapper()
-                    val bytes = new ByteArrayOutputStream()
-                    req.representation().write(bytes)
-                    val o = jackson.readValue(new ByteArrayInputStream(bytes.toByteArray()), classOf[BoardObject]);
-
-                    val board = boardDao.getBoard(boardId)
-                    val id: Int = board.generateUniqueId();
-                    val result: BoardObject = new BoardObject(id, o)
-                    board.addObject(result)
-                    boardDao.saveBoard(board)
-                    OK(Json(jackson.writeValueAsString(result)));
-                }
-            },
-            new HttpObject("/board/{boardId}/objects/{objectId}") {
-                override def put(req: Request) = lock.synchronized {
-                    val boardId = req.pathVars().valueFor("boardId")
-                    val jackson = new ObjectMapper()
-                    val bytes = new ByteArrayOutputStream()
-                    req.representation().write(bytes)
-                    val o = jackson.readValue(new ByteArrayInputStream(bytes.toByteArray()), classOf[BoardObject]);
-
-                    val id = Integer.parseInt(req.pathVars().valueFor("objectId"), 10)
-
-                    val board = boardDao.getBoard(boardId)
-                    val existing = board.findObject(id)
-
-                    if(existing != null) {
-                        existing.updateFrom(o);
-                        boardDao.saveBoard(board)
-                        OK(Json(jackson.writeValueAsString(existing)))
-                    } else {
-                        NOT_FOUND()
-                    }
-                }
-                override def delete(req: Request) = lock.synchronized {
-                    val boardId = req.pathVars().valueFor("boardId")
-                    val id = Integer.parseInt(req.pathVars().valueFor("objectId"), 10)
-                    val board = boardDao.getBoard(boardId)
-                    board.removeObject(id);
-                    boardDao.saveBoard(board);
-                    NO_CONTENT();
-                }
-            },
-            new HttpObject("/board") {
-                override def get(req: Request) = {
-                    val jackson = new ObjectMapper()
-                    OK(Json(jackson.writeValueAsString(boardDao.listBoards())));
-                }
-            }
-        );
+    val lock = new Object()
+    val envPort = System.getenv("PORT")
+    val port = if (envPort == null) {
+      40180
+    } else {
+      Integer.parseInt(envPort)
     }
 
-    def freemarkerConfig() = {
-        val cfg = new Configuration();
-        cfg.setTemplateLoader(new TemplateLoader() {
+    val websockets = System.getProperty("websockets", "on") == "on"
+    val websocketPort = Integer.parseInt(System.getProperty("WEBSOCKET_PORT", "40181"))
 
-            override def getReader(source: Object, encoding: String): Reader = {
-                new InputStreamReader(getClass().getClassLoader().getResourceAsStream(source.toString()), encoding);
-            }
-
-            override def getLastModified(arg0: Object) = {
-                System.currentTimeMillis();
-            }
-
-            override def findTemplateSource(name: String) = {
-                name.replaceAll(Pattern.quote("_en_US"), "");
-            }
-
-            override def closeTemplateSource(arg0: Object) {}
-        });
-        cfg.setEncoding(Locale.US, "UTF8");
-        cfg.setObjectWrapper(new DefaultObjectWrapper());
-        //		cfg.setTagSyntax(Configuration.SQUARE_BRACKET_TAG_SYNTAX);
-        cfg
+    if (websockets) {
+      new BoardRealtimeUpdateServer(websocketPort).run()
     }
+
+    HttpObjectsJettyHandler.launchServer(port,
+      new HttpObject("/") {
+        override def get(req: Request) = OK(FreemarkerTemplate("ui.html", null, freemarker))
+      },
+      new ClasspathResourcesObject("/{resource*}", EtherboardMain.getClass()),
+      new HttpObject("/board/{boardId}/objects") {
+        override def get(req: Request) = lock.synchronized {
+
+          val boardId = req.pathVars().valueFor("boardId")
+          val jackson = new ObjectMapper()
+
+          val board = boardDao.getBoard(boardId)
+          board.boardUpdatesWebSocket = "ws://%s:%d/websocket?boardName=%s".format(InetAddress.getLocalHost.getHostName, websocketPort, board.name)
+          OK(Json(jackson.writeValueAsString(board)));
+        }
+
+        override def post(req: Request) = lock.synchronized {
+          val boardId = req.pathVars().valueFor("boardId")
+          val jackson = new ObjectMapper()
+          val bytes = new ByteArrayOutputStream()
+          req.representation().write(bytes)
+          val o = jackson.readValue(new ByteArrayInputStream(bytes.toByteArray()), classOf[BoardObject]);
+
+          val board = boardDao.getBoard(boardId)
+          val id: Int = board.generateUniqueId();
+          val result: BoardObject = new BoardObject(id, o)
+          board.addObject(result)
+          boardDao.saveBoard(board)
+          OK(Json(jackson.writeValueAsString(result)));
+        }
+      },
+      new HttpObject("/board/{boardId}/objects/{objectId}") {
+        override def put(req: Request) = lock.synchronized {
+          val boardId = req.pathVars().valueFor("boardId")
+          val jackson = new ObjectMapper()
+          val bytes = new ByteArrayOutputStream()
+          req.representation().write(bytes)
+          val o = jackson.readValue(new ByteArrayInputStream(bytes.toByteArray()), classOf[BoardObject]);
+
+          val id = Integer.parseInt(req.pathVars().valueFor("objectId"), 10)
+
+          val board = boardDao.getBoard(boardId)
+          val existing = board.findObject(id)
+
+          if (existing != null) {
+            existing.updateFrom(o);
+            boardDao.saveBoard(board)
+            OK(Json(jackson.writeValueAsString(existing)))
+          } else {
+            NOT_FOUND()
+          }
+        }
+
+        override def delete(req: Request) = lock.synchronized {
+          val boardId = req.pathVars().valueFor("boardId")
+          val id = Integer.parseInt(req.pathVars().valueFor("objectId"), 10)
+          val board = boardDao.getBoard(boardId)
+          board.removeObject(id);
+          boardDao.saveBoard(board);
+          NO_CONTENT();
+        }
+      },
+      new HttpObject("/board") {
+        override def get(req: Request) = {
+          val jackson = new ObjectMapper()
+          OK(Json(jackson.writeValueAsString(boardDao.listBoards())));
+        }
+      }
+    );
+  }
+
+  def freemarkerConfig() = {
+    val cfg = new Configuration();
+    cfg.setTemplateLoader(new TemplateLoader() {
+
+      override def getReader(source: Object, encoding: String): Reader = {
+        new InputStreamReader(getClass().getClassLoader().getResourceAsStream(source.toString()), encoding);
+      }
+
+      override def getLastModified(arg0: Object) = {
+        System.currentTimeMillis();
+      }
+
+      override def findTemplateSource(name: String) = {
+        name.replaceAll(Pattern.quote("_en_US"), "");
+      }
+
+      override def closeTemplateSource(arg0: Object) {}
+    });
+    cfg.setEncoding(Locale.US, "UTF8");
+    cfg.setObjectWrapper(new DefaultObjectWrapper());
+    //		cfg.setTagSyntax(Configuration.SQUARE_BRACKET_TAG_SYNTAX);
+    cfg
+  }
 
 }
