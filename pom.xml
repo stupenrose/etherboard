@@ -207,11 +207,6 @@
 			<version>2.3.16</version>
 		</dependency>
 		<dependency>
-			<groupId>com.valueclick.bugzillatools</groupId>
-			<artifactId>vclk-bugzilla-tools</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-		</dependency>
-		<dependency>
 			<groupId>org.codehaus.jackson</groupId>
 			<artifactId>jackson-core-asl</artifactId>
 			<version>1.8.3</version>
@@ -249,26 +244,6 @@
     </pluginRepositories>
 
 	<repositories>
-		<repository>
-			<id>central</id>
-			<url>http://build105.wl.cj.com:8081/nexus/content/groups/public</url>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-		</repository>
-		<repository>
-			<id>snapshots</id>
-			<url>http://build105.wl.cj.com:8081/nexus/content/groups/public</url>
-			<releases>
-				<enabled>false</enabled>
-			</releases>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-		</repository>
         <repository>
             <id>scala-tools.org</id>
             <name>Scala-tools Maven2 Repository</name>
