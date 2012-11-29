@@ -145,54 +145,44 @@ function Board(parent, boardId) {
                 success: function (data) {
                     var columnCount = 1;
 
-                    ws = WebSocketClient(data.boardUpdatesWebSocket);
-
-                    // END REFACTOR -- tomans
-                    ws.onMessage(function (event) {
-                        var msg, newPosition, widgetId;
-                        msg = JSON.parse(event.data);
-                        console.log(msg.type);
-                        if(msg.type === 'positionChange') {
-                            console.log("processing position change msg");
-                            newPosition = msg.position;
-                            widgetId = msg.widgetId;
-                            $("#"+widgetId).offset(newPosition);
-                        }
-                        else if(msg.type === 'newSticky') {
-                            console.log("processing newSticky msg");
-                            Issue(msg.object, parent, boardId, ws);
-                        }
-                        else if(msg.type === 'newBucket') {
-                            console.log("processing newBucket msg");
-                            Bucket(msg.object, parent, boardId, createSticky, ws);
-                        }
-                        else if(msg.type === 'addBucketItem') {
-                            widgetId = msg.widgetId;
-                            console.log('processing addBucketItem msg');
-                            $("#"+widgetId).trigger('addBucketItem', [msg.itemContents]);
-                        }
-                        else if(msg.type === 'removeBucketItem') {
-                            widgetId = msg.widgetId;
-                            $("#"+widgetId).trigger('removeBucketItem', [msg.content]);
-                        }
-                        else if(msg.type === 'newImage') {
-                            console.log("processing newAvatar msg");
-                            Avatar(msg.object, view.body, boardId, ws);
-                        }
-                        else if(msg.type === "deleteWidget") {
-                            widgetId = msg.widgetId;
-                            $("#"+widgetId).remove();
-                        }
-                        else if(msg.type === 'stickyContentChanged') {
-                            widgetId = msg.widgetId;
-                            $("#"+widgetId).trigger("setContents", msg);
-                        }
-                        else if(msg.type === 'bucketContentChanged') {
-                            widgetId = msg.widgetId;
-                            $("#"+widgetId).trigger("setContents", msg);
-                        }
-                        else {
-                            console.log("unknown message type");
+                    ws = WebSocketClient(data.boardUpdatesWebSocket, {
+                        onMessage: function (event) {
+                            var msg, newPosition, widgetId;
+                            msg = JSON.parse(event.data);
+                            console.log(msg.type);
+                            if (msg.type === 'positionChange') {
+                                console.log("processing position change msg");
+                                newPosition = msg.position;
+                                widgetId = msg.widgetId;
+                                $("#" + widgetId).offset(newPosition);
+                            } else if (msg.type === 'newSticky') {
+                                console.log("processing newSticky msg");
+                                Issue(msg.object, parent, boardId, ws);
+                            } else if (msg.type === 'newBucket') {
+                                console.log("processing newBucket msg");
+                                Bucket(msg.object, parent, boardId, createSticky, ws);
+                            } else if (msg.type === 'addBucketItem') {
+                                widgetId = msg.widgetId;
+                                console.log('processing addBucketItem msg');
+                                $("#" + widgetId).trigger('addBucketItem', [msg.itemContents]);
+                            } else if (msg.type === 'removeBucketItem') {
+                                widgetId = msg.widgetId;
+                                $("#" + widgetId).trigger('removeBucketItem', [msg.content]);
+                            } else if (msg.type === 'newImage') {
+                                console.log("processing newAvatar msg");
+                                Avatar(msg.object, view.body, boardId, ws);
+                            } else if (msg.type === "deleteWidget") {
+                                widgetId = msg.widgetId;
+                                $("#" + widgetId).remove();
+                            } else if (msg.type === 'stickyContentChanged') {
+                                widgetId = msg.widgetId;
+                                $("#" + widgetId).trigger("setContents", msg);
+                            } else if (msg.type === 'bucketContentChanged') {
+                                widgetId = msg.widgetId;
+                                $("#" + widgetId).trigger("setContents", msg);
+                            } else {
+                                console.log("unknown message type");
+                            }
                         }
                     });
 

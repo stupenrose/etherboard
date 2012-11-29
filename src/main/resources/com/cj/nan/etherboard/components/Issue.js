@@ -1,5 +1,5 @@
 /*jslint newcap: false*/
-/*global $ console confirm tmpl StickyEditor */
+/*global $ console window confirm tmpl StickyEditor */
 
 /*
  * Copyright (C) 2011, 2012 Commission Junction
@@ -139,5 +139,23 @@ function Issue(issue, parent, boardId, webSocketClient) {
         issue.name = issueInfo.content;
         issue.extraNotes = issueInfo.extraNotes;
         update();
+    });
+
+    widget.on("touchstart touchmove touchend touchcancel", function (ev) {
+        var event = ev.originalEvent,
+            touches = event.changedTouches,
+            first = touches[0],
+            simulatedEvent = document.createEvent("MouseEvent"),
+            types = {touchstart: "mousedown", touchmove: "mousemove", touchend: "mouseup"},
+            type = types[event.type];
+
+        if (type) {
+            simulatedEvent.initMouseEvent(type, true, true, window, 1,
+                first.screenX, first.screenY,
+                first.clientX, first.clientY, false,
+                false, false, false, 0, null);
+            first.target.dispatchEvent(simulatedEvent);
+            event.preventDefault();
+        }
     });
 }

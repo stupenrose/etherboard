@@ -35,31 +35,106 @@
  * obligated to do so.  If you do not wish to do so, delete this
  * exception statement from your version.
  */
-/*global window console WebSocket*/
-function WebSocketClient(url) {
+/*global window console WebSocket WebSocketFactory*/
+
+
+// this function will use WebSocketFactory, if it is available AND if standard WebSocket is not available
+// WebSocketFactory is provided by the Etherboard Android application
+(function () {
+	var global = window, WebSocket;
+
+    if (global.WebSocket || !global.WebSocketFactory) {
+        return;
+    }
+
+	// WebSocket Object. All listener methods are cleaned up!
+	WebSocket = global.WebSocket = function (url) {
+		this.socket = WebSocketFactory.getInstance(url);
+		if (this.socket) {
+			WebSocket.store[this.socket.getId()] = this;
+		} else {
+			throw new Error('Websocket instantiation failed! Address might be wrong.');
+		}
+	};
+
+	// storage to hold websocket object for later invokation of event methods
+	WebSocket.store = {};
+
+	// static event methods to call event methods on target websocket objects
+	WebSocket.onmessage = function (evt) {
+		WebSocket.store[evt._target].onmessage.call(global, evt);
+	};	
+
+	WebSocket.onopen = function (evt) {
+		WebSocket.store[evt._target].onopen.call(global, evt);
+	};
+
+	WebSocket.onclose = function (evt) {
+		WebSocket.store[evt._target].onclose.call(global, evt);
+	};
+
+	WebSocket.onerror = function (evt) {
+		WebSocket.store[evt._target].onerror.call(global, evt);
+	};
+
+	// instance event methods
+	WebSocket.prototype.send = function (data) {
+		this.socket.send(data);
+	};
+
+	WebSocket.prototype.close = function () {
+		this.socket.close();
+	};
+
+	WebSocket.prototype.getReadyState = function () {
+		this.socket.getReadyState();
+	};
+
+	///////////// Must be overloaded
+	WebSocket.prototype.onopen = function () {
+		throw new Error('onopen not implemented.');
+    };
+    
+    // alerts message pushed from server
+    WebSocket.prototype.onmessage = function (msg) {
+        throw new Error('onmessage not implemented.');
+    };
+    
+    // alerts message pushed from server
+    WebSocket.prototype.onerror = function (msg) {
+        throw new Error('onerror not implemented.');
+    };
+    
+    // alert close event
+    WebSocket.prototype.onclose = function () {
+        throw new Error('onclose not implemented.');
+    };
+}());
+
+
+function WebSocketClient(url, handlers) {
     var socket;
 
-    if (!window.WebSocket) {
-      window.WebSocket = window.MozWebSocket;
+    if (!window.WebSocket && window.MozWebSocket) {
+        window.WebSocket = window.MozWebSocket;
     }
 
     if (window.WebSocket) {
-      socket = new WebSocket(url);
+        socket = new WebSocket(url);
+        socket.onopen = handlers.onOpen || function () {};
+        socket.onmessage = handlers.onMessage || function () {};
+        socket.onclose = handlers.onClose || function () {};
     } else {
         console.log("Your browser does not support Web Socket.");
     }
 
-
     return {
-        onMessage: function(handler) { socket.onmessage = handler;},
-        onOpen:  function(handler) { socket.onopen = handler;},
-        onClose:  function(handler) { socket.onclose = handler;},
-        send: function(message) {
-                if (socket.readyState === WebSocket.OPEN) {
-                    socket.send(message);
-                  } else {
-                    console.log("The socket is not open.");
-                  }
-               }
+        send: function (message) {
+            if (socket.readyState === WebSocket.OPEN) {
+                socket.send(message);
+            } else {
+                console.log("The socket is not open.");
+            }
+        }
     };
 }
