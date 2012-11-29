@@ -60,12 +60,18 @@ object JettyWrapper {
 
         val freemarker = freemarkerConfig();
 
-        val lock = new Object();
-        val websocketPort = 40181
+        val lock = new Object()
+        val websocketPort = Integer.parseInt(System.getProperty("WEBSOCKET_PORT", "40181"))
+        val envPort = System.getenv("PORT")
+        val port = if (envPort == null) {
+          40180
+        } else {
+          Integer.parseInt(envPort)
+        }
 
-        new BoardRealtimeUpdateServer(40181).run()
+        new BoardRealtimeUpdateServer(websocketPort).run()
 
-        HttpObjectsJettyHandler.launchServer(40180,
+        HttpObjectsJettyHandler.launchServer(port,
             new HttpObject("/") {
                 override def get(req: Request) = OK(FreemarkerTemplate("ui.html", null, freemarker))
             },
