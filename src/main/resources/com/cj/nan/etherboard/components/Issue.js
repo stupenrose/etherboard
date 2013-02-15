@@ -71,9 +71,37 @@ function Issue(issue, parent, boardId, webSocketClient) {
         });
     }
 
+    function bugLinks(list) {
+        var linkHtml = "<ul>", i;
+        for(i in list) {
+            linkHtml = linkHtml + "<li><a href=\"http://cjpad.cj.com/info-"+list[i]+"\" target=\"top\">info-" + list[i] + "</a></li>";
+            linkHtml = linkHtml + "<li><a href=\"http://cjpad.cj.com/qa-"+list[i]+"\">qa steps-" + list[i] + "</a></li>";
+        }
+        linkHtml = linkHtml + "</ul>";
+        return linkHtml;
+    }
+
+    function parseBugs(bugList) {
+        var bugs = [], i, bug, b1;
+        for (i in bugList) {
+            bug = bugList[i];
+            b1 = bug.split(/:[\s]*/);
+            bugs.push(b1[1]);
+        }
+        return bugs;
+    }
+
+    function setupLinks(elementText) {
+        var bugs, bugHtml, html;
+        bugs = parseBugs(elementText.match(/Bug:[\s]*(\d+)/gi));
+        bugHtml = elementText.replace(/(Bug:[\s]*(\d+))/gi, "<a href=\"https://bugzilla.vclk.net/show_bug.cgi?id=$2\" target=\"top\">$1</a>");
+        html = bugHtml + bugLinks(bugs);
+        return html;
+    }    
+
     function update() {
-        widget.find(".stickyContent").html(issue.name);
-        widget.find(".extraNotes").html(issue.extraNotes);
+        widget.find(".stickyContent").html(setupLinks(issue.name));
+        widget.find(".extraNotes").html(setupLinks(issue.extraNotes));
     }
 
     update();
