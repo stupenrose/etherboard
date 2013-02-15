@@ -75,7 +75,7 @@ function Issue(issue, parent, boardId, webSocketClient) {
         var linkHtml = "<ul>", i;
         for(i in list) {
             linkHtml = linkHtml + "<li><a href=\"http://cjpad.cj.com/info-"+list[i]+"\" target=\"top\">info-" + list[i] + "</a></li>";
-            linkHtml = linkHtml + "<li><a href=\"http://cjpad.cj.com/qa-"+list[i]+"\">qa steps-" + list[i] + "</a></li>";
+            linkHtml = linkHtml + "<li><a href=\"http://cjpad.cj.com/qa-"+list[i]+"\" target=\"top\">qa steps-" + list[i] + "</a></li>";
         }
         linkHtml = linkHtml + "</ul>";
         return linkHtml;
