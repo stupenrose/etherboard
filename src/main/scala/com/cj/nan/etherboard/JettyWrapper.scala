@@ -68,12 +68,17 @@ object JettyWrapper {
       Integer.parseInt(envPort)
     }
 
+<<<<<<< HEAD
     val websocketsEnabled = System.getenv("ENABLE_WEBSOCKET") != "no"
     val websocketPort = Integer.parseInt(System.getProperty("WEBSOCKET_PORT", "40181"))
 
     if (websocketsEnabled) {
       new BoardRealtimeUpdateServer(websocketPort).run()
     }
+=======
+    val websocketPort = Integer.parseInt(System.getProperty("WEBSOCKET_PORT", "40181"))
+    new BoardRealtimeUpdateServer(websocketPort).run()
+>>>>>>> 8accb366f474d2a10323760b44a359f56b69f165
 
     HttpObjectsJettyHandler.launchServer(port,
       new HttpObject("/") {
