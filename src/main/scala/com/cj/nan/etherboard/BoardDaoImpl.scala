@@ -39,8 +39,8 @@
 package com.cj.nan.etherboard
 
 import scala.collection.JavaConversions._
-import org.codehaus.jackson.map.ObjectMapper
 import java.io.{File => Path, FileOutputStream, FileInputStream}
+import com.fasterxml.jackson.databind.ObjectMapper
 
 object BoardDaoImpl extends BoardDao {
     val dataPath = new Path("target/data")
@@ -95,28 +95,27 @@ object BoardDaoImpl extends BoardDao {
                         board.id_sequence = board.id_sequence.max(b.id);
                     }
                 )
-                deduplicate(board);
-                unhideContents(board);
-                return board;
+                
+                board.onLoad()
+                
+                deduplicate(board)
+                unhideContents(board)
+                return board
             } finally {
                 input.close
             }
         } else {
-            return new Board(id,
-                new BoardObject(id = 1, name = "OnDeck", extraNotes = "", kind = "column"),
-                new BoardObject(id = 2, name = "InProgress", extraNotes = "", kind = "column"),
-                new BoardObject(id = 3, name = "DevDone", extraNotes = "", kind = "column"),
-                new BoardObject(id = 4, name = "QRing", extraNotes = "", kind = "column"),
-                new BoardObject(id = 5, name = "ReadyForDemo", extraNotes = "", kind = "column"),
-                new BoardObject(id = 6, name = "NeedsSoxing", extraNotes = "", kind = "column"),
-                new BoardObject(id = 7, name = "Soxing", extraNotes = "", kind = "column"),
-                new BoardObject(id = 8, name = "NeedsDeploy", extraNotes = "", kind = "column"),
-                new BoardObject(id = 9, name = "NeedsClosing", extraNotes = "", kind = "column")
-            )
+            val newBoard = new Board(id)
+            addDefaultColumnsToBoard(newBoard)
+            return newBoard
         }
     }
 
     def saveBoard(board: Board) {
+        if(board.objects.isEmpty) {
+            addDefaultColumnsToBoard(board)
+        }
+        
         val path = storagePathForBoard(board.getName())
         val jackson = new ObjectMapper()
         path.getParentFile().mkdirs()
@@ -132,6 +131,18 @@ object BoardDaoImpl extends BoardDao {
 
     def listBoards(): Array[String] = {
         dataPath.list()
+    }
+
+    def addDefaultColumnsToBoard(board: Board) = {
+        board.addObject(new BoardObject(id = 1, name = "OnDeck", extraNotes = "", kind = "column"))
+        board.addObject(new BoardObject(id = 2, name = "InProgress", extraNotes = "", kind = "column"))
+        board.addObject(new BoardObject(id = 3, name = "DevDone", extraNotes = "", kind = "column"))
+        board.addObject(new BoardObject(id = 4, name = "QRing", extraNotes = "", kind = "column"))
+        board.addObject(new BoardObject(id = 5, name = "ReadyForDemo", extraNotes = "", kind = "column"))
+        board.addObject(new BoardObject(id = 6, name = "NeedsSoxing", extraNotes = "", kind = "column"))
+        board.addObject(new BoardObject(id = 7, name = "Soxing", extraNotes = "", kind = "column"))
+        board.addObject(new BoardObject(id = 8, name = "NeedsDeploy", extraNotes = "", kind = "column"))
+        board.addObject(new BoardObject(id = 9, name = "NeedsClosing", extraNotes = "", kind = "column"))
     }
 
 }

@@ -41,17 +41,18 @@ package com.cj.nan.etherboard
 import org.httpobjects.jetty.HttpObjectsJettyHandler
 import org.httpobjects.{Request, HttpObject}
 import org.httpobjects.freemarker.FreemarkerDSL._
-import org.httpobjects.util.ClasspathResourcesObject
 import org.apache.log4j.BasicConfigurator
 import freemarker.cache.TemplateLoader
-import java.io.{InputStreamReader, Reader, ByteArrayInputStream, ByteArrayOutputStream}
 import java.util.regex.Pattern
 import java.util.Locale
 import freemarker.template.{DefaultObjectWrapper, Configuration}
-import org.codehaus.jackson.map.ObjectMapper
 import java.net.InetAddress
 
 import org.httpobjects.DSL._
+import org.httpobjects.header.response.LocationField
+import java.io._
+import org.httpobjects.util.{RequestQueryUtil, ClasspathResourcesObject}
+import com.fasterxml.jackson.databind.ObjectMapper
 
 object JettyWrapper {
 
@@ -118,13 +119,14 @@ object JettyWrapper {
 
           val board = boardDao.getBoard(boardId)
           val existing = board.findObject(id)
-
-          if (existing != null) {
-            existing.updateFrom(o);
-            boardDao.saveBoard(board)
-            OK(Json(jackson.writeValueAsString(existing)))
-          } else {
-            NOT_FOUND()
+          
+          existing match {
+        	case Some(existingBoardObject) => 
+        	  existingBoardObject.updateFrom(o);
+        	  boardDao.saveBoard(board)
+        	  OK(Json(jackson.writeValueAsString(existingBoardObject)))
+        	case None =>
+        	  NOT_FOUND()
           }
         }
 
@@ -141,6 +143,22 @@ object JettyWrapper {
         override def get(req: Request) = {
           val jackson = new ObjectMapper()
           OK(Json(jackson.writeValueAsString(boardDao.listBoards())));
+        }
+
+        override def post(req: Request) = {
+          val baos = new ByteArrayOutputStream()
+          req.representation().write(baos)
+          val body = baos.toString
+          val parsedBody = parseHttpForm(body)
+
+          val newBoard = parsedBody("syncType") match {
+            case "pivotalTracker" => new PivotalTrackerBoard(parsedBody("name"), parsedBody("pivotalProjectId"), parsedBody("pivotalDevKey"))
+            case _ => new Board(parsedBody("name"))
+          }
+
+          boardDao.saveBoard(newBoard)
+
+          SEE_OTHER(new LocationField("/?board=" + newBoard.name))
         }
       }
     );
@@ -168,6 +186,13 @@ object JettyWrapper {
     cfg.setObjectWrapper(new DefaultObjectWrapper());
     //		cfg.setTagSyntax(Configuration.SQUARE_BRACKET_TAG_SYNTAX);
     cfg
+  }
+
+  def parseHttpForm(input:String):Map[String,String] = {
+    input.split("&").map(s => {
+      val pair = s.split("=")
+      (pair(0) -> pair(1))
+    }).toMap
   }
 
 }

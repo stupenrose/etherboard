@@ -82,16 +82,21 @@
                              {boards: names})
                     );
 
-                    $('body').on('submit', '#newBoardForm', function (e) {
-                        window.location = "?board=" + $(this).find("input[type=text]").val();
-                        return false;
+                    $("#createNewBoardButton").button().click(function () {
+                        $("#newBoardForm").submit(function () {
+                            $(this).find(':input[value=""]').attr("disabled", "disabled");
+                        }).dialog({title: "New Board"});
                     });
-                },
 
+                    $("#syncType").change(function () {
+                        $("#pivotalOptions").toggle();
+                    });
+
+                    $("#createNewBoardSubmit").button();
+                },
                 error: function (jqxhr, textStatus, errorThrown) {
                     alert("ERROR:" + textStatus);
                 }
-
             });
         }
     });
@@ -111,12 +116,32 @@
             </li>
         <% }); %>
 
-        <li>
-            <form id="newBoardForm">
-                <input type="text" />
-                <input class="ui-widget ui-corner-all ui-button" type="submit" value="New Board" />
-            </form>
-        </li>
+        <input type="button" id="createNewBoardButton" value="Create New Board"></input>
+
+        <form id="newBoardForm" style="display:none;" action="/board" method="POST">
+            <label for="newBoardName">Name: </label>
+            <input type="text" id="newBoardName" name="name" placeholder="New Board Name"></input>
+            <br/>
+
+            <label for="syncType">Sync Type: </label>
+            <select id="syncType" name="syncType">
+                <option value="simple">none</option>
+                <option value="pivotalTracker">Pivotal Tracker</option>
+            </select>
+            <br/>
+
+            <div id="pivotalOptions" style="display:none;">
+                <label for="pivotalProjectId">Project ID: </label>
+                <input type="text" id="pivotalProjectId" name="pivotalProjectId" placeholder="ID of the PivotalTracker Project"></input>
+                <br/>
+
+                <label for="pivotalDevKey">Dev Key: </label>
+                <input type="text" id="pivotalDevKey" name="pivotalDevKey" placeholder="Paste Dev Key Here"></input>
+            </div>
+
+            <input type="submit" value="Create" id="createNewBoardSubmit"></input>
+        </form>
+
     </ul>
 </script>
 

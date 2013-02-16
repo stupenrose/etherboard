@@ -38,14 +38,14 @@
 
 package com.cj.nan.etherboard
 
-import org.junit
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.FunSuite
-import org.scalatest.FlatSpec
-import org.scalatest.{FunSuite, FlatSpec}
-import java.util.List
 import org.scalatest.matchers.ShouldMatchers
+import java.lang.String
+import com.fasterxml.jackson.databind.ObjectMapper
+import scala.xml.Node
+import scala.xml.XML
 
 @RunWith(classOf[JUnitRunner])
 class EtherboardTest extends FunSuite with ShouldMatchers {
@@ -71,6 +71,18 @@ class EtherboardTest extends FunSuite with ShouldMatchers {
         originalBoardObject.kind should equal("original kind")
         originalBoardObject.pos should equal(newPosition)
     }
+    
+    test("finding a board object") {
+    	val boardObject: BoardObject = new BoardObject(1, "some name", "some extra note", "some kind", new Position())
+    	val board = new Board("Herbert", boardObject)
+    	
+    	val shouldBeFound = board.findObject(1)
+    	assert(shouldBeFound.isDefined === true)
+    	assert(shouldBeFound.get === boardObject)
+    	
+    	val shouldNotBeFound = board.findObject(2)
+    	assert(shouldNotBeFound.isDefined === false)
+    }
 
     test("Remove a board object") {
         var a: BoardObject = new BoardObject(3, "a is excellent", "yes it is", "sticky", new Position(0, 0))
@@ -93,5 +105,49 @@ class EtherboardTest extends FunSuite with ShouldMatchers {
         assert(boardObject === otherBoardObject)
         otherBoardObject.pos = new Position(37, 927)
         assert((boardObject == otherBoardObject) === false)
+    }
+
+    test("Serializing/Deserializing different board types") {
+        val board: Board = new Board("Simpleton Board")
+        val syncedBoard: Board = new PivotalTrackerBoard("Not-so-simpleton Board", "123456", "somekey")
+
+        val jackson = new ObjectMapper()
+
+        val boardJson: String = jackson.writeValueAsString(board)
+        val syncedBoardJson: String = jackson.writeValueAsString(syncedBoard)
+
+        assert(boardJson === "{\"type\":\"simple\",\"name\":\"Simpleton Board\",\"objects\":[],\"id_sequence\":0,\"boardUpdatesWebSocket\":\"\"}")
+        assert(syncedBoardJson === "{\"type\":\"pivotalTracker\",\"name\":\"Not-so-simpleton Board\",\"objects\":[],\"id_sequence\":0,\"boardUpdatesWebSocket\":\"\",\"toolSyncId\":\"123456\",\"toolSyncKey\":\"somekey\"}")
+
+        val readBoard = jackson.readValue(boardJson, classOf[Board])
+        val readSyncedBoard = jackson.readValue(syncedBoardJson, classOf[Board])
+        
+        assert(readBoard.getClass === classOf[Board])
+        assert(syncedBoard.getClass === classOf[PivotalTrackerBoard])
+        
+        val readAmbiguousBoard = jackson.readValue("{\"name\":\"Simpleton Board\",\"objects\":[],\"id_sequence\":0,\"boardUpdatesWebSocket\":\"\"}", classOf[Board])
+        assert(readAmbiguousBoard.getClass === classOf[Board])
+        assert(readAmbiguousBoard.name === "Simpleton Board")
+        
+        val xmlString = "<stories><story><description>lolyup</description><name>Joe</name><url>http://cj.com</url><id>1000</id></story><story><description>wtfno</description><name>Sam</name><id>1001</id><url>http://aj.com</url></story></stories>"
+        val xmlStories = XML.loadString(xmlString)
+        
+        val res = xmlStories.child.map(s => {
+          val id = s\"id"
+          val url = s\"url"
+          val name = s\"name"
+          val desc = s\"description"
+          new PivotalTrackerStory(Integer.parseInt(id.text), url.text, name.text, desc.text)
+        })
+        
+        assert(res.length === 2)
+        assert(res(0).id === 1000)
+        assert(res(0).url === "http://cj.com")
+        assert(res(0).name === "Joe")
+        assert(res(0).description === "lolyup")
+        assert(res(1).id === 1001)
+        assert(res(1).url === "http://aj.com")
+        assert(res(1).name === "Sam")
+        assert(res(1).description === "wtfno")
     }
 }

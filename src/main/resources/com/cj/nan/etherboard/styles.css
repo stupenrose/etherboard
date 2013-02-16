@@ -389,3 +389,23 @@ a:hover {
 a:visited {
   color: #666;
 }
+
+#newBoardForm {
+  text-align: left
+}
+
+#newBoardForm label {
+  text-align: left;
+  width: 30%;
+  display: inline-block;
+}
+
+#newBoardForm select {
+  height: 20px;
+  margin: 5px;
+}
+
+#createNewBoardSubmit {
+  margin-left: auto;
+  display: block;
+}

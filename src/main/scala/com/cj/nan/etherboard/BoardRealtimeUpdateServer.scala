@@ -43,8 +43,8 @@ import org.jboss.netty.channel.Channel
 
 import websockets.SimpleWebsocketServer
 import org.jboss.netty.handler.codec.http.QueryStringDecoder
-import actors.Actor
 import org.jboss.netty.handler.codec.http.websocketx.TextWebSocketFrame
+import actors.Actor
 
 class BoardRealtimeUpdateServer(port:Int)  {
     val websocketServer = new SimpleWebsocketServer(port, connectionHandler, messageHandler)
@@ -85,11 +85,12 @@ object BoardUpdatesActor extends Actor {
                 case NewMessage(message:String, channel:Channel) => {
                     val boardThisConnectionIsIn = connectionsByBoard.find(p => p._2.contains(channel))
                     if (boardThisConnectionIsIn != None) {
-                        val connections = boardThisConnectionIsIn.get._2.filter(_.isOpen)
+                        val connections:List[Channel] = boardThisConnectionIsIn.get._2.filter(_.isOpen)
                         connectionsByBoard += (boardThisConnectionIsIn.get._1 -> connections)
 
-                        (connections - channel).foreach(connection => {
-                            connection.write(new TextWebSocketFrame(message))
+                        connections.foreach(connection => {
+                            if (connection != channel)
+                                connection.write(new TextWebSocketFrame(message))
                         })
                     }
                     else {

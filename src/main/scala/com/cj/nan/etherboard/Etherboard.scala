@@ -41,6 +41,16 @@ package com.cj.nan.etherboard
 import java.io.{File => Path}
 import scala.collection.JavaConversions._
 import reflect.BeanProperty
+import com.fasterxml.jackson.annotation.{JsonSubTypes, JsonTypeInfo}
+import com.fasterxml.jackson.annotation.JsonTypeInfo.As
+import org.apache.http.impl.client.DefaultHttpClient
+import org.apache.http.client.methods.HttpGet
+import java.io.ByteArrayOutputStream
+import org.jboss.netty.logging.Log4JLoggerFactory
+import org.apache.commons.logging.LogFactory
+import org.apache.log4j.Logger
+import org.apache.log4j.Level
+import scala.xml.XML
 
 class Position(@BeanProperty var left: Int = 0, @BeanProperty var top: Int = 0) {
     def this() = this(left = 0, top = 0)
@@ -88,15 +98,22 @@ class BoardObject(@BeanProperty var id: Int,
     }
 }
 
+@JsonTypeInfo(use=JsonTypeInfo.Id.NAME, include=As.PROPERTY, property="type", defaultImpl = classOf[Board])
+@JsonSubTypes(Array(
+        new JsonSubTypes.Type(value = classOf[Board], name="simple"),
+        new JsonSubTypes.Type(value = classOf[PivotalTrackerBoard], name="pivotalTracker")
+    ))
 class Board(@BeanProperty var name: String, stuff: BoardObject*) {
     @BeanProperty var objects: java.util.List[BoardObject] = new java.util.ArrayList[BoardObject](java.util.Arrays.asList(stuff: _*))
     @BeanProperty var id_sequence: Int = objects.map(_.id).fold(0)((m, x) => m.max(x))
     @BeanProperty var boardUpdatesWebSocket = ""
 
     def this() = this(null)
+    
+    def onLoad() = {}	//no extra steps necessary on load
 
-    def findObject(id: Int): BoardObject = {
-        objects.filter(_.id == id).get(0)
+    def findObject(id: Int): Option[BoardObject] = {
+    	objects.find(_.id == id)
     }
 
     def addObject(boardObject: BoardObject) = {
@@ -113,8 +130,50 @@ class Board(@BeanProperty var name: String, stuff: BoardObject*) {
     }
 }
 
+class PivotalTrackerBoard(@BeanProperty name: String,  @BeanProperty var toolSyncId: String, @BeanProperty var toolSyncKey: String, stuff: BoardObject*) extends Board(name, stuff:_*) {
+	def this() = this(null, null, null)
+    
+    override def onLoad() = syncData
+     
+    def syncData() = {
+      val httpClient = new DefaultHttpClient()
+      val req = new HttpGet(s"http://www.pivotaltracker.com/services/v3/projects/${toolSyncId}/stories?filter=state%3Aunstarted,started,finished,delivered,accepted,rejected%20includedone%3Afalse")
+      req.setHeader("X-TrackerToken", toolSyncKey)
+      
+      val response = httpClient.execute(req)
+      val baos = new ByteArrayOutputStream()
+      response.getEntity().writeTo(baos)
+      
+      val stories = pivotalTrackerStoriesFromXml(baos.toString())
+      
+      stories.foreach(story => {
+    	findObject(story.id) match {
+          case Some(existingStory) =>
+            existingStory.name = story.name
+            existingStory.extraNotes = story.description
+          case None =>
+            addObject(new BoardObject(story.id, story.name, story.description, "sticky"))
+      	}
+      })
+    }
+    
+    def pivotalTrackerStoriesFromXml(xmlString:String):Seq[PivotalTrackerStory] = {
+    	XML.loadString(xmlString) \ "story" map(s => {
+			val id = s\"id"
+			val url = s\"url"
+			val name = s\"name"
+			val desc = s\"description"
+			
+			new PivotalTrackerStory(Integer.parseInt(id.text), url.text, name.text, desc.text)
+	    })
+	}
+}
+
+case class PivotalTrackerStory(id:Int, url:String, name:String, description:String)
+
 object EtherboardMain {
     def main(args: Array[String]) {
+    	Logger.getLogger("org.apache").setLevel(Level.ERROR)
         JettyWrapper.launchServer(BoardDaoImpl())
     }
 }
