@@ -47,12 +47,12 @@ import java.util.regex.Pattern
 import java.util.Locale
 import freemarker.template.{DefaultObjectWrapper, Configuration}
 import java.net.InetAddress
-
 import org.httpobjects.DSL._
 import org.httpobjects.header.response.LocationField
 import java.io._
 import org.httpobjects.util.{RequestQueryUtil, ClasspathResourcesObject}
 import com.fasterxml.jackson.databind.ObjectMapper
+import org.httpobjects.util.MimeTypeTool
 
 object JettyWrapper {
 
@@ -80,7 +80,6 @@ object JettyWrapper {
       new HttpObject("/") {
         override def get(req: Request) = OK(FreemarkerTemplate("ui.html", null, freemarker))
       },
-      new ClasspathResourcesObject("/{resource*}", EtherboardMain.getClass(), "../../../.."),
       new ClasspathResourcesObject("/{resource*}", EtherboardMain.getClass()),
       new HttpObject("/board/{boardId}/objects") {
         override def get(req: Request) = lock.synchronized {
@@ -160,6 +159,18 @@ object JettyWrapper {
           boardDao.saveBoard(newBoard)
 
           SEE_OTHER(new LocationField("/?board=" + newBoard.name))
+        }
+      },
+      new HttpObject("/{resource*}") {
+        override def get(req: Request) = {
+          val resource = req.pathVars().valueFor("resource");
+          val data = this.getClass().getClassLoader().getResourceAsStream(resource);
+          
+          if (data != null) {
+			OK(Bytes(new MimeTypeTool().guessMimeTypeFromName(resource), data))
+          } else {
+			null
+          }
         }
       }
     );

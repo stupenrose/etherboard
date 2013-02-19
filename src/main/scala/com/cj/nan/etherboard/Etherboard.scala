@@ -137,7 +137,7 @@ class PivotalTrackerBoard(@BeanProperty name: String,  @BeanProperty var toolSyn
      
     def syncData() = {
       val httpClient = new DefaultHttpClient()
-      val req = new HttpGet(s"http://www.pivotaltracker.com/services/v3/projects/${toolSyncId}/stories?filter=state%3Aunstarted,started,finished,delivered,accepted,rejected%20includedone%3Afalse")
+      val req = new HttpGet(s"http://www.pivotaltracker.com/services/v3/projects/${toolSyncId}/stories?filter=state%3Astarted,finished,delivered,accepted,rejected%20includedone%3Afalse")
       req.setHeader("X-TrackerToken", toolSyncKey)
       
       val response = httpClient.execute(req)
