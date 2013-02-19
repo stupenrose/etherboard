@@ -4,6 +4,8 @@ require.config({
         "backbone": "lib/backbone-min",
         "underscore": "lib/underscore-min",
         "jquery": "lib/jquery-1.9.1.min",
+        "jquery-ui": "http://ajax.googleapis.com/ajax/libs/jqueryui/1.9.1/jquery-ui.min",
+        "html": "../html",
         "text": "lib/text"
     },
     shim: {
@@ -16,21 +18,35 @@ require.config({
         },
         "jquery": {
             exports: "$"
+        },
+        "jquery-ui": {
+            deps: ["jquery"],
+            exports: "$"
         }
     }
 });
 
-define(["backbone", "model/Board"], function (Backbone, Board) {
+define(["backbone", "jquery-ui", "model/Board", "view/BoardSelectionView", "view/BoardView"], function (Backbone, $, Board, BoardSelectionView, BoardView) {
     new (Backbone.Router.extend({
         routes: {
-            "*action": "testRoute"
+            "": "defaultRoute",
+            ":boardName": "showBoard"
         },
-        testRoute: function (action) {
-            var board = new Board({name: action});
-            board.fetch();
-            console.dir(board);
+        initialize: function () {
+            this.view = new Backbone.View();
+        },
+        defaultRoute: function () {
+            this.view.remove();
+            this.view = new BoardSelectionView();
+            $("body").append(this.view.el);
+        },
+        showBoard: function (boardName) {
+            this.view.remove();
 
-            window.b = board;
+            var board = new Board({name: boardName});
+            this.view = new BoardView({model: board, boardName: boardName});
+            $("body").append(this.view.el);
+            board.fetch();
         }
     }))();
 

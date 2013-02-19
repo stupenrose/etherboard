@@ -1,6 +1,7 @@
 define(["backbone"], function (Backbone) {
-    var Sticky = Backbone.Model.extend({
+    var BoardItem = Backbone.Model.extend({
         defaults: {
+            contents: [],
             name: "",
             extraNotes: "",
             height: 150,
@@ -19,5 +20,5 @@ define(["backbone"], function (Backbone) {
         }
     });
 
-    return Sticky;
+    return BoardItem;
 });
