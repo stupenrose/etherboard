@@ -10,6 +10,19 @@
     <build>
         <sourceDirectory>src/main/scala</sourceDirectory>
         <testSourceDirectory>src/test/scala</testSourceDirectory>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+            <resource>
+                <targetPath>javascript</targetPath>
+                <directory>src/main/javascript</directory>
+            </resource>
+            <resource>
+                <targetPath>html</targetPath>
+                <directory>src/main/html</directory>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.scala-tools</groupId>

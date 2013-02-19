@@ -80,6 +80,7 @@ object JettyWrapper {
       new HttpObject("/") {
         override def get(req: Request) = OK(FreemarkerTemplate("ui.html", null, freemarker))
       },
+      new ClasspathResourcesObject("/{resource*}", EtherboardMain.getClass(), "../../../.."),
       new ClasspathResourcesObject("/{resource*}", EtherboardMain.getClass()),
       new HttpObject("/board/{boardId}/objects") {
         override def get(req: Request) = lock.synchronized {
