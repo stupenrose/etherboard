@@ -17,6 +17,12 @@ define(["backbone"], function (Backbone) {
         },
         url: function () {
             return "/board/" + this.boardName + "/objects/" + this.get("id");
+        },
+        pushContent: function (newContent) {
+            var contents = _.clone(this.get("contents"));
+            contents.push(newContent);
+
+            this.set("contents", contents);
         }
     });
 

@@ -124,6 +124,7 @@ div.buttons button {
     width: 150px;
     height: 40px;
     font-size: 1.2em;
+    margin: 0 5px;
 }
 
 div.bucket {
@@ -210,6 +211,7 @@ img.stickyCloseButton {
 img.avatarDeleteButton {
     height:10px;
     width:10px;
+    margin: 3px 0;
 }
 
 div.stickyContent, div.extraNotes {
@@ -362,6 +364,10 @@ div.avatar {
 div.avatar img {
     max-width: 75px;
     max-height: 75px;
+}
+
+div.avatarHeader {
+    height: 16px;
 }
 
 div.editLink {
