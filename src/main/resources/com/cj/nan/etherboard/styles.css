@@ -395,17 +395,19 @@ a:visited {
   color: #666;
 }
 
-#newBoardForm {
+#newBoardForm, .newBoardItemForm {
   text-align: left
 }
 
-#newBoardForm label {
+#newBoardForm label, .newBoardItemForm label {
   text-align: left;
   width: 30%;
   display: inline-block;
+  vertical-align: top;
+  margin: 8px;
 }
 
-#newBoardForm select {
+#newBoardForm select, .newBoardItemForm select {
   height: 20px;
   margin: 5px;
 }

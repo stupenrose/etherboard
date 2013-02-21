@@ -8,7 +8,7 @@
   <% _.each(contents, function (bucketItem) { %>
     <li>
       <span><%=bucketItem.name%></span>
-      <a href="javascript:void(0)" bucketItemId="<%=bucketItem.id%>" class="remove">--&gt;</a>
+      <a href="javascript:void(0)" data-boarditemid="<%=bucketItem.id%>" class="remove">--&gt;</a>
     </li>
   <% }); %>
 </ol>

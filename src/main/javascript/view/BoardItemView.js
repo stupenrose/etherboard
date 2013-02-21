@@ -1,9 +1,10 @@
 define([ "backbone",
+    "model/BoardItem",
     "text!html/Bucket.html",
     "text!html/Column.html",
     "text!html/Avatar.html",
     "text!html/Sticky.html"],
-    function (Backbone, BucketTemplate, ColumnTemplate, AvatarTemplate, StickyTemplate) {
+    function (Backbone, BoardItem, BucketTemplate, ColumnTemplate, AvatarTemplate, StickyTemplate) {
 
     var BoardItemView = Backbone.View.extend({
         bucketTmpl: _.template(BucketTemplate),
@@ -72,16 +73,15 @@ define([ "backbone",
                     event.stopPropagation();
 
                     if (stickyObject.get("kind") === "sticky") {
+                        that.model.pushContent(stickyObject.attributes);
+                        that.model.save();
                         stickyObject.destroy();
-                        that.model.pushContent({name: stickyObject.get("name"), extraNotes: stickyObject.get("extraNotes")});
 
                         /*webSocketClient.send(JSON.stringify({
                             type: 'addBucketItem',
                             widgetId: bucketId,
                             itemContents: {name: sticky.find(".stickyContent").html(), extraNotes:  sticky.find(".extraNotes").html()}
                         }));*/
-
-                        that.model.save();
                     }
                 }
             })
@@ -173,8 +173,14 @@ define([ "backbone",
         edit: function () {
             console.log("edit called!");
         },
-        removeBucketContent: function () {
-            console.log("remove sticky from bucket!");
+        removeBucketContent: function (ev) {
+            var idToRemove = $(ev.target).data("boarditemid");
+            var contentPoppedOut = this.model.removeContentById(idToRemove);
+            var newSticky = new BoardItem(contentPoppedOut, {boardName: this.model.boardName});
+
+            this.model.collection.add(newSticky);
+            this.model.save();
+            newSticky.save();
         }
     });
     

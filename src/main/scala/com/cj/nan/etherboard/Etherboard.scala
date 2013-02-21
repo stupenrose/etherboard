@@ -56,11 +56,6 @@ class Position(@BeanProperty var left: Int = 0, @BeanProperty var top: Int = 0) 
     def this() = this(left = 0, top = 0)
 }
 
-class Sticky(@BeanProperty var name: String, @BeanProperty var extraNotes: String) {
-    def this() = this(name = null, extraNotes = null)
-    def this(_name: String) = this(name = _name, extraNotes = null)
-}
-
 class BoardObject(@BeanProperty var id: Int,
                   @BeanProperty var name: String,
                   @BeanProperty var extraNotes: String,
@@ -68,7 +63,7 @@ class BoardObject(@BeanProperty var id: Int,
                   @BeanProperty var pos: Position = new Position(),
                   @BeanProperty var height: Int = 150,
                   @BeanProperty var width: Int = 150,
-                  @BeanProperty var contents: java.util.List[Sticky] = new java.util.ArrayList[Sticky]()) {
+                  @BeanProperty var contents: java.util.List[BoardObject] = new java.util.ArrayList[BoardObject]()) {
 
     if (kind == "stickie") {
         kind = "sticky"
@@ -90,7 +85,11 @@ class BoardObject(@BeanProperty var id: Int,
             width = other.width
         }
     }
-
+    
+    override def toString() = {
+      "(id: " + id + "|name : " + name + "|extraNotes: " + extraNotes + ")"
+    }
+    
     override def equals(other: Any): Boolean = other match {
         case x: BoardObject =>
             this.id == x.id && this.name == x.name && this.extraNotes == x.extraNotes && this.kind == x.kind && pos.left == x.pos.left && pos.top == x.pos.top && height == x.height && width == x.width
@@ -105,12 +104,21 @@ class BoardObject(@BeanProperty var id: Int,
     ))
 class Board(@BeanProperty var name: String, stuff: BoardObject*) {
     @BeanProperty var objects: java.util.List[BoardObject] = new java.util.ArrayList[BoardObject](java.util.Arrays.asList(stuff: _*))
-    @BeanProperty var id_sequence: Int = objects.map(_.id).fold(0)((m, x) => m.max(x))
+    @BeanProperty var id_sequence: Int = flattenedObjects.map(_.id).fold(0)((m, x) => m.max(x))
     @BeanProperty var boardUpdatesWebSocket = ""
+      
 
     def this() = this(null)
     
     def onLoad() = {}	//no extra steps necessary on load
+    
+    def flattenedObjects(): List[BoardObject] = {
+    	objects.foldLeft(List[BoardObject]())((l, o) => o :: o.contents.toList union l)
+    }
+    
+    def findObjectOrSubObject(id: Int): Option[BoardObject] = {
+      	flattenedObjects.find(_.id == id)
+    }
 
     def findObject(id: Int): Option[BoardObject] = {
     	objects.find(_.id == id)
@@ -147,7 +155,7 @@ class PivotalTrackerBoard(@BeanProperty name: String,  @BeanProperty var toolSyn
       val stories = pivotalTrackerStoriesFromXml(baos.toString())
       
       stories.foreach(story => {
-    	findObject(story.id) match {
+    	findObjectOrSubObject(story.id) match {
           case Some(existingStory) =>
             existingStory.name = story.name
             existingStory.extraNotes = story.description

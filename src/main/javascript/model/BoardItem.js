@@ -16,13 +16,27 @@ define(["backbone"], function (Backbone) {
             this.boardName = options.boardName;
         },
         url: function () {
+            if(this.isNew()) {
+                return "/board/" + this.boardName + "/objects";
+            }
+
             return "/board/" + this.boardName + "/objects/" + this.get("id");
         },
         pushContent: function (newContent) {
-            var contents = _.clone(this.get("contents"));
-            contents.push(newContent);
+            var newContents = _.clone(this.get("contents"));
+            newContents.push(newContent);
 
-            this.set("contents", contents);
+            this.set("contents", newContents);
+        },
+        removeContentById: function (idToRemove) {
+            var contentToRemove = _.findWhere(this.get("contents"), {id: idToRemove});
+            var newContents = _.filter(this.get("contents"), function (c) {
+                return c.id != idToRemove;
+            });
+
+            this.set("contents", newContents);
+
+            return contentToRemove;
         }
     });
 

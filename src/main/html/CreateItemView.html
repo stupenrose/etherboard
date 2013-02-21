@@ -1,0 +1,30 @@
+<label for="type">Type: </label>
+<select name="type">
+  <option value="sticky">Sticky</option>
+  <option value="bucket">Bucket</option>
+  <option value="image">Image</option>
+</select>
+<br/>
+
+<div class="stickyOptions itemOptions">
+  <label for="name">Front: </label>
+  <textarea name="name"></textarea>
+
+  <br/>
+
+  <label for="extraNotes">Back: </label>
+  <textarea name="extraNotes"></textarea>
+</div>
+
+<div class="bucketOptions itemOptions" style="display: none;">
+  <label for="name">Name: </label>
+  <input name="name" type="text" />
+</div>
+
+<div class="imageOptions itemOptions" style="display: none;">
+  <label for="name">Url: </label>
+  <input name="name" type="text" />
+</div>
+
+<br/>
+<input type="submit" value="Create"></input>
