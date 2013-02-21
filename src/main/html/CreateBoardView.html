@@ -1,0 +1,21 @@
+<label for="newBoardName">Name: </label>
+<input type="text" id="newBoardName" name="name" placeholder="New Board Name"></input>
+<br/>
+
+<label for="syncType">Sync Type: </label>
+<select id="syncType" name="syncType">
+  <option value="simple">none</option>
+  <option value="pivotalTracker">Pivotal Tracker</option>
+</select>
+<br/>
+
+<div id="pivotalOptions" style="display:none;">
+  <label for="pivotalProjectId">Project ID: </label>
+  <input type="text" id="pivotalProjectId" name="pivotalProjectId" placeholder="ID of the PivotalTracker Project" disabled="disabled"></input>
+  <br/>
+
+  <label for="pivotalDevKey">Dev Key: </label>
+  <input type="text" id="pivotalDevKey" name="pivotalDevKey" placeholder="Paste Dev Key Here" disabled="disabled"></input>
+</div>
+
+<input type="submit" value="Create" id="createNewBoardSubmit"></input>
