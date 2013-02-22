@@ -6,7 +6,8 @@ require.config({
         "jquery": "lib/jquery-1.9.1.min",
         "jquery-ui": "http://ajax.googleapis.com/ajax/libs/jqueryui/1.9.1/jquery-ui.min",
         "html": "../html",
-        "text": "lib/text"
+        "text": "lib/text",
+        "WebSocketClient": "../WebSocketClient"
     },
     shim: {
         "backbone": {
@@ -22,6 +23,9 @@ require.config({
         "jquery-ui": {
             deps: ["jquery"],
             exports: "$"
+        },
+        "WebSocketClient": {
+            exports: "WebSocketClient"
         }
     }
 });

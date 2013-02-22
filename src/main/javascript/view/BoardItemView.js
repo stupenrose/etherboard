@@ -51,14 +51,9 @@ define([ "backbone",
 
             this.$el.draggable({
                 containment: [0, 0, Infinity, Infinity],
-                /*drag: function (event, ui) {
-                    var msg = {
-                        type: "positionChange",
-                        widgetId: bucketId,
-                        position: widget.offset()
-                    };
-                    webSocketClient.send(JSON.stringify(msg));
-                },*/
+                drag: function (event, ui) {
+                    that.model.set("pos", $(this).offset());
+                },
                 stop: function (event, ui) {
                     event.stopPropagation();
                     that.model.set("pos", $(this).offset());
@@ -67,21 +62,15 @@ define([ "backbone",
             })
             .droppable({
                 drop: function (event, ui) {
+                    event.stopPropagation();
+
                     var sticky = $(ui.draggable),
                         stickyObject = that.model.collection.get(sticky.prop("boardItemId"));
-
-                    event.stopPropagation();
 
                     if (stickyObject.get("kind") === "sticky") {
                         that.model.pushContent(stickyObject.attributes);
                         that.model.save();
                         stickyObject.destroy();
-
-                        /*webSocketClient.send(JSON.stringify({
-                            type: 'addBucketItem',
-                            widgetId: bucketId,
-                            itemContents: {name: sticky.find(".stickyContent").html(), extraNotes:  sticky.find(".extraNotes").html()}
-                        }));*/
                     }
                 }
             })
@@ -119,14 +108,9 @@ define([ "backbone",
 
             this.$el.draggable({
                 containment: [0, 0, Infinity, Infinity],
-                /*drag: function (event, ui) {
-                    var msg = {
-                        type: "positionChange",
-                        widgetId: "widget" + that.model.get("id"),
-                        position: $(this).offset()
-                    };
-                    webSocketClient.send(JSON.stringify(msg));
-                },*/
+                drag: function (event, ui) {
+                    that.model.set("pos", $(this).offset());
+                },
                 stop: function (event) {
                     event.stopPropagation();
                     that.model.set("pos", $(this).offset());
@@ -145,14 +129,9 @@ define([ "backbone",
 
             this.$el.draggable({
                 containment: [0, 0, Infinity, Infinity],
-                /*drag: function (event, ui) {
-                    var msg = {
-                        type: "positionChange",
-                        widgetId: widgetId,
-                        position: widget.offset()
-                    };
-                    webSocketClient.send(JSON.stringify(msg));
-                },*/
+                drag: function (event, ui) {
+                    that.model.set("pos", $(this).offset());
+                },
                 stop: function (event, ui) {
                     event.stopPropagation();
                     that.model.set("pos", $(this).offset());
@@ -180,7 +159,7 @@ define([ "backbone",
 
             this.model.collection.add(newSticky);
             this.model.save();
-            newSticky.save();
+            newSticky.sync("create", newSticky);
         }
     });
     

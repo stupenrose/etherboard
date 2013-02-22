@@ -13,10 +13,11 @@ define(["backbone"], function (Backbone) {
             if (!options || !options.boardName) {
                 throw "Must specify boardName";
             }
+
             this.boardName = options.boardName;
         },
         url: function () {
-            if(this.isNew()) {
+            if (this.isNew()) {
                 return "/board/" + this.boardName + "/objects";
             }
 
@@ -28,15 +29,23 @@ define(["backbone"], function (Backbone) {
 
             this.set("contents", newContents);
         },
-        removeContentById: function (idToRemove) {
-            var contentToRemove = _.findWhere(this.get("contents"), {id: idToRemove});
-            var newContents = _.filter(this.get("contents"), function (c) {
-                return c.id != idToRemove;
-            });
+        removeContentMatching: function (similarItem) {
+            var contentToRemove = _.findWhere(this.get("contents"), similarItem),
+                newContents = _.reject(this.get("contents"), function (value) {
+                    for (var key in similarItem) {
+                        if (similarItem[key] !== value[key]) return false;
+                    }
+                    return true;
+                });
 
             this.set("contents", newContents);
-
             return contentToRemove;
+        },
+        removeContentById: function (idToRemove) {
+            return this.removeContentMatching({id: idToRemove});
+        },
+        moveTo: function (newPosition) {
+            this.set("pos", newPosition);
         }
     });
 

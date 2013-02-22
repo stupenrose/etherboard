@@ -129,6 +129,27 @@ object JettyWrapper {
         	  NOT_FOUND()
           }
         }
+        
+        override def post(req: Request) = lock.synchronized {
+          val boardId = req.pathVars().valueFor("boardId")
+          val objectId = Integer.parseInt(req.pathVars().valueFor("objectId"), 10)
+          
+          val jackson = new ObjectMapper()
+          val bytes = new ByteArrayOutputStream()
+          req.representation().write(bytes)
+          val o = jackson.readValue(new ByteArrayInputStream(bytes.toByteArray()), classOf[BoardObject]);
+          
+          if (o.id != objectId) {
+            BAD_REQUEST()
+          }
+
+          val board = boardDao.getBoard(boardId)
+          
+          val result: BoardObject = new BoardObject(objectId, o)
+          board.addObject(result)
+          boardDao.saveBoard(board)
+          OK(Json(jackson.writeValueAsString(result)));
+        }
 
         override def delete(req: Request) = lock.synchronized {
           val boardId = req.pathVars().valueFor("boardId")
