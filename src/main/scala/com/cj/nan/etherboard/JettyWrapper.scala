@@ -139,16 +139,18 @@ object JettyWrapper {
           req.representation().write(bytes)
           val o = jackson.readValue(new ByteArrayInputStream(bytes.toByteArray()), classOf[BoardObject]);
           
-          if (o.id != objectId) {
-            BAD_REQUEST()
-          }
-
           val board = boardDao.getBoard(boardId)
           
-          val result: BoardObject = new BoardObject(objectId, o)
-          board.addObject(result)
-          boardDao.saveBoard(board)
-          OK(Json(jackson.writeValueAsString(result)));
+          if (o.id != objectId || board.findObject(objectId).isDefined) {
+            BAD_REQUEST()
+          } else {
+	          val result: BoardObject = new BoardObject(objectId, o)
+	          assert(result.id == objectId)
+	          
+	          board.addObject(result)
+	          boardDao.saveBoard(board)
+	          OK(Json(jackson.writeValueAsString(result)));
+          }
         }
 
         override def delete(req: Request) = lock.synchronized {
@@ -166,7 +168,7 @@ object JettyWrapper {
           OK(Json(jackson.writeValueAsString(boardDao.listBoards())));
         }
 
-        override def post(req: Request) = {
+        override def post(req: Request) = lock.synchronized {
           val baos = new ByteArrayOutputStream()
           req.representation().write(baos)
           val body = baos.toString
@@ -178,7 +180,6 @@ object JettyWrapper {
           }
 
           boardDao.saveBoard(newBoard)
-
           SEE_OTHER(new LocationField("/?board=" + newBoard.name))
         }
       },

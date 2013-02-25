@@ -155,13 +155,17 @@ define([ "backbone",
             console.log("edit called!");
         },
         removeBucketContent: function (ev) {
+            var that = this;
             var idToRemove = $(ev.target).data("boarditemid");
             var contentPoppedOut = this.model.removeContentById(idToRemove);
             var newSticky = new BoardItem(contentPoppedOut, {boardName: this.model.boardName});
 
-            this.model.collection.add(newSticky);
-            this.model.save();
-            newSticky.sync("create", newSticky);
+            newSticky.sync("create", newSticky, {
+                success: function () {
+                    that.model.collection.add(newSticky);
+                    that.model.save();
+                }
+            });
         }
     });
     
