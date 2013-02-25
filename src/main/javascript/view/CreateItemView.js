@@ -28,12 +28,13 @@ define(["backbone", "model/BoardItem", "text!html/CreateItemView.html"], functio
                 boardItem = new BoardItem(newItem, {boardName: this.boardName}),
                 that = this;
 
-            this.boardItems.add(boardItem);
             boardItem.save(newItem, {
                 success: function () {
+                    that.boardItems.add(boardItem);
                     that.$el.dialog("close");
                 }
             });
+
 
             return false;
         },

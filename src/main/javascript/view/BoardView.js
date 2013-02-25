@@ -33,7 +33,7 @@ define(["backbone", "view/BoardItemView", "view/CreateItemView"], function (Back
             });
         },
         createItem: function () {
-            window.civ = new CreateItemView({boardItems: this.model.get("objects"), boardName: this.model.get("name")});
+            new CreateItemView({boardItems: this.model.get("objects"), boardName: this.model.get("name")});
         }
     });
 

@@ -23,13 +23,13 @@ define(["backbone"], function (Backbone) {
 
             return "/board/" + this.boardName + "/objects/" + this.get("id");
         },
-        pushContent: function (newContent) {
+        pushContent: function (newContent, options) {
             var newContents = _.clone(this.get("contents"));
             newContents.push(newContent);
 
-            this.set("contents", newContents);
+            this.set({contents: newContents}, options);
         },
-        removeContentMatching: function (similarItem) {
+        removeContentMatching: function (similarItem, options) {
             var contentToRemove = _.findWhere(this.get("contents"), similarItem),
                 newContents = _.reject(this.get("contents"), function (value) {
                     for (var key in similarItem) {
@@ -38,14 +38,27 @@ define(["backbone"], function (Backbone) {
                     return true;
                 });
 
-            this.set("contents", newContents);
+            this.set({contents: newContents}, options);
             return contentToRemove;
         },
         removeContentById: function (idToRemove) {
             return this.removeContentMatching({id: idToRemove});
         },
-        moveTo: function (newPosition) {
-            this.set("pos", newPosition);
+        moveTo: function (newPosition, options) {
+            this.set({pos: newPosition}, options);
+
+            if(options.silent) {
+                this.trigger("move", this, newPosition);
+            }
+        },
+        getWidgetId: function () {
+            var type = this.get("kind");
+
+            if (type !== "bucket") {
+                type = "widget";
+            }
+
+            return type + this.get("id");
         }
     });
 

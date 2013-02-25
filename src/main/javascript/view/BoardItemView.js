@@ -21,7 +21,7 @@ define([ "backbone",
             "click .remove": "removeBucketContent"
         },
         initialize: function () {
-            this.listenTo(this.model, "change", this.render);
+            this.listenTo(this.model, "change:contents move rename", this.render);
             this.listenTo(this.model, "destroy", this.remove);
             this.render();
         },
@@ -42,6 +42,8 @@ define([ "backbone",
         },
         renderBucket: function () {
             var that = this;
+
+            console.log("rendering bucket!");
 
             this.$el.html(this.bucketTmpl(this.model.toJSON()));
             this.$el.css(this.model.get("pos"));
