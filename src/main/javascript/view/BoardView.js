@@ -1,4 +1,5 @@
-define(["backbone", "view/BoardItemView", "view/CreateItemView"], function (Backbone, BoardItemView, CreateItemView) {
+define(["backbone", "view/BoardItemView", "view/CreateItemView", "view/ManageColumnsView"], function (Backbone, BoardItemView,
+                                                                                                      CreateItemView, ManageColumnsView) {
     var BoardView = Backbone.View.extend({
         id: "board",
         initialize: function () {
@@ -6,7 +7,8 @@ define(["backbone", "view/BoardItemView", "view/CreateItemView"], function (Back
             this.listenTo(this.model, "add", this.add);
         },
         events: {
-            "click .createButton": "createItem"
+            "click .createButton": "createItem",
+            "click .manageButton": "manageColumns"
         },
         add: function (boardItem) {
             var boardItemView = new BoardItemView({model: boardItem});
@@ -21,6 +23,7 @@ define(["backbone", "view/BoardItemView", "view/CreateItemView"], function (Back
 
             this.buttons = $("<div class='buttons'/>").appendTo(this.$el);
             $("<button id='newStickyButton' class='createButton'>New Item</button>").button().appendTo(this.buttons);
+            $("<button id='manageColumnsButton' class='manageButton'>Manage</button>").button().appendTo(this.buttons);
 
             //this.buttons.append("<button id='newStickyButton'>New Sticky</button>");
             //this.buttons.append("<button id='newBucketButton'>New Bucket</button>");
@@ -34,6 +37,10 @@ define(["backbone", "view/BoardItemView", "view/CreateItemView"], function (Back
         },
         createItem: function () {
             new CreateItemView({boardItems: this.model.get("objects"), boardName: this.model.get("name")});
+        },
+        manageColumns: function() {
+            var manageColumnsView = new ManageColumnsView({boardItems: this.model.get("objects"), boardName: this.model.get("name")});
+            manageColumnsView.on('closeView', this.render, this);
         }
     });
 

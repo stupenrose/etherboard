@@ -40,7 +40,7 @@ define(["backbone", "model/BoardItem", "text!html/CreateItemView.html"], functio
         },
         render: function () {
             var that = this;
-
+            console.log(this.boardName);
             that.dialog = this.$el.html(this.template()).dialog({
                 closeOnEscape: true,
                 title: "Create New Board Item",

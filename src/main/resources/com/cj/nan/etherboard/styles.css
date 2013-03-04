@@ -107,6 +107,10 @@ h1 {
     padding: 8px;
 }
 
+div#columnContainer {
+    display: block;
+}
+
 div.columnHeader {
 	width: 200px;
     padding: 3px;
@@ -415,4 +419,46 @@ a:visited {
 #createNewBoardSubmit {
   margin-left: auto;
   display: block;
+}
+
+.columnItem {
+    height: 30px;
+    border: 1px solid #ccc;
+    margin: 4px;
+    text-align: center;
+    clear:both;
+}
+
+span.columnItemText {
+    text-align: center;
+    vertical-align: middle;
+    font-size: 16px;
+}
+
+#placeHolder {
+    height: 100%;
+    vertical-align: middle;
+    display: inline-block;
+}
+
+.columnItemEditButton {
+    cursor: hand;
+    position: relative;
+    float: right;
+    height: 100%;
+}
+
+.columnItemDeleteButton {
+    cursor: hand;
+    position: relative;
+    float: right;
+    height: 80%;
+}
+
+.onDemandEdit {
+    float: left;
+    width: 70%;
+    height: 30px;
+    display: none;
+    resize: none;
 }
