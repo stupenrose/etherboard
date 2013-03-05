@@ -4,8 +4,11 @@ define(["backbone", "text!html/ManageColumnsView.html", "model/BoardItem", "text
        template: _.template(ManageColumnsViewTemplate),
        initialize: function () {
            this.render();
-
-           $(".existingColumns").sortable();
+           $(".existingColumns").sortable({
+               update: function(event, ui) {
+                   console.log(ui.item.index());
+               }
+           });
 
            this.boardItems = this.options.boardItems;
            this.boardName = this.options.boardName;
@@ -40,19 +43,20 @@ define(["backbone", "text!html/ManageColumnsView.html", "model/BoardItem", "text
            $(".existingColumns").append(view.render().el);
        },
        updateSort: function(event, model, position) {
-           this.collection.remove(model);
-
-           this.collection.each(function (model, index) {
-               var ordinal = index;
-               if (index >= position)
-                   ordinal += 1;
-               model.set('ordinal', ordinal);
-           });
-
-           model.set('ordinal', position);
-           this.collection.add(model, {at: position});
-
+           console.log("Sortable update");
            this.render();
+       },
+       swap: function(b){
+           console.dir(b);
+           console.log("And");
+          /* b = jQuery(b)[0];
+           var a = this[0];
+           var t = a.parentNode.insertBefore(document.createTextNode(''), a);
+           console.dir(t);
+           b.parentNode.insertBefore(a, b);
+           t.parentNode.insertBefore(b, t);
+           t.parentNode.removeChild(t);*/
+           return this;
        }
    });
 

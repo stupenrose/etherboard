@@ -452,7 +452,7 @@ span.columnItemText {
     cursor: hand;
     position: relative;
     float: right;
-    height: 80%;
+    height: 50%;
 }
 
 .onDemandEdit {
@@ -462,3 +462,4 @@ span.columnItemText {
     display: none;
     resize: none;
 }
+

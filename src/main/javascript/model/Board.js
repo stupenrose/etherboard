@@ -72,6 +72,8 @@ define(["backbone", "model/BoardItem", "collection/BoardItems", "WebSocketClient
                     msg.type = "newBucket";
                 } else if (msg.type === "image") {
                     msg.type = "newImage";
+                } else if (msg.type === "column") {
+                    msg.type = "newImage";
                 } else {
                     throw "Invalid boardItem type: " + msg.type;
                 }

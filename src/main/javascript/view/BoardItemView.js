@@ -3,7 +3,7 @@ define([ "backbone",
     "text!html/Bucket.html",
     "text!html/Column.html",
     "text!html/Avatar.html",
-    "text!html/Sticky.html",],
+    "text!html/Sticky.html"],
     function (Backbone, BoardItem, BucketTemplate, ColumnTemplate, AvatarTemplate, StickyTemplate) {
 
     var BoardItemView = Backbone.View.extend({
