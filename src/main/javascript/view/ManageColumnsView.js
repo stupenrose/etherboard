@@ -41,22 +41,6 @@ define(["backbone", "text!html/ManageColumnsView.html", "model/BoardItem", "text
            var view = new ColumnView({model: boardItem});
 
            $(".existingColumns").append(view.render().el);
-       },
-       updateSort: function(event, model, position) {
-           console.log("Sortable update");
-           this.render();
-       },
-       swap: function(b){
-           console.dir(b);
-           console.log("And");
-          /* b = jQuery(b)[0];
-           var a = this[0];
-           var t = a.parentNode.insertBefore(document.createTextNode(''), a);
-           console.dir(t);
-           b.parentNode.insertBefore(a, b);
-           t.parentNode.insertBefore(b, t);
-           t.parentNode.removeChild(t);*/
-           return this;
        }
    });
 
