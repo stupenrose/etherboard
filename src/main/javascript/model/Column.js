@@ -9,9 +9,9 @@ define(["backbone"], function (Backbone) {
             kind: "column"
         },
         initialize: function (attributes, options) {
-            if (!options || !options.boardName) {
+            /*if (!options || !options.boardName) {
                 throw "Must specify boardName";
-            }
+            }*/
 
             this.boardName = options.boardName;
         },

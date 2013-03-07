@@ -36,10 +36,10 @@ define(["backbone", "text!html/ManageColumnsView.html", "model/BoardItem", "text
                                   break;
                }
            });
+           console.dir(this.collection);
        },
        renderColumn: function(boardItem) {
            var view = new ColumnView({model: boardItem});
-
            $(".existingColumns").append(view.render().el);
        }
    });
