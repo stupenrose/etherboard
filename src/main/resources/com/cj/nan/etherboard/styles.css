@@ -87,9 +87,14 @@ table {
 
 
 div.column {
+    height: 30px;
 	width: 200px;
 	border: 1px solid grey;
 	float: left;
+    vertical-align: middle;
+    line-height: 30px;
+    text-wrap: normal;
+    overflow: visible;
 }
 
 body {

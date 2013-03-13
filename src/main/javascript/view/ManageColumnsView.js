@@ -28,18 +28,26 @@ define(["backbone", "text!html/ManageColumnsView.html", "model/BoardItem", "text
            if(oldIndex < newIndex) {
                while(oldIndex !== newIndex) {
                    var current = boardItems[oldIndex];
-                   var nextName = current.model.get("name");
+                   var currentName = current.model.get("name");
+                   var currentWidth = current.model.get("width");
                    var next = boardItems[++oldIndex];
+
                    current.model.set("name", next.model.get("name"));
-                   next.model.set("name", nextName);
+                   next.model.set("name", currentName);
+                   current.model.set("width", next.model.get("width"));
+                   next.model.set("width", currentWidth);
                }
            } else {
                while(oldIndex > newIndex) {
                    var current = boardItems[oldIndex];
-                   var nextName = current.model.get("name");
+                   var currentName = current.model.get("name");
+                   var currentWidth = current.model.get("width");
                    var next = boardItems[--oldIndex];
+
                    current.model.set("name", next.model.get("name"));
-                   next.model.set("name", nextName);
+                   next.model.set("name", currentName);
+                   current.model.set("width", next.model.get("width"));
+                   next.model.set("width", currentWidth);
                }
            }
 

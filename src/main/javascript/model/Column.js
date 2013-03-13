@@ -3,8 +3,8 @@ define(["backbone"], function (Backbone) {
         defaults: {
             name: "",
             extraNotes: "",
-            height: 30,
-            width: 50,
+            height: 22,
+            width: 200,
             pos: { left: 0, top: 0 },
             kind: "column"
         },
