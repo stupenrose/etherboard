@@ -1,20 +1,51 @@
 define(["backbone", "text!html/ManageColumnsView.html", "model/BoardItem", "text!html/Column.html", "view/ColumnView", "jquery"],
     function (Backbone, ManageColumnsViewTemplate, BoardItem, ColumnTemplate, ColumnView, $)  {
-   var ManageColumnsView = Backbone.View.extend({
+   var boardItems = [],
+       oldIndex,
+       ManageColumnsView = Backbone.View.extend({
        template: _.template(ManageColumnsViewTemplate),
        initialize: function () {
+           var that = this;
            this.render();
            $(".existingColumns").sortable({
+               start: function(event, ui) {
+                   oldIndex = ui.item.index();
+               },
                update: function(event, ui) {
+                   if(ui.item.index() !== oldIndex) {
+                       that.rearrange(oldIndex, ui.item.index());
+                   }
                    console.log(ui.item.index());
                }
            });
 
-           this.boardItems = this.options.boardItems;
+           //this.boardItems = this.options.boardItems;
            this.boardName = this.options.boardName;
        },
-       events: {
-           'update-sort': 'updateSort'
+       rearrange: function(oldIndex, newIndex) {
+           console.log(oldIndex + " " + newIndex);
+           if(oldIndex < newIndex) {
+               while(oldIndex !== newIndex) {
+                   var current = boardItems[oldIndex];
+                   var nextName = current.model.get("name");
+                   var next = boardItems[++oldIndex];
+                   current.model.set("name", next.model.get("name"));
+                   next.model.set("name", nextName);
+               }
+           } else {
+               while(oldIndex > newIndex) {
+                   var current = boardItems[oldIndex];
+                   var nextName = current.model.get("name");
+                   var next = boardItems[--oldIndex];
+                   current.model.set("name", next.model.get("name"));
+                   next.model.set("name", nextName);
+               }
+           }
+
+           _.each(boardItems, function(item){
+               item.model.save();
+           });
+           this.trigger('closeView');
        },
        render: function () {
            var that = this;
@@ -36,10 +67,12 @@ define(["backbone", "text!html/ManageColumnsView.html", "model/BoardItem", "text
                                   break;
                }
            });
-           console.dir(this.collection);
+
+           console.dir(boardItems);
        },
        renderColumn: function(boardItem) {
            var view = new ColumnView({model: boardItem});
+           boardItems.push(view);
            $(".existingColumns").append(view.render().el);
        }
    });
