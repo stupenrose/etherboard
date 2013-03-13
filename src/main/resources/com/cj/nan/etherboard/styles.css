@@ -463,3 +463,9 @@ span.columnItemText {
     resize: none;
 }
 
+.dropPlaceHolder {
+    height: 30px;
+    border: 1px dashed #dddbd3;
+    margin: 4px;
+    clear:both;
+}

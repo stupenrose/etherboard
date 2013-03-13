@@ -8,6 +8,7 @@ define(["backbone", "text!html/ManageColumnsView.html", "model/BoardItem", "text
            var that = this;
            this.render();
            $(".existingColumns").sortable({
+               placeholder: "dropPlaceHolder",
                start: function(event, ui) {
                    oldIndex = ui.item.index();
                },
