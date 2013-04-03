@@ -137,11 +137,14 @@ define([ "backbone",
         renderSticky: function () {
             var that = this,
                 bugId,
+                name;
 
             //TODO: need to figure out a way to check if the bugzilla url exists
             bugId  = this.model.get("name").match(/\d+/);
+            name = this.model.get("name").replace(bugId, '').trim();
 
-            this.$el.html(this.stickyTmpl({name: this.model.get("name"), budId: bugId}));
+            console.log("Name: " + name);
+            this.$el.html(this.stickyTmpl({name: name, bugId: bugId, extraNotes: this.model.get("extraNotes")}));
 
             this.$el.css(this.model.get("pos"));
             this.$el.css("position", "absolute");
