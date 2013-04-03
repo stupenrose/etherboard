@@ -5,7 +5,13 @@
   <div style="clear:both"></div>
 </div>
 <div class="stickyFront">
-  <div class="stickyContent"><%=name%></div>
+  <div class="stickyContent">
+      <% if (bugId !== null) { %>
+         <a href="http://bugzilla.vclk.net/show_bug.cgi?id=<%= bugId %>" target="_blank"><%= bugId %></a>
+      <% }
+        name
+      %>
+  </div>
 </div>
 <div class="stickyBack">
   <div class="extraNotes"><%=extraNotes%></div>

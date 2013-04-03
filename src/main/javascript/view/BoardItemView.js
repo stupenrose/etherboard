@@ -135,9 +135,14 @@ define([ "backbone",
             });
         },
         renderSticky: function () {
-            var that = this;
+            var that = this,
+                bugId,
 
-            this.$el.html(this.stickyTmpl(this.model.toJSON()));
+            //TODO: need to figure out a way to check if the bugzilla url exists
+            bugId  = this.model.get("name").match(/\d+/);
+
+            this.$el.html(this.stickyTmpl({name: this.model.get("name"), budId: bugId}));
+
             this.$el.css(this.model.get("pos"));
             this.$el.css("position", "absolute");
             this.$el.css("width", this.model.get("width"));
