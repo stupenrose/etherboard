@@ -4,6 +4,6 @@ mvn clean install
 
 Then run it with:
 
-java -jar target/etherboard-0.0.1-SNAPSHOT.one-jar.jar
+java -jar target/etherboard-0.0.2-SNAPSHOT.one-jar.jar
 
 Then open your browser to http://localhost:40180 and go nuts!
