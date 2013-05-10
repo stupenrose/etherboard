@@ -188,12 +188,15 @@ define([ "backbone",
         saveStickyName: function () {
             var newName = this.$('.stickyContent')[0].textContent;
             this.model.save({name: newName});
-            this.$(".stickyContent").blur()
+            this.switchFocusToTheBoard();
         },
         saveNotes: function () {
             var newNotes = this.$('.extraNotes')[0].textContent;
             this.model.save({extraNotes: newNotes});
-            this.$(".extraNotes").blur();
+            this.switchFocusToTheBoard();
+        },
+        switchFocusToTheBoard: function () {
+            this.$("#board").focus();
         },
         removeBucketContent: function (ev) {
             var that = this;
