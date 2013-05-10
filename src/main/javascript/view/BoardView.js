@@ -1,5 +1,4 @@
-define(["backbone", "view/BoardItemView", "view/CreateItemView", "view/ManageColumnsView"], function (Backbone, BoardItemView,
-                                                                                                      CreateItemView, ManageColumnsView) {
+define(["backbone", "view/BoardItemView", "view/CreateItemView", "view/ManageColumnsView", "underscore"], function (Backbone, BoardItemView, CreateItemView, ManageColumnsView, _) {
     var BoardView = Backbone.View.extend({
         id: "board",
         initialize: function () {
@@ -14,12 +13,24 @@ define(["backbone", "view/BoardItemView", "view/CreateItemView", "view/ManageCol
             var boardItemView = new BoardItemView({model: boardItem});
             this.$el.append(boardItemView.el);
         },
+        verifyBugzillaURLs: function () {
+            console.dir(this.model.get("objects"));
+            var stickiesWithBugs = _.filter(this.model.get("objects").models, function (object) {
+                if (object.get("kind") === "sticky") {
+                    return object.get("name").match(/\d+/) !== null;
+                }
+            });
+            _.each(stickiesWithBugs, function (sticky) {
+                console.log(sticky.get("name"));
+            });
+        },
         render: function () {
             var that = this;
             this.$el.empty();
 
             this.$el.css("width", "2000px");
             this.$el.append("<div id='title' class='header'><a href='#'>Etherboard:</a>" + this.model.get("name") + "</div>");
+            this.verifyBugzillaURLs();
 
             this.buttons = $("<div class='buttons'/>").appendTo(this.$el);
             $("<button id='newStickyButton' class='createButton'>New Item</button>").button().appendTo(this.buttons);
@@ -38,7 +49,7 @@ define(["backbone", "view/BoardItemView", "view/CreateItemView", "view/ManageCol
         createItem: function () {
             new CreateItemView({boardItems: this.model.get("objects"), boardName: this.model.get("name")});
         },
-        manageColumns: function() {
+        manageColumns: function () {
             var manageColumnsView = new ManageColumnsView({boardItems: this.model.get("objects"), boardName: this.model.get("name")});
             manageColumnsView.on('closeView', this.render, this);
         }

@@ -17,7 +17,9 @@ define([ "backbone",
                 "click .avatarDeleteButton,.stickyCloseButton": "destroy",
                 "click .stickyFlipButton": "flip",
                 "click .stickyEditButton": "edit",
-                "click .remove": "removeBucketContent"
+                "click .remove": "removeBucketContent",
+                "blur .stickyContent": "saveStickyName",
+                "blur .extraNotes": "saveNotes"
             },
             initialize: function () {
                 this.listenTo(this.model, "change:contents move rename", this.render);
@@ -97,10 +99,11 @@ define([ "backbone",
                     handles: "e",
                     minWidth: 200,
                     stop: function(event, ui) {
-                        that.model.set({width: that.$el.width()}, {silent: true});
+                        that.model.set({width : ui.size.width}, {silent: true});
                         that.model.save();
                     }
                 });
+                console.log(this.model.get("width"));
                 this.$el.css("width", this.model.get("width"));
             },
 
@@ -143,7 +146,6 @@ define([ "backbone",
             bugId  = this.model.get("name").match(/\d+/);
             name = this.model.get("name").replace(bugId, '').trim();
 
-            console.log("Name: " + name);
             this.$el.html(this.stickyTmpl({name: name, bugId: bugId, extraNotes: this.model.get("extraNotes")}));
 
             this.$el.css(this.model.get("pos"));
@@ -174,7 +176,22 @@ define([ "backbone",
             this.$el.toggleClass("flip");
         },
         edit: function () {
+            if (!this.$el.hasClass("flip")) {
+                this.$(".stickyContent").attr("contenteditable", true);
+                this.$(".stickyContent").focus();
+            } else {
+                this.$(".extraNotes").attr("contenteditable", true);
+                this.$(".extraNotes").focus();
+            }
             console.log("edit called!");
+        },
+        saveStickyName: function () {
+            var newName = this.$('.stickyContent')[0].textContent;
+            this.model.save({name: newName});
+        },
+        saveNotes: function () {
+            var newNotes = this.$('.extraNotes')[0].textContent;
+            this.model.save({extraNotes: newNotes});
         },
         removeBucketContent: function (ev) {
             var that = this;
