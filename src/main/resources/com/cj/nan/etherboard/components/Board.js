@@ -85,7 +85,7 @@ function Board(parent, boardId) {
                 var dialog = $('#newImage').dialog({title: "New image"}).show(),
                     urlField = dialog.find("input[type=text]");
 
-                dialog.find("form").submit(function (e) {
+                dialog.find("form").unbind("submit").submit(function (e) {
                     var img = {
                         kind: "image",
                         name: urlField.val()
