@@ -75,6 +75,10 @@ class Sticky(@BeanProperty var name: String, @BeanProperty var extraNotes: Strin
 }
 
 class BoardObject(@BeanProperty var id: Int,
+                  @BeanProperty var backlogId: Int,
+                  @BeanProperty var backlogName: String,
+                  @BeanProperty var storyId: String,
+                  @BeanProperty var title: String,
                   @BeanProperty var name: String,
                   @BeanProperty var extraNotes: String,
                   @BeanProperty() var kind: String,
@@ -87,14 +91,18 @@ class BoardObject(@BeanProperty var id: Int,
         kind = "sticky"
     }
 
-    def this() = this(id = Integer.MIN_VALUE, name = null, extraNotes = null, kind = null, height = 150, width = 150)
+    def this() = this(id = Integer.MIN_VALUE, backlogId = Integer.MIN_VALUE, backlogName = null, storyId = null, title = null, name = null, extraNotes = null, kind = null, height = 150, width = 150)
 
-    def this(_id: Int, other: BoardObject) = this(id = _id, name = other.name, extraNotes = other.extraNotes, kind = other.kind, pos = other.pos, height = other.height, width = other.width)
+    def this(_id: Int, other: BoardObject) = this(id = _id, backlogId = other.backlogId, backlogName = other.backlogName, storyId = other.storyId, title = other.title, name = other.name, extraNotes = other.extraNotes, kind = other.kind, pos = other.pos, height = other.height, width = other.width)
 
-    def this(_id: Int) = this(id = _id, name = null, extraNotes = null, kind = null, height = 150, width = 150)
+    def this(_id: Int) = this(id = _id, backlogId = Integer.MIN_VALUE, backlogName = null, storyId = null, title = null, name = null, extraNotes = null, kind = null, height = 150, width = 150)
 
     def updateFrom(other: BoardObject) {
         if (other != null) {
+            backlogId = other.backlogId
+            backlogName = other.backlogName
+            storyId = other.storyId
+            title = other.title
             pos = other.pos
             name = other.name
             extraNotes = other.extraNotes
@@ -106,7 +114,7 @@ class BoardObject(@BeanProperty var id: Int,
 
     override def equals(other: Any): Boolean = other match {
         case x: BoardObject =>
-            this.id == x.id && this.name == x.name && this.extraNotes == x.extraNotes && this.kind == x.kind && pos.left == x.pos.left && pos.top == x.pos.top && height == x.height && width == x.width
+            this.id == x.id && this.backlogId == x.backlogId && this.backlogName == x.backlogName && storyId == x.storyId && title == x.title && this.name == x.name && this.extraNotes == x.extraNotes && this.kind == x.kind && pos.left == x.pos.left && pos.top == x.pos.top && height == x.height && width == x.width
         case _ => false
     }
 }
@@ -154,10 +162,10 @@ class PivotalTrackerBoard(@BeanProperty name: String,  @BeanProperty var toolSyn
       req.setHeader("X-TrackerToken", toolSyncKey)
       
       val response = httpClient.execute(req)
-      val baos = new ByteArrayOutputStream()
-      response.getEntity().writeTo(baos)
+      val storiesToStreamOut = new ByteArrayOutputStream()
+      response.getEntity().writeTo(storiesToStreamOut)
       
-      val stories = pivotalTrackerStoriesFromXml(baos.toString())
+      val stories = pivotalTrackerStoriesFromXml(storiesToStreamOut.toString())
       
       stories.foreach(story => {
     	findObject(story.id) match {
@@ -165,7 +173,7 @@ class PivotalTrackerBoard(@BeanProperty name: String,  @BeanProperty var toolSyn
             existingStory.name = story.name
             existingStory.extraNotes = story.description
           case None =>
-            addObject(new BoardObject(story.id, story.name, story.description, "sticky"))
+            addObject(new BoardObject(story.id, Integer.MIN_VALUE, "","","", story.name, story.description, "sticky"))
       	}
       })
     }

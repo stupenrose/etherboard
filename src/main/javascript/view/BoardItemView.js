@@ -1,15 +1,7 @@
-define([ "backbone",
-    "text!html/Bucket.html",
-    "text!html/Column.html",
-    "text!html/Avatar.html",
-    "text!html/Sticky.html"],
-    function (Backbone, BucketTemplate, ColumnTemplate, AvatarTemplate, StickyTemplate) {
+define([ "backbone"],
+    function (Backbone) {
 
     var BoardItemView = Backbone.View.extend({
-        bucketTmpl: _.template(BucketTemplate),
-        columnTmpl: _.template(ColumnTemplate),
-        avatarTmpl: _.template(AvatarTemplate),
-        stickyTmpl: _.template(StickyTemplate),
         className: function () {
             return this.model.get("kind").replace("image", "avatar");
         },
@@ -40,9 +32,10 @@ define([ "backbone",
             return this;
         },
         renderBucket: function () {
-            var that = this;
+            var that = this,
+                bucket = $('<div class="stickyHeader"></div>');
 
-            this.$el.html(this.bucketTmpl(this.model.toJSON()));
+            this.$el.html(bucket(this.model.toJSON()));
             this.$el.css(this.model.get("pos"));
             this.$el.css("position", "absolute");
             this.$el.css("width", this.model.get("width"));
@@ -98,12 +91,14 @@ define([ "backbone",
             });
         },
         renderColumn: function () {
-            this.$el.html(this.columnTmpl(this.model.toJSON()));
+            var column = $('<div class="columnHeader">');
+            this.$el.html(column(this.model.toJSON()));
         },
         renderAvatar: function () {
-            var that = this;
+            var that = this,
+                avatar = $('<div class="avatarHeader" style="opacity: 0;">');
 
-            this.$el.html(this.avatarTmpl(this.model.toJSON()));
+            this.$el.html(avatar(this.model.toJSON()));
             this.$el.css(this.model.get("pos"));
             this.$el.css("position", "absolute");
 
@@ -135,9 +130,10 @@ define([ "backbone",
             });
         },
         renderSticky: function () {
-            var that = this;
+            var that = this,
+                sticky = $(<div class="stickyHeader"></div>);
 
-            this.$el.html(this.stickyTmpl(this.model.toJSON()));
+            this.$el.html(sticky(this.model.toJSON()));
             this.$el.css(this.model.get("pos"));
             this.$el.css("position", "absolute");
             this.$el.css("width", this.model.get("width"));

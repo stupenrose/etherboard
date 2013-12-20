@@ -41,6 +41,7 @@ package com.cj.nan.etherboard
 import org.httpobjects.jetty.HttpObjectsJettyHandler
 import org.httpobjects.{Request, HttpObject}
 import org.httpobjects.freemarker.FreemarkerDSL._
+import org.httpobjects.proxy
 import org.apache.log4j.BasicConfigurator
 import freemarker.cache.TemplateLoader
 import java.util.regex.Pattern
@@ -53,6 +54,8 @@ import java.io._
 import org.httpobjects.util.{RequestQueryUtil, ClasspathResourcesObject}
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.httpobjects.util.MimeTypeTool
+import org.apache.commons.httpclient.methods.GetMethod
+import org.apache.commons.httpclient.HttpClient
 
 object JettyWrapper {
 
@@ -84,7 +87,7 @@ object JettyWrapper {
       new HttpObject("/board/{boardId}/objects") {
         override def get(req: Request) = lock.synchronized {
 
-          val boardId = req.pathVars().valueFor("boardId")
+          val boardId = req.path().valueFor("boardId")
           val jackson = new ObjectMapper()
 
           val board = boardDao.getBoard(boardId)
@@ -93,7 +96,7 @@ object JettyWrapper {
         }
 
         override def post(req: Request) = lock.synchronized {
-          val boardId = req.pathVars().valueFor("boardId")
+          val boardId = req.path().valueFor("boardId")
           val jackson = new ObjectMapper()
           val bytes = new ByteArrayOutputStream()
           req.representation().write(bytes)
@@ -109,13 +112,13 @@ object JettyWrapper {
       },
       new HttpObject("/board/{boardId}/objects/{objectId}") {
         override def put(req: Request) = lock.synchronized {
-          val boardId = req.pathVars().valueFor("boardId")
+          val boardId = req.path().valueFor("boardId")
           val jackson = new ObjectMapper()
           val bytes = new ByteArrayOutputStream()
           req.representation().write(bytes)
           val o = jackson.readValue(new ByteArrayInputStream(bytes.toByteArray()), classOf[BoardObject]);
 
-          val id = Integer.parseInt(req.pathVars().valueFor("objectId"), 10)
+          val id = Integer.parseInt(req.path().valueFor("objectId"), 10)
 
           val board = boardDao.getBoard(boardId)
           val existing = board.findObject(id)
@@ -131,8 +134,8 @@ object JettyWrapper {
         }
 
         override def delete(req: Request) = lock.synchronized {
-          val boardId = req.pathVars().valueFor("boardId")
-          val id = Integer.parseInt(req.pathVars().valueFor("objectId"), 10)
+          val boardId = req.path().valueFor("boardId")
+          val id = Integer.parseInt(req.path().valueFor("objectId"), 10)
           val board = boardDao.getBoard(boardId)
           board.removeObject(id);
           boardDao.saveBoard(board);
@@ -163,18 +166,48 @@ object JettyWrapper {
       },
       new HttpObject("/{resource*}") {
         override def get(req: Request) = {
-          val resource = req.pathVars().valueFor("resource");
+          val resource = req.path().valueFor("resource");
           val data = this.getClass().getClassLoader().getResourceAsStream(resource);
-          
+
           if (data != null) {
 			OK(Bytes(new MimeTypeTool().guessMimeTypeFromName(resource), data))
           } else {
 			null
           }
         }
-      }
-    );
+      },
+      new HttpObject("/backlogs") {
+        override def get(req: Request) = {
+            val request = new GetMethod("http://localhost:43180/api/backlogs/" )
+            val client = new HttpClient()
+            val response = client.executeMethod(request)
+            var body = ""
+            if (response == 200) {
+                body = request.getResponseBodyAsString()
+                OK(Bytes("application/json", body.getBytes()))
+            } else {
+                null
+            }
+        }
+      },
+        new HttpObject("/backlogs/{id}") {
+            override def get(req: Request) = {
+                val id = req.path().valueFor("id")
+                val request = new GetMethod("http://localhost:43180/api/backlogs/" + id)
+                val client = new HttpClient()
+                val response = client.executeMethod(request)
+                var body = ""
+                if (response == 200) {
+                    body = request.getResponseBodyAsString()
+                    OK(Bytes("application/json", body.getBytes()))
+                } else {
+                    null
+                }
+            }
+        }
+    )
   }
+
 
   def freemarkerConfig() = {
     val cfg = new Configuration();

@@ -137,6 +137,7 @@ function Issue(issue, parent, boardId, webSocketClient) {
         widget.toggleClass("flip");
     });
 
+
     widget.find(".stickyCloseButton").click(function (e) {
         if (confirm("DELETE is permanent! :(")) {
             widget.trigger("deleteSticky");

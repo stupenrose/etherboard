@@ -134,15 +134,15 @@ object BoardDaoImpl extends BoardDao {
     }
 
     def addDefaultColumnsToBoard(board: Board) = {
-        board.addObject(new BoardObject(id = 1, name = "OnDeck", extraNotes = "", kind = "column"))
-        board.addObject(new BoardObject(id = 2, name = "InProgress", extraNotes = "", kind = "column"))
-        board.addObject(new BoardObject(id = 3, name = "DevDone", extraNotes = "", kind = "column"))
-        board.addObject(new BoardObject(id = 4, name = "QRing", extraNotes = "", kind = "column"))
-        board.addObject(new BoardObject(id = 5, name = "ReadyForDemo", extraNotes = "", kind = "column"))
-        board.addObject(new BoardObject(id = 6, name = "NeedsSoxing", extraNotes = "", kind = "column"))
-        board.addObject(new BoardObject(id = 7, name = "Soxing", extraNotes = "", kind = "column"))
-        board.addObject(new BoardObject(id = 8, name = "NeedsDeploy", extraNotes = "", kind = "column"))
-        board.addObject(new BoardObject(id = 9, name = "NeedsClosing", extraNotes = "", kind = "column"))
+        board.addObject(new BoardObject(id = 1, backlogId = 0, backlogName = "", storyId= "", title = "", name = "OnDeck", extraNotes = "", kind = "column"))
+        board.addObject(new BoardObject(id = 2, backlogId = 0, backlogName = "", storyId= "", title = "", name = "InProgress", extraNotes = "", kind = "column"))
+        board.addObject(new BoardObject(id = 3, backlogId = 0, backlogName = "", storyId= "", title = "", name = "DevDone", extraNotes = "", kind = "column"))
+        board.addObject(new BoardObject(id = 4, backlogId = 0, backlogName = "", storyId= "", title = "", name = "QRing", extraNotes = "", kind = "column"))
+        board.addObject(new BoardObject(id = 5, backlogId = 0, backlogName = "", storyId= "", title = "", name = "ReadyForDemo", extraNotes = "", kind = "column"))
+        board.addObject(new BoardObject(id = 6, backlogId = 0, backlogName = "", storyId= "", title = "", name = "NeedsSoxing", extraNotes = "", kind = "column"))
+        board.addObject(new BoardObject(id = 7, backlogId = 0, backlogName = "", storyId= "", title = "", name = "Soxing", extraNotes = "", kind = "column"))
+        board.addObject(new BoardObject(id = 8, backlogId = 0, backlogName = "", storyId= "", title = "", name = "NeedsDeploy", extraNotes = "", kind = "column"))
+        board.addObject(new BoardObject(id = 9, backlogId = 0, backlogName = "", storyId= "", title = "", name = "NeedsClosing", extraNotes = "", kind = "column"))
     }
 
 }

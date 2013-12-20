@@ -59,9 +59,9 @@ class EtherboardTest extends FunSuite with ShouldMatchers {
     }
 
     test("updating BoardObject from another BoardObject") {
-        val originalBoardObject: BoardObject = new BoardObject(1, "original name", "original extra note", "original kind", new Position())
+        val originalBoardObject: BoardObject = new BoardObject(1, 0, "", "", "", "original name", "original extra note", "original kind", new Position())
         val newPosition: Position = new Position(34, 87)
-        val newBoardObject: BoardObject = new BoardObject(2, "new name", "new extra note", "new kind", newPosition)
+        val newBoardObject: BoardObject = new BoardObject(2, 0, "", "", "", "new name", "new extra note", "new kind", newPosition)
 
         originalBoardObject.updateFrom(newBoardObject)
 
@@ -73,7 +73,7 @@ class EtherboardTest extends FunSuite with ShouldMatchers {
     }
     
     test("finding a board object") {
-    	val boardObject: BoardObject = new BoardObject(1, "some name", "some extra note", "some kind", new Position())
+    	val boardObject: BoardObject = new BoardObject(1, 0, "", "", "", "some name", "some extra note", "some kind", new Position())
     	val board = new Board("Herbert", boardObject)
     	
     	val shouldBeFound = board.findObject(1)
@@ -85,8 +85,8 @@ class EtherboardTest extends FunSuite with ShouldMatchers {
     }
 
     test("Remove a board object") {
-        var a: BoardObject = new BoardObject(3, "a is excellent", "yes it is", "sticky", new Position(0, 0))
-        var b: BoardObject = new BoardObject(14, "b is bad", "fo sho", "stinky", new Position(0, 0))
+        var a: BoardObject = new BoardObject(3, 0, "", "", "", "a is excellent", "yes it is", "sticky", new Position(0, 0))
+        var b: BoardObject = new BoardObject(14, 0, "", "", "", "b is bad", "fo sho", "stinky", new Position(0, 0))
         var bb: Board = new Board("bb", a, b);
 
         assert(bb.objects.contains(a))
@@ -99,8 +99,8 @@ class EtherboardTest extends FunSuite with ShouldMatchers {
     }
 
     test("BoardObjects equal") {
-        var boardObject: BoardObject = new BoardObject(4, "some name", "some note", "some kind", new Position(37, 928))
-        var otherBoardObject: BoardObject = new BoardObject(4, "some name", "some note", "some kind", new Position(37, 928))
+        var boardObject: BoardObject = new BoardObject(4, 0, "", "", "", "some name", "some note", "some kind", new Position(37, 928))
+        var otherBoardObject: BoardObject = new BoardObject(4, 0, "", "", "", "some name", "some note", "some kind", new Position(37, 928))
 
         assert(boardObject === otherBoardObject)
         otherBoardObject.pos = new Position(37, 927)

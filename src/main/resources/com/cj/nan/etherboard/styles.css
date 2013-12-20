@@ -414,3 +414,10 @@ a:visited {
   margin-left: auto;
   display: block;
 }
+
+div.story-title-div {
+    text-align: left;
+}
+div.linkToEtherLog  {
+    text-align: right;
+}

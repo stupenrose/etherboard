@@ -1,6 +1,8 @@
-define(["backbone", "underscore", "jquery-ui", "text!../html/BoardSelectionView.html"], function (Backbone, _, $, BoardSelectionTemplate) {
+define(["backbone", "jquery-ui", ], function (Backbone, $) {
+    var boardSelection = $('<h1>Boards</h1><ul class="boardList">');
     var BoardSelectionView = Backbone.View.extend({
-        template: _.template(BoardSelectionTemplate),
+
+        //template: _.template(BoardSelectionTemplate),
         initialize: function (options) {
             var that = this;
 
@@ -10,7 +12,7 @@ define(["backbone", "underscore", "jquery-ui", "text!../html/BoardSelectionView.
             });
         },
         render: function () {
-            this.$el.html(this.template({boardNames: this.boardNames}));
+            this.$el.html(boardSelection({boardNames: this.boardNames}));
             this.$("#createNewBoardButton").button();
             return this;
         }

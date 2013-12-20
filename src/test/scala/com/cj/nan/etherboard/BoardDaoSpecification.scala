@@ -39,8 +39,7 @@
 package com.cj.nan.etherboard
 
 import org.scalatest.matchers.ShouldMatchers
-import org.scalatest.GivenWhenThen
-import org.scalatest.Spec
+import org.scalatest.{FunSpec, GivenWhenThen, Spec}
 import java.io.FileInputStream
 import java.io.File
 import org.junit.runner.RunWith
@@ -51,19 +50,19 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import scala.beans.BeanProperty
 
 @RunWith(classOf[JUnitRunner])
-class BoardDaoSpecification extends Spec with ShouldMatchers with GivenWhenThen {
+class BoardDaoSpecification extends FunSpec with ShouldMatchers with GivenWhenThen {
     
     describe("A BoardDao") {
         it("should save a Board object") {
-            given("A BoardDao and a new Board to save")
-                val boardObject: BoardObject = new BoardObject(1, "some name", "some extra note", "some kind", new Position())
+            Given("A BoardDao and a new Board to save")
+                val boardObject: BoardObject = new BoardObject(1, 0, "", "", "", "some name", "some extra note", "some kind", new Position())
                 val boardName:String = Random.alphanumeric take 30 mkString
     
                 val aBoard = new Board(boardName, boardObject)
                 val boardDao = BoardDaoImpl()
-            when("saving the board")
+            When("saving the board")
                 boardDao.saveBoard(aBoard)
-            then("a text file with the board contents should be saved")
+            Then("a text file with the board contents should be saved")
                 val file:File = new File("target/data", boardName)
                 file.exists() should  be (true)
                 val jackson = new ObjectMapper()
@@ -73,15 +72,15 @@ class BoardDaoSpecification extends Spec with ShouldMatchers with GivenWhenThen 
         }
 
         it("should be able to retrieve an existing Board") {
-            given("a saved board")
-                val boardObject: BoardObject = new BoardObject(1, "some name", "some extra note", "some kind", new Position())
+            Given("a saved board")
+                val boardObject: BoardObject = new BoardObject(1, 0, "", "", "",  "some name", "some extra note", "some kind", new Position())
                 val boardName:String = Random.alphanumeric take 30 mkString
 
                 val aBoard = new Board(boardName, boardObject)
                 BoardDaoImpl().saveBoard(aBoard)
-            when("getting the saved board")
+            When("getting the saved board")
                 val retrievedBoard:Board = BoardDaoImpl().getBoard(boardName)
-            then("the board should be retrieved successfully")
+            Then("the board should be retrieved successfully")
                 retrievedBoard.name should equal (aBoard.name)
                 val retrievedBoardObject:BoardObject = retrievedBoard.findObject(1).get
                 retrievedBoardObject.name should equal ("some name")
@@ -92,10 +91,10 @@ class BoardDaoSpecification extends Spec with ShouldMatchers with GivenWhenThen 
         }
 
         it("should import stickie as sticky") {
-            given("a saved board")
+            Given("a saved board")
                 val boardName:String = Random.alphanumeric take 30 mkString
 
-                val boardObject: BoardObject = new BoardObject(1, "some name", "some extra note", "stickie", new Position())
+                val boardObject: BoardObject = new BoardObject(1, 0, "", "", "","some name", "some extra note", "stickie", new Position())
                 boardObject.kind should equal ("sticky")
 
                 boardObject.kind = "stickie"
@@ -103,9 +102,9 @@ class BoardDaoSpecification extends Spec with ShouldMatchers with GivenWhenThen 
 
                 val aBoard: Board = new Board(boardName, boardObject)
                 BoardDaoImpl().saveBoard(aBoard)
-            when("getting the saved board")
+            When("getting the saved board")
                 val retrievedBoard:Board = BoardDaoImpl().getBoard(boardName)
-            then("the board's stickie should now be a sticky")
+            Then("the board's stickie should now be a sticky")
                 val retrievedBoardObject:BoardObject = retrievedBoard.findObject(1).get
                 retrievedBoardObject.kind should equal ("sticky")
                 val file:File = new File("target/data", boardName)

@@ -6,6 +6,12 @@
     <artifactId>etherboard</artifactId>
     <version>0.0.2-SNAPSHOT</version>
 
+    <properties>
+        <httpobjects-version>0.5.1-SNAPSHOT</httpobjects-version>
+        <maven.compiler.source>1.6</maven.compiler.source>
+        <maven.compiler.target>1.6</maven.compiler.target>
+    </properties>
+
 
     <build>
         <sourceDirectory>src/main/scala</sourceDirectory>
@@ -194,27 +200,28 @@
         <dependency>
             <groupId>org.httpobjects.jackson</groupId>
             <artifactId>httpobjects-jackson</artifactId>
-            <version>0.1.1-SNAPSHOT</version>
+            <version>${httpobjects-version}</version>
         </dependency>
-
         <dependency>
             <groupId>org.httpobjects.jetty</groupId>
-            <artifactId>httpobjects-jetty</artifactId>
-            <version>0.1.1-SNAPSHOT</version>
+            <artifactId>httpobjects-jetty-6</artifactId>
+            <version>${httpobjects-version}</version>
         </dependency>
-
         <dependency>
             <groupId>org.httpobjects.servlet</groupId>
             <artifactId>httpobjects-servlet</artifactId>
-            <version>0.1.1-SNAPSHOT</version>
+            <version>${httpobjects-version}</version>
         </dependency>
-
         <dependency>
             <groupId>org.httpobjects.freemarker</groupId>
             <artifactId>httpobjects-freemarker</artifactId>
-            <version>0.1.1-SNAPSHOT</version>
+            <version>${httpobjects-version}</version>
         </dependency>
-
+        <dependency>
+            <groupId>org.httpobjects.proxy</groupId>
+            <artifactId>httpobjects-proxy</artifactId>
+            <version>${httpobjects-version}</version>
+        </dependency>
         <dependency>
             <groupId>org.mortbay.jetty</groupId>
             <artifactId>jetty</artifactId>
@@ -285,30 +292,26 @@
             <id>onejar-maven-plugin.googlecode.com</id>
             <url>http://onejar-maven-plugin.googlecode.com/svn/mavenrepo-snapshot</url>
         </pluginRepository>
-        <pluginRepository>
-            <id>scala-tools.org</id>
-            <name>Scala-tools Maven2 Repository</name>
-            <url>http://scala-tools.org/repo-releases</url>
-        </pluginRepository>
+        <!--<pluginRepository>-->
+            <!--<id>scala-tools.org</id>-->
+            <!--<name>Scala-tools Maven2 Repository</name>-->
+            <!--<url>http://scala-tools.org/repo-releases</url>-->
+        <!--</pluginRepository>-->
     </pluginRepositories>
 
-    <repositories>
+    <!--<repositories>-->
 
-        <repository>
-            <id>httpobjects</id>
-            <name>HttpObjects Maven Repo</name>
-            <url>https://repository-httpobjects.forge.cloudbees.com/snapshot/</url>
-        </repository>
+        <!--&lt;!&ndash;<repository>&ndash;&gt;-->
+            <!--&lt;!&ndash;<id>httpobjects</id>&ndash;&gt;-->
+            <!--&lt;!&ndash;<name>HttpObjects Maven Repo</name>&ndash;&gt;-->
+            <!--&lt;!&ndash;<url>https://repository-httpobjects.forge.cloudbees.com/snapshot/</url>&ndash;&gt;-->
+        <!--&lt;!&ndash;</repository>&ndash;&gt;-->
 
-        <repository>
-            <id>scala-tools.org</id>
-            <name>Scala-tools Maven2 Repository</name>
-            <url>http://scala-tools.org/repo-releases</url>
-        </repository>
-    </repositories>
+        <!--<repository>-->
+            <!--<id>scala-tools.org</id>-->
+            <!--<name>Scala-tools Maven2 Repository</name>-->
+            <!--<url>http://scala-tools.org/repo-releases</url>-->
+        <!--</repository>-->
+    <!--</repositories>-->
 
-    <properties>
-        <maven.compiler.source>1.6</maven.compiler.source>
-        <maven.compiler.target>1.6</maven.compiler.target>
-    </properties>
 </project>

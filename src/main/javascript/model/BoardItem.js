@@ -1,6 +1,10 @@
 define(["backbone"], function (Backbone) {
     var BoardItem = Backbone.Model.extend({
         defaults: {
+            backlogId: 0,
+            backlogName: "",
+            storyId: 0,
+            title: "",
             contents: [],
             name: "",
             extraNotes: "",

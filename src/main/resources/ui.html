@@ -153,6 +153,9 @@
             <img class="stickyCloseButton" title="Delete" src="close_icon.gif" />
             <div style="clear:both"></div>
         </div>
+        <div class="story-title-div">
+            <span class="story-title"></span>
+        </div>
         <div class="stickyFront">
             <div class="stickyContent"></div>
         </div>
@@ -164,7 +167,17 @@
 
 <script type="x/template" id="stickyEditor">
     <div class="stickyeditor" style="display:none;">
-        <textarea class="titleText"></textarea>
+        <div class="story-title-div">
+            <span class="story-title"></span>
+        </div>
+        <div class="linkToEtherLog">
+            <label>EtherLog</label>
+            <select id="etherLogSelect"><option value="0" selected >None</option>None</select>
+            <label>Story</label>
+            <select id="etherLogStorySelect"><option value="0" selected >None</option>0</select>
+        </div>
+        <textarea class="content"></textarea>
+
         <textarea class="notesText" style="display:none;"></textarea>
         <button class="ui-button flip">Flip</button>
         <button class="ui-button save">Save</button>
