@@ -421,3 +421,6 @@ div.story-title-div {
 div.linkToEtherLog  {
     text-align: right;
 }
+.story-title-input-span {
+    margin-right: 15px;
+}

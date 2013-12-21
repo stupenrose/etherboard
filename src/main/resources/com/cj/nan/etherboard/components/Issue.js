@@ -102,6 +102,7 @@ function Issue(issue, parent, boardId, webSocketClient) {
     function update() {
         widget.find(".stickyContent").html(setupLinks(issue.name));
         widget.find(".extraNotes").html(setupLinks(issue.extraNotes));
+        widget.find(".story-title").text(issue.title);
     }
 
     update();
@@ -128,6 +129,7 @@ function Issue(issue, parent, boardId, webSocketClient) {
 
     widget.find(".stickyEditButton").click(function (e) {
         StickyEditor(issue, parent, function (newSticky) {
+            issue = $.extend(issue, newSticky);
             widget.trigger("doSave");
             update();
         });
