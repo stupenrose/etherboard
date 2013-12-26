@@ -51,12 +51,25 @@ import org.apache.commons.logging.LogFactory
 import org.apache.log4j.Logger
 import org.apache.log4j.Level
 import scala.xml.XML
+import scala.util.Random
 
 class Position(@BeanProperty var left: Int = 0, @BeanProperty var top: Int = 0) {
     def this() = this(left = 0, top = 0)
 }
 
-class Sticky(@BeanProperty var name: String, @BeanProperty var extraNotes: String) {
+class Sticky(@BeanProperty var name: String, @BeanProperty var extraNotes: String,
+				
+    /*###################################################################################
+     *##  WARNING: All these fields are gargbage ... they should not be here ... ask Stu */
+	/*##*/  @BeanProperty var id: Int = Random.nextInt(),
+    /*##*/  @BeanProperty() var kind: String = "sticky",
+    /*##*/  @BeanProperty var pos: Position = null,
+    /*##*/  @BeanProperty var height: Int = 0,
+    /*##*/  @BeanProperty var width: Int = 0,
+    /*##*/  @BeanProperty var contents: java.util.List[Sticky] = new java.util.ArrayList[Sticky]()
+    /*##################################################################*/
+
+) {
     def this() = this(name = null, extraNotes = null)
     def this(_name: String) = this(name = _name, extraNotes = null)
 }
