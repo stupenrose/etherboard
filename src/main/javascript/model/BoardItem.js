@@ -4,7 +4,6 @@ define(["backbone"], function (Backbone) {
             backlogId: 0,
             backlogName: "",
             storyId: 0,
-            title: "",
             contents: [],
             name: "",
             extraNotes: "",

@@ -4,7 +4,7 @@ define(["backbone", "collections/BacklogItems"], function (Backbone, BacklogItem
             logs: new BacklogItems()
         },
         url: function () {
-            return "/backlogs/"
+            return "/api/external/sources/"
         },
         parse: function (response) {
             response.logs = new BacklogItems(response.logs, {name: this.get("name")}) ;

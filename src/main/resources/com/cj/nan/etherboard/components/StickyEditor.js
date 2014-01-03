@@ -42,51 +42,56 @@
 function StickyEditor(theSticky, parent, saveHandler) {
     var view = $("#stickyEditor").html(),
         dialog = $($("#stickyEditor").html()),
-
         backlogs = {},
         backlogStories = {},
-        editStory = true,
         modifiedSticky = {};
 
-    function toggleTitle() {
-        var newTitle = "",
-            storySelector = dialog.find('#etherLogStorySelect'),
-            storyTitleDiv = storySelector.find('story-title'),
-            selectedStoryIndex = storySelector.find(':selected').val();
 
-        editStory = !editStory;
-        if (selectedStoryIndex !== "0") {
-            newTitle = storySelector.find(':selected').text();
-        }
-        if (editStory) {
-            storyTitleDiv.text(newTitle + " Story Contents");
-        } else {
-            storyTitleDiv.text(newTitle + " Story Notes");
-        }
+    function showSourceControls() {
+        dialog.find(".source_controls").show();
+    }
+
+    function hideSourceControls() {
+        dialog.find(".source_controls").hide();
+    }
+
+    function showAddSource() {
+        dialog.find(".add_source").show();
+    }
+
+    function hideAddSource() {
+        dialog.find(".add_source").hide();
     }
 
     function onLogSelect() {
         var etherlogSelector = dialog.find('#etherLogSelect'),
             storySelector = dialog.find('#etherLogStorySelect'),
-            selectorDiv = dialog.find("#linkToEtherLog"),
+            selectorDiv = dialog.find("#sourceSelection"),
             selectedBacklogId = etherlogSelector.find(':selected').val(),
-            url = "/backlogs/" + parseInt(selectedBacklogId, 10),
-            storyTitleInput = dialog.find('.story-title-input'),
-            selectedStoryIndex = modifiedSticky.storyId || 0;
+            url = "/api/external/sources/" + selectedBacklogId + "/items/suggestions",
+            selectedStoryIndex = modifiedSticky.storyId || 0,
+            storyLines,
+            description;
 
         modifiedSticky.backlogId = selectedBacklogId;
 
         backlogStories = {};
-        if (parseInt(selectedBacklogId, 10) > 0) {
-            storyTitleInput.prop('disabled', true);
-            modifiedSticky.backlogName = backlogs[selectedBacklogId].title;
+        if (selectedBacklogId !== "0") {
+            modifiedSticky.backlogName = backlogs[selectedBacklogId].name;
             storySelector.find("option:gt(0)").remove();
             $.ajax(url, {
                 dataType: 'json',
                 success: function (data) {
-                    data.items.forEach(function (backlogStory) {
-                        backlogStories[backlogStory.id] = backlogStory;
-                        storySelector.append($("<option>").attr('value', backlogStory.id).text(backlogStory.title));
+                    data.forEach(function (backlogStory) {
+                        backlogStories[backlogStory.externalId] = backlogStory;
+                        storyLines = backlogStory.name.split('\n');
+                        if (storyLines.length > 0) {
+                            description = storyLines[0];
+                            if (description.length > 25) {
+                                description = description.substring(0, 25);
+                            }
+                        }
+                        storySelector.append($("<option>" + description + "</option>").attr('value', backlogStory.externalId));
                     });
                     selectorDiv.show();
                     if (selectedStoryIndex !== "0") {
@@ -95,7 +100,6 @@ function StickyEditor(theSticky, parent, saveHandler) {
                 }
             });
         } else {
-
             modifiedSticky.backlogName = "";
             storySelector.val("0").change();
         }
@@ -103,56 +107,46 @@ function StickyEditor(theSticky, parent, saveHandler) {
 
     function storyFromEtherlogDisableStoryInputFields() {
         var storyContent = dialog.find('.content'),
-            storyExtraNotes = dialog.find('.extraNotes'),
-            storyTitleInput = dialog.find('.story-title-input');
+            storyExtraNotes = dialog.find('.extraNotes');
 
         storyContent.prop('disabled', true);
         storyExtraNotes.prop('diabled', true);
-        storyTitleInput.prop('disabled', false);
 
     }
 
     function nonEtherlogStoryEnableInputs() {
         var storyContent = dialog.find('.content'),
-            storyExtraNotes = dialog.find('.extraNotes'),
-            storyTitleInput = dialog.find('.story-title-input');
+            storyExtraNotes = dialog.find('.extraNotes');
 
         storyContent.prop('disabled', false);
         storyExtraNotes.prop('diabled', false);
-        storyTitleInput.prop('disabled', false);
     }
 
     function onStorySelect() {
         var storySelector = dialog.find('#etherLogStorySelect'),
             selectedStoryIndex = storySelector.find(':selected').val(),
-            title = $('.ui-dialog').find('.ui-dialog-title'),
             storyContent = dialog.find('.content'),
-            storyTitle = "",
             story;
 
-        if (parseInt(selectedStoryIndex, 10) > 0) {
-            storyTitle = storySelector.find(':selected').text();
+        if (selectedStoryIndex === "0") {
+            modifiedSticky.storyId = undefined;
+            nonEtherlogStoryEnableInputs();
+        } else {
             story = backlogStories[selectedStoryIndex];
             storyContent.val(story.name);
             modifiedSticky.name = story.name;
             modifiedSticky.storyId = selectedStoryIndex;
             storyFromEtherlogDisableStoryInputFields();
-        } else {
-            storyTitle = modifiedSticky.title;
-            modifiedSticky.storyId = 0;
-            nonEtherlogStoryEnableInputs();
-        }
 
-        title.text(storyTitle + " Story Contents");
-        modifiedSticky.title = storyTitle;
+        }
     }
 
     function loadBackLogs() {
-        var selectorDiv = dialog.find("#linkToEtherLog"),
+        var selectorDiv = dialog.find("#sourceSelection"),
             etherlogSelector = dialog.find('#etherLogSelect'),
             storySelector = dialog.find('#etherLogStorySelect'),
-            selectedBacklogId = modifiedSticky.backlogId || 0,
-            selectedStoryIndex = modifiedSticky.storyId || 0;
+            selectedBacklogId = modifiedSticky.backlogId || "0",
+            selectedStoryIndex = modifiedSticky.storyId || "0";
 
         etherlogSelector.change(function() {
             onLogSelect();
@@ -162,12 +156,12 @@ function StickyEditor(theSticky, parent, saveHandler) {
         });
 
         if (modifiedSticky.kind === "sticky") {
-            $.ajax('/backlogs', {
+            $.ajax('/api/external/sources', {
                 dataType: 'json',
                 success: function (data) {
                     data.forEach(function (backlog) {
-                        backlogs[backlog.id] = backlog;
-                        etherlogSelector.append($("<option>").attr('value',backlog.id).text(backlog.name));
+                        backlogs[backlog.externalId] = backlog;
+                        etherlogSelector.append($("<option>").attr('value',backlog.externalId).text(backlog.name));
                     });
                     etherlogSelector.val(selectedBacklogId);
                     etherlogSelector.change();
@@ -184,12 +178,11 @@ function StickyEditor(theSticky, parent, saveHandler) {
             storySelector = dialog.find('#etherLogStorySelect'),
             selectedBacklogId = etherlogSelector.find(':selected').val();
 
-        if (selectedBacklogId === 0) {
+        if (selectedBacklogId === "0") {
             modifiedSticky.backlogId = "0";
             modifiedSticky.backlogName = "";
-            modifiedSticky.storyId = "";
+            modifiedSticky.storyId = "0";
         }
-     //   modifiedSticky.title = storySelector.find(':selected').text();
         modifiedSticky.name = dialog.find('.content').val();
         modifiedSticky.extraNotes = dialog.find('.notesText').val();
         saveHandler(modifiedSticky);
@@ -197,41 +190,53 @@ function StickyEditor(theSticky, parent, saveHandler) {
 
     }
 
+    function handleAddSource() {
+        loadBackLogs();
+        showSourceControls();
+        hideAddSource();
+    }
+
     function initialize() {
         var extraNotesInput = dialog.find('.notesText'),
             storyContent = dialog.find('.content'),
             toggleWidget = dialog.find('.flip'),
             saveButton = dialog.find('.save'),
-            storyTitleInput = dialog.find('.story-title-input');
+            addSource = dialog.find("#addExternalSystem");
 
         modifiedSticky = $.extend(modifiedSticky, theSticky);
-        loadBackLogs();
+
+        if (modifiedSticky.backlogId === "0" || modifiedSticky.backlogId === undefined) {
+
+            showAddSource();
+            hideSourceControls();
+        } else {
+            loadBackLogs();
+            hideAddSource();
+            showSourceControls();
+        }
+        //loadBackLogs();
 
         parent.append(dialog);
 
         toggleWidget.button().click(function (e) {
             storyContent.toggle();
             extraNotesInput.toggle();
-            toggleTitle();
         });
 
         saveButton.button().click(function (e) {
             save();
         });
 
-        storyTitleInput.change( function() {
-            var title = $('.ui-dialog').find('.ui-dialog-title');
-
-            modifiedSticky.title = storyTitleInput.val();
-            title.text(modifiedSticky.title + " Story Contents");
+        addSource.click(function (e) {
+            handleAddSource();
         });
+
 
         storyContent.val(modifiedSticky.name);
         extraNotesInput.val(modifiedSticky.extraNotes);
         dialog.dialog(
             {
                 width: "auto",
-                title: modifiedSticky.title || "TITLE",
                 beforeClose: function(event, ui) {
                     dialog.dialog("destroy").remove();
                 }

@@ -415,12 +415,14 @@ a:visited {
   display: block;
 }
 
-div.story-title-div {
+#sourceSelection {
     text-align: left;
+    border: 1px solid gray;
+    border-radius: 5px;
+    padding: 5px;
+    margin-bottom: 10px;
 }
-div.linkToEtherLog  {
-    text-align: right;
-}
-.story-title-input-span {
-    margin-right: 15px;
+
+#sourceSelection .controls {
+    padding: 5px;
 }

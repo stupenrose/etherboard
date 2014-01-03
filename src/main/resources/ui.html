@@ -116,11 +116,11 @@
             </li>
         <% }); %>
 
-        <input type="button" id="createNewBoardButton" value="Create New Board"></input>
+        <input type="button" id="createNewBoardButton" value="Create New Board">
 
         <form id="newBoardForm" style="display:none;" action="/board" method="POST">
             <label for="newBoardName">Name: </label>
-            <input type="text" id="newBoardName" name="name" placeholder="New Board Name"></input>
+            <input type="text" id="newBoardName" name="name" placeholder="New Board Name">
             <br/>
 
             <label for="syncType">Sync Type: </label>
@@ -132,14 +132,14 @@
 
             <div id="pivotalOptions" style="display:none;">
                 <label for="pivotalProjectId">Project ID: </label>
-                <input type="text" id="pivotalProjectId" name="pivotalProjectId" placeholder="ID of the PivotalTracker Project"></input>
+                <input type="text" id="pivotalProjectId" name="pivotalProjectId" placeholder="ID of the PivotalTracker Project">
                 <br/>
 
                 <label for="pivotalDevKey">Dev Key: </label>
-                <input type="text" id="pivotalDevKey" name="pivotalDevKey" placeholder="Paste Dev Key Here"></input>
+                <input type="text" id="pivotalDevKey" name="pivotalDevKey" placeholder="Paste Dev Key Here">
             </div>
 
-            <input type="submit" value="Create" id="createNewBoardSubmit"></input>
+            <input type="submit" value="Create" id="createNewBoardSubmit"/>
         </form>
 
     </ul>
@@ -154,33 +154,25 @@
             <div style="clear:both"></div>
         </div>
         <div class="stickyFront">
-            <div class="story-title-div">
-                <span class="story-title"></span>
-            </div>
             <div class="stickyContent"></div>
         </div>
         <div class="stickyBack">
-            <div class="story-title-div">
-                <span class="story-title"></span>
-            </div>
-            <div class="extraNotes"></div>
+        <div class="extraNotes"></div>
         </div>
     </div>
 </script>
 
 <script type="x/template" id="stickyEditor">
     <div class="stickyeditor" style="display:none;">
-        <div class="story-title-div">
-            <span class="story-title"></span>
-        </div>
-        <div class="linkToEtherLog">
-            <span class="story-title-input-span"><label>Story Title</label>
-                <input type="text" class="story-title-input">
-            </span>
-            <label>EtherLog</label>
-            <select id="etherLogSelect"><option value="0" selected >None</option>None</select>
-            <label>Story</label>
-            <select id="etherLogStorySelect"><option value="0" selected >None</option>0</select>
+        <div id="sourceSelection">
+            <div class="add_source">
+                <input type="button" id="addExternalSystem" value="Add External System Source">
+            </div>
+            <div class="source_controls">
+                <select id="etherLogSelect"><option value="0" selected >Select a System</option></select>
+                <label>Suggestion</label>
+                <select id="etherLogStorySelect"><option value="0" selected >Select a Story</option></select>
+            </div>
         </div>
         <textarea class="content"></textarea>
 

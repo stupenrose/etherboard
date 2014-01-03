@@ -46,7 +46,7 @@ import org.apache.log4j.BasicConfigurator
 import freemarker.cache.TemplateLoader
 import java.util.regex.Pattern
 import java.util.Locale
-import freemarker.template.{DefaultObjectWrapper, Configuration}
+import freemarker.template.{DefaultObjectWrapper}
 import java.net.InetAddress
 import org.httpobjects.DSL._
 import org.httpobjects.header.response.LocationField
@@ -54,32 +54,27 @@ import java.io._
 import org.httpobjects.util.{RequestQueryUtil, ClasspathResourcesObject}
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.httpobjects.util.MimeTypeTool
-import org.apache.commons.httpclient.methods.GetMethod
-import org.apache.commons.httpclient.HttpClient
+import com.fasterxml.jackson.module.scala.DefaultScalaModule
+import com.fasterxml.jackson.core.`type`.TypeReference
 
 object JettyWrapper {
 
   def launchServer(boardDao: BoardDao) {
     BasicConfigurator.configure();
-
     val freemarker = freemarkerConfig();
-
-    val lock = new Object()
-    val envPort = System.getenv("PORT")
-    val port = if (envPort == null) {
-      40180
-    } else {
-      Integer.parseInt(envPort)
-    }
-
-    val websocketsEnabled = System.getenv("ENABLE_WEBSOCKET") != "no"
-    val websocketPort = Integer.parseInt(System.getProperty("WEBSOCKET_PORT", "40181"))
+    val configuration:Configuration = Configuration.read("configuration.json")
+    val websocketsEnabled = configuration.websocketsEnabled
+    val websocketPort = configuration.websocketPort
 
     if (websocketsEnabled) {
       new BoardRealtimeUpdateServer(websocketPort).run()
     }
+    val lock = new Object()
 
-    HttpObjectsJettyHandler.launchServer(port,
+
+    val sourcePlugins = configurePlugins(configuration)
+
+    HttpObjectsJettyHandler.launchServer(configuration.port,
       new HttpObject("/") {
         override def get(req: Request) = OK(FreemarkerTemplate("ui.html", null, freemarker))
       },
@@ -176,41 +171,31 @@ object JettyWrapper {
           }
         }
       },
-      new HttpObject("/backlogs") {
+      new HttpObject("/api/external/sources") {
         override def get(req: Request) = {
-            val request = new GetMethod("http://localhost:43180/api/backlogs/" )
-            val client = new HttpClient()
-            val response = client.executeMethod(request)
-            var body = ""
-            if (response == 200) {
-                body = request.getResponseBodyAsString()
-                OK(Bytes("application/json", body.getBytes()))
-            } else {
-                null
-            }
+            val sources = sourcePlugins.flatMap(_.listSources)
+            val mapper = new ObjectMapper()
+            mapper.registerModule(DefaultScalaModule)
+
+            OK(Bytes("application/json", mapper.writeValueAsBytes(sources)))
         }
       },
-        new HttpObject("/backlogs/{id}") {
-            override def get(req: Request) = {
-                val id = req.path().valueFor("id")
-                val request = new GetMethod("http://localhost:43180/api/backlogs/" + id)
-                val client = new HttpClient()
-                val response = client.executeMethod(request)
-                var body = ""
-                if (response == 200) {
-                    body = request.getResponseBodyAsString()
-                    OK(Bytes("application/json", body.getBytes()))
-                } else {
-                    null
-                }
-            }
+      new HttpObject("/api/external/sources/{id}/items/suggestions") {
+        override def get(req: Request) = {
+            val sourceId = req.path().valueFor("id")
+            val suggestions = sourcePlugins.flatMap(_.listItemSuggestions(sourceId))
+            val mapper = new ObjectMapper()
+            mapper.registerModule(DefaultScalaModule)
+
+            OK(Bytes("application/json", mapper.writeValueAsBytes(suggestions)))
         }
+    }
     )
   }
 
 
   def freemarkerConfig() = {
-    val cfg = new Configuration();
+    val cfg = new freemarker.template.Configuration();
     cfg.setTemplateLoader(new TemplateLoader() {
 
       override def getReader(source: Object, encoding: String): Reader = {
@@ -229,7 +214,6 @@ object JettyWrapper {
     });
     cfg.setEncoding(Locale.US, "UTF8");
     cfg.setObjectWrapper(new DefaultObjectWrapper());
-    //		cfg.setTagSyntax(Configuration.SQUARE_BRACKET_TAG_SYNTAX);
     cfg
   }
 
@@ -239,5 +223,10 @@ object JettyWrapper {
       (pair(0) -> pair(1))
     }).toMap
   }
+
+    def configurePlugins(conf:Configuration):List[Plugin] = {
+        println("Loading " + conf.pluginClasses)
+        conf.pluginClasses.map(Class.forName(_).newInstance().asInstanceOf[Plugin])
+    }
 
 }

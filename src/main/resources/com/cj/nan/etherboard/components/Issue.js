@@ -102,7 +102,6 @@ function Issue(issue, parent, boardId, webSocketClient) {
     function update() {
         widget.find(".stickyContent").html(setupLinks(issue.name));
         widget.find(".extraNotes").html(setupLinks(issue.extraNotes));
-        widget.find(".story-title").text(issue.title);
     }
 
     update();
