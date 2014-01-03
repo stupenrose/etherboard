@@ -69,7 +69,7 @@ function StickyEditor(theSticky, parent, saveHandler) {
             selectorDiv = dialog.find("#sourceSelection"),
             selectedBacklogId = etherlogSelector.find(':selected').val(),
             url = "/api/external/sources/" + selectedBacklogId + "/items/suggestions",
-            selectedStoryIndex = modifiedSticky.storyId || 0,
+            selectedStoryIndex = modifiedSticky.storyId || "0",
             storyLines,
             description;
 
