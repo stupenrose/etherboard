@@ -15,13 +15,6 @@ case class EtherlogItem (id:String, name:String, kind:String, estimates:List[Eth
 @JsonIgnoreProperties(ignoreUnknown = true)
 case class EtherlogExternalItems (id:String, name:String, memo:String, items: List[EtherlogItem])
 
-//@JsonIgnoreProperties(ignoreUnknown = true)
-//case class EtherlogInfo (name:String)
-//
-//@JsonIgnoreProperties(ignoreUnknown = true)
-//case class EtherlogsListing (id:String, currency:String, value:Int, when: Long)
-
-
 case class EtherlogOverview (id:String, name:String)
 
 case class EtherlogPluginConfig (url:String)
@@ -65,22 +58,6 @@ class EtherlogPlugin()  extends Plugin {
         return sources.map{backlogInfo=>
             ExternalSource(externalId = backlogInfo.id, name= "etherlog: " + backlogInfo.name)
         }
-
-//        val request = new GetMethod(config.url)
-//        val client = new HttpClient()
-//        val response = client.executeMethod(request)
-//
-//        var body = ""
-//        if (response == 200) {
-//            body = request.getResponseBodyAsString()
-//            val mapper = new ObjectMapper()
-//            mapper.registerModule(DefaultScalaModule)
-//            val sources:List[EtherlogOverview] = mapper.readValue(body, classOf[Array[EtherlogOverview]]).toList
-//
-//
-//        }
-//
-//        null
     }
 
     override def listItemSuggestions(externalSourceId:String):List[ExternalItemSuggestion] = {
@@ -116,24 +93,12 @@ class EtherlogPlugin()  extends Plugin {
     }
 
     def parseEtherlogItem(etherlogItem:EtherlogItem, sourceId:String):ExternalItemSuggestion = {
-        /*
-        val stickyContent = 
-        """<a href="http://cjtools101.wl.cj.com:43180/backlog/"""" + sourceId + """ style="
-            background: #418F3A;
-                color: white;
-                    display: block;
-                    ">Etherlog</a><div style=white-space:pre-line;">""" + etherlogItem.name + "</div>"
-        */
-        /*
-        val externalItem = new ExternalItem(externalId = etherlogItem.id, name = "<pre>" + etherlogItem.name + "</pre>")
-         */
-
         val backlogName = getBacklogName(sourceId)
-
-        val truncatedName = if(etherlogItem.name.length>100){
-            etherlogItem.name.substring(0, 100) + "..."
+        val firstLine = etherlogItem.name.lines.toList.headOption.getOrElse("")
+        val truncatedName = if(firstLine.length>100){
+            firstLine.substring(0, 100) + "..."
         }else {
-            etherlogItem.name
+            firstLine
         }
         val stickyContent = s"""
           <a href="http://cjtools101.wl.cj.com:43180/backlog/$sourceId" style="
