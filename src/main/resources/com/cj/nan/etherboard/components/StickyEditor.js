@@ -133,8 +133,8 @@ function StickyEditor(theSticky, parent, saveHandler) {
             nonEtherlogStoryEnableInputs();
         } else {
             story = backlogStories[selectedStoryIndex];
-            storyContent.val(story.name);
-            modifiedSticky.name = story.name;
+            storyContent.val(story.content);
+            modifiedSticky.name = story.content;
             modifiedSticky.storyId = selectedStoryIndex;
             storyFromEtherlogDisableStoryInputFields();
 

@@ -17,7 +17,7 @@ object Configuration {
             val newConf = Configuration()
 
             configFile.createNewFile()
-            mapper.writeValue(configFile, classOf[Configuration])
+            mapper.writeValue(configFile, newConf)
 
             newConf
         }
