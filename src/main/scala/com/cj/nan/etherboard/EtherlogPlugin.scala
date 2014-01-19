@@ -78,8 +78,14 @@ class EtherlogPlugin()  extends Plugin {
                             .filter(_.isComplete == false)
                             .map(parseEtherlogItem(_, externalSourceId))
         }
-
         null
+    }
+
+    def canHandle(pluginType:String): Boolean = {
+        if ("etherlog".equalsIgnoreCase(pluginType)) {
+            return true
+        }
+        false
     }
 
     def getBacklogName(id:String):String = {
@@ -101,7 +107,7 @@ class EtherlogPlugin()  extends Plugin {
             firstLine
         }
         val stickyContent = s"""
-          <a href="http://cjtools101.wl.cj.com:43180/backlog/$sourceId" style="
+          <a href="http://cjtools101.wl.cj.com:43180/backlog/${sourceId}" style="
                       background: #418F3A;
                       color: white;
                       display: block;">${backlogName}</a>

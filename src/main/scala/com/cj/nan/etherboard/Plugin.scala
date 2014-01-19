@@ -9,6 +9,7 @@ case class ExternalItemSuggestion (externalId:String, name:String, content:Strin
 trait Plugin  {
     def listSources():List[ExternalSource]
     def listItemSuggestions(externalSourceId:String):List[ExternalItemSuggestion]
+    def canHandle(sourceType:String):Boolean
 }
 
 

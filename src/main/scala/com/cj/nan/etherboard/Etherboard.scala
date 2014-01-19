@@ -74,7 +74,8 @@ class Sticky(@BeanProperty var name: String, @BeanProperty var extraNotes: Strin
     def this(_name: String) = this(name = _name, extraNotes = null)
 }
 
-class BoardObject(@BeanProperty var id: Int,
+class
+BoardObject(@BeanProperty var id: Int,
                   @BeanProperty var backlogId: Int,
                   @BeanProperty var backlogName: String,
                   @BeanProperty var storyId: String,
@@ -110,6 +111,10 @@ class BoardObject(@BeanProperty var id: Int,
             height = other.height
             width = other.width
         }
+    }
+
+    def updateName(updatedName: String) {
+        name = updatedName
     }
 
     override def equals(other: Any): Boolean = other match {

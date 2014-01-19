@@ -63,17 +63,25 @@ class BoardRealtimeUpdateServer(port:Int)  {
     }
 
     def messageHandler(message:String, channel:Channel) {
-        BoardUpdatesActor ! NewMessage(message, channel)
+        BoardUpdatesActor ! MessageFromBoard(message, channel)
     }
 }
 
 case class NewConnection(board:String, channel:Channel)
 
-case class NewMessage(msg:String, channel:Channel)
+case class MessageFromBoard(msg:String, channel:Channel)
+
+case class MessageFromSource(board:String, msg:String)
+
+//case class BoardUpdatesState(state:Map[String, List[Channel]]) {
+//    def newConnection(board:String, channel:Channel):BoardUpdatesState = {
+//
+//    }
+//}
 
 object BoardUpdatesActor extends Actor {
 
-    var connectionsByBoard = Map[String, List[Channel]]()
+    private var connectionsByBoard = Map[String, List[Channel]]()
 
     def act() {
         loop {
@@ -82,19 +90,42 @@ object BoardUpdatesActor extends Actor {
                     val connections:List[Channel] = connectionsByBoard.get(board).getOrElse(List())
                     connectionsByBoard += (board -> (channel :: connections))
                 }
-                case NewMessage(message:String, channel:Channel) => {
-                    val boardThisConnectionIsIn = connectionsByBoard.find(p => p._2.contains(channel))
-                    if (boardThisConnectionIsIn != None) {
-                        val connections:List[Channel] = boardThisConnectionIsIn.get._2.filter(_.isOpen)
-                        connectionsByBoard += (boardThisConnectionIsIn.get._1 -> connections)
+                case MessageFromBoard(message:String, meChannel:Channel) => {
+                    def boardWeWantToSendTo(entry:(String, List[Channel])):Boolean = {
+                        val (boardName, channels) = entry
+                        val result =  channels.contains(meChannel)
 
-                        connections.foreach(connection => {
-                            if (connection != channel)
-                                connection.write(new TextWebSocketFrame(message))
-                        })
+                        result
                     }
-                    else {
-                        println("could not find what board this connection belongs to")
+                    val maybeBoardWeWantToSendTo:Option[(String, List[Channel])] = connectionsByBoard.find(boardWeWantToSendTo)
+                    maybeBoardWeWantToSendTo match {
+                        case Some((boardName, channels)) =>
+                            def channelIsOpen(element:Channel):Boolean = element.isOpen
+                            def channelIsNotMe(element:Channel):Boolean = element != meChannel
+                            val openNotMeChannels:List[Channel] = channels.filter(channelIsOpen).filter(channelIsNotMe)
+                            def forwardMessageToConnection(connection:Channel) {
+                                connection.write(new TextWebSocketFrame(message))
+                            }
+                            openNotMeChannels.foreach(forwardMessageToConnection)
+                        case None =>
+                            println("could not find what board this connection belongs to")
+                    }
+                }
+                case MessageFromSource(name:String, message:String) => {
+                    def forwardMessageToConnection(connection:Channel) {
+                        connection.write(new TextWebSocketFrame(message))
+                    }
+                    val maybeConnections:Option[List[Channel]] = connectionsByBoard.get(name)
+                    maybeConnections match {
+                        case Some(connections) =>
+                            def channelIsOpen(element: Channel):Boolean = element.isOpen
+                            connections.foreach( element => {
+                                if (channelIsOpen(element)) {
+                                    forwardMessageToConnection(element)
+                                }
+                            })
+                        case None =>
+                            println("Message from source to unknown board")
                     }
                 }
                 case _ => println("unknown message sent to BoardUpdateActor")
