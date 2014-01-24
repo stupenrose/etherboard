@@ -77,7 +77,7 @@ object JettyWrapper {
         }
         val lock = new Object()
 
-        val sourcePlugins = configurePlugins(configuration)
+        val sourcePlugins:List[Plugin] = configurePlugins(configuration)
 
         HttpObjectsJettyHandler.launchServer(configuration.port,
             new HttpObject("/") {
@@ -97,7 +97,7 @@ object JettyWrapper {
                             }
                             else None
                     }
-                    syncBoardsWithSourceChanges(sourceItems(0))
+                    syncBoardsWithSourceChanges(sourceType, sourceId, sourceItems(0))
                     OK(Text("OK"));
                 }
             },
@@ -216,12 +216,22 @@ object JettyWrapper {
         )
     }
 
-    def syncBoardsWithSourceChanges(sourceItems: List[ExternalItemSuggestion]) {
-//          for each board
-//                for each board object
-//                    if object story id is equals to sourceItem id
-//                        send message to update content
+    def getSourceName(sourceType:String, externalSourceId:String):String = {
+        val configuration: Configuration = Configuration.read("configuration.json")
+        val sourcePlugins:List[Plugin] = configurePlugins(configuration)
+        var sourceName = "Unknown Source"
 
+        sourcePlugins.foreach(plugin => {
+            if (plugin.canHandle(sourceType)) {
+                sourceName = plugin.getSourceName(externalSourceId)
+            }
+        })
+        sourceName
+
+    }
+
+    def syncBoardsWithSourceChanges(sourceType:String, externalSourceId:String, sourceItems:List[ExternalItemSuggestion]) {
+        val sourceName = getSourceName(sourceType, externalSourceId)
         val boardIds = BoardDaoImpl.listBoards().toList
 
         for (name <- boardIds) {
@@ -234,7 +244,7 @@ object JettyWrapper {
                 if (boardObject.kind.equalsIgnoreCase("sticky")) {
                     for (sourceItem <- sourceItems ) {
                         if (boardObject.storyId == sourceItem.externalId) {
-                            val message = createMessage(boardObject, sourceItem.name)
+                            val message = createMessage(boardObject, sourceName, sourceItem.name)
                             BoardUpdatesActor ! MessageFromSource(name, message)
                         }
                     }
@@ -243,8 +253,7 @@ object JettyWrapper {
         }
     }
 
-    def createMessage(boardObject:BoardObject, msgContent:String) = {
-        //"{"type":"stickyContentChanged","widgetId":"widget1373","content":"Poobly Squat Sucks","extraNotes":""}"
+    def createMessage(boardObject:BoardObject, sourceName:String, msgContent:String) = {
         def quotesAround(field:String):String = {
             val quote = """""""
             quote + field + quote
@@ -253,7 +262,6 @@ object JettyWrapper {
             quotesAround(elementType) + ":" + quotesAround(element)
         }
 
-        val backlogName = boardObject.backlogName
         val backlogId = boardObject.backlogId
         val firstLine = msgContent
         val truncatedName = if(firstLine.length>100){
@@ -262,13 +270,10 @@ object JettyWrapper {
             firstLine
         }
 
-        val stickyContent = "<a href=\\\"http://cjtools101.wl.cj.com:43180/backlog/" + backlogId + "\\\" style=\\\"" +
-                      "background: #418F3A;" +
-                      "color: white;" +
-                      "display: block;\\\">" + backlogName + "</a>" +
-                      "<div style=\\\"white-space:pre-line;\\\">" + truncatedName + "</div>"
+        val stickyContent = s"""<a href="http://cjtools101.wl.cj.com:43180/backlog/$backlogId" style="background: #418F3A; color: white; display: block;"> $sourceName </a><div style="white-space:pre-line;"> $truncatedName </div>""".replaceAllLiterally(""""""", """\"""")
 
         val message =  s"""{${quoteField("type", "stickyContentChanged")},${quoteField("widgetId", "widget" + boardObject.id.toString)},${quoteField("content", stickyContent)},${quoteField("extraNotes", "")}}"""
+
         message
     }
 

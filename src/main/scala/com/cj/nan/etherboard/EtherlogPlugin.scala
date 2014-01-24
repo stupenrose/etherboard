@@ -88,18 +88,18 @@ class EtherlogPlugin()  extends Plugin {
         false
     }
 
-    def getBacklogName(id:String):String = {
+    override def getSourceName(externalSourceId:String):String = {
         if (backlogNamesCache.isEmpty){
             backlogNamesCache = fetchBacklogList()
         }
-        backlogNamesCache.find(_.id == id) match {
+        backlogNamesCache.find(_.id == externalSourceId) match {
             case Some(item) => item.name
             case None => "name missing???"
         }
     }
 
     def parseEtherlogItem(etherlogItem:EtherlogItem, sourceId:String):ExternalItemSuggestion = {
-        val backlogName = getBacklogName(sourceId)
+        val backlogName = getSourceName(sourceId)
         val firstLine = etherlogItem.name.lines.toList.headOption.getOrElse("")
         val truncatedName = if(firstLine.length>100){
             firstLine.substring(0, 100) + "..."

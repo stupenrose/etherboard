@@ -10,6 +10,7 @@ trait Plugin  {
     def listSources():List[ExternalSource]
     def listItemSuggestions(externalSourceId:String):List[ExternalItemSuggestion]
     def canHandle(sourceType:String):Boolean
+    def getSourceName(externalSourceId:String):String
 }
 
 
