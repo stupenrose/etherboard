@@ -7,7 +7,7 @@
     <version>0.0.2-SNAPSHOT</version>
 
     <properties>
-        <httpobjects-version>0.5.1-SNAPSHOT</httpobjects-version>
+        <httpobjects-version>0.5.0</httpobjects-version>
         <maven.compiler.source>1.6</maven.compiler.source>
         <maven.compiler.target>1.6</maven.compiler.target>
         <jackson-version>2.3.0</jackson-version>
