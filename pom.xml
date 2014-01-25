@@ -88,14 +88,16 @@
                     </archive>
                 </configuration>
             </plugin>
-            <plugin>
-                <groupId>org.dstovall</groupId>
+			      <plugin>
+                <groupId>com.jolira</groupId>
                 <artifactId>onejar-maven-plugin</artifactId>
-                <version>1.4.4-SNAPSHOT</version>
+                <version>1.4.4</version>
                 <executions>
                     <execution>
                         <configuration>
+                            <onejarVersion>0.97</onejarVersion>
                             <attachToBuild>true</attachToBuild>
+                            <classifier>onejar</classifier>
                         </configuration>
                         <goals>
                             <goal>one-jar</goal>
@@ -300,19 +302,19 @@
         <!--</pluginRepository>-->
     </pluginRepositories>
 
-    <!--<repositories>-->
+    <repositories>
 
-        <!--&lt;!&ndash;<repository>&ndash;&gt;-->
-            <!--&lt;!&ndash;<id>httpobjects</id>&ndash;&gt;-->
-            <!--&lt;!&ndash;<name>HttpObjects Maven Repo</name>&ndash;&gt;-->
-            <!--&lt;!&ndash;<url>https://repository-httpobjects.forge.cloudbees.com/snapshot/</url>&ndash;&gt;-->
-        <!--&lt;!&ndash;</repository>&ndash;&gt;-->
+        <repository>
+            <id>httpobjects</id>
+            <name>HttpObjects Maven Repo</name>
+            <url>https://repository-httpobjects.forge.cloudbees.com/snapshot/</url>
+        </repository>
 
         <!--<repository>-->
             <!--<id>scala-tools.org</id>-->
             <!--<name>Scala-tools Maven2 Repository</name>-->
             <!--<url>http://scala-tools.org/repo-releases</url>-->
         <!--</repository>-->
-    <!--</repositories>-->
+    </repositories>
 
 </project>
