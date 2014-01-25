@@ -130,7 +130,7 @@ object BoardDaoImpl extends BoardDao {
     }
 
     def listBoards(): Array[String] = {
-        dataPath.list()
+        dataPath.list().sorted
     }
 
     def addDefaultColumnsToBoard(board: Board) = {
