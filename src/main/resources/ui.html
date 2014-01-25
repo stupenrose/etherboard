@@ -82,7 +82,7 @@
                 url: "/board",
                 success: function (names) {
                     $('body').append(
-                        tmpl("newBoardTemplate", {boards: names});
+                        tmpl("newBoardTemplate", {boards: names})
                     );
 
                     $("#createNewBoardButton").button().click(function () {

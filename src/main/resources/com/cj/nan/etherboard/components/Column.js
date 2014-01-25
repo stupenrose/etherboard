@@ -1,5 +1,5 @@
 /*jslint newcap: false*/
-/*global $ Issue Handoff */
+/*global $ console ColumnEditor */
 
 /*
  * Copyright (C) 2011, 2012 Commission Junction
@@ -45,8 +45,7 @@ function Column(column, where, boardId, webSocketClient){
 	var resourceURL,
 		columnHeader,
 		columnParent,
-		img,
-		ColumnEditor;
+		img;
 
 	resourceURL = "/board/" + boardId + "/objects/" + column.id;
 	columnHeader = $("#column" + column.id);
@@ -76,15 +75,16 @@ function Column(column, where, boardId, webSocketClient){
 				webSocketClient.send(JSON.stringify(msg));
 			},
 			error: function (jqXHR, textStatus, errorThrown) {
-//				console.log("ERROR:" + textStatus);
+				console.log("ERROR:" + textStatus);
 			}
 		});
 	}
 
 	img.click(
-		function(e) { ColumnEditor(columnHeader, columnParent, doSave); }
+		function(e) {
+			console.log("click");
+			ColumnEditor(columnHeader, columnParent, doSave);
+		}
 	);
-
-
 
 }
