@@ -190,7 +190,7 @@ function Board(parent, boardId) {
 
                     $(data.objects).each(function (n, item) {
                         if (item.kind === "column") {
-                            Column(item.name, view.body);
+                            Column(item, view.body, boardId, ws);
                             columnCount++;
                         } else if (item.kind === "sticky") {
                             Issue(item, view.body, boardId, ws);

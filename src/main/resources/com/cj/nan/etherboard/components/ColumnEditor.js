@@ -1,5 +1,5 @@
 /*jslint newcap: false*/
-/*global $ Issue Handoff */
+/*global $ console */
 
 /*
  * Copyright (C) 2011, 2012 Commission Junction
@@ -39,52 +39,32 @@
  * exception statement from your version.
  */
 
-function Column(column, where, boardId, webSocketClient){
-    $('<div class="column"><span class="columnHeader" id="column' + column.id + '">' + column.name + '</span><img class="stickyEditButton" title="Edit" src="pencil.png" /></div>').appendTo(where);
+function ColumnEditor(theColumn, parent, saveHandler) {
+    var view = $("#columnEditor").html(),
+        dialog = $($("#columnEditor").html()),
+        modifiedSticky = {};
 
-	var resourceURL,
-		columnHeader,
-		columnParent,
-		img,
-		ColumnEditor;
+    function closeDialog() {
+        dialog.dialog("destroy").remove();
+		theColumn.css("display", "inline");
+    }
 
-	resourceURL = "/board/" + boardId + "/objects/" + column.id;
-	columnHeader = $("#column" + column.id);
-	columnParent = columnHeader.parent();
-	img = columnParent.find('img');
-
-	columnParent.hover(
-		function(e) { img.css('display', 'inline'); },
-		function(e) { img.css('display', 'none'); }
-	);
-
-	function doSave(columnData) {
-		$.ajax(resourceURL, {
-			dataType: "json",
-			data: JSON.stringify(columnData),
-			type: "PUT",
-			success: function (createdObject) {
-				var msg = {
-					type: "columnChanged",
-					widgetId: "column" + createdObject.id,
-					content: createdObject.name
-				};
-
-				columnHeader.text(createdObject.name);
-				img.css('display', 'none');
-
-				webSocketClient.send(JSON.stringify(msg));
-			},
-			error: function (jqXHR, textStatus, errorThrown) {
-//				console.log("ERROR:" + textStatus);
-			}
-		});
+    function save() {
+        modifiedSticky.name = dialog.find('.content').val();
+        saveHandler(modifiedSticky);
+		closeDialog();
 	}
 
-	img.click(
-		function(e) { ColumnEditor(columnHeader, columnParent, doSave); }
-	);
-
+	theColumn.css("display", "none");
+	parent.append(dialog);
+	dialog.css("display", "block");
+	dialog
+		.find('.content')
+		.keyup(function(e) {
+			if (e.which === 13) { save(); }
+			else if (e.which === 27) { closeDialog(); }
+		})
+		.focus();
 
 
 }

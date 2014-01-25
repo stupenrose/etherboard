@@ -41,6 +41,8 @@
 <!DOCTYPE html>
 <html>
 <head>
+
+    <title>Etherboard</title>
     <link href='http://fonts.googleapis.com/css?family=Coming+Soon' rel='stylesheet' type='text/css'>
     <link href='http://fonts.googleapis.com/css?family=Questrial' rel='stylesheet' type='text/css'>
 
@@ -49,7 +51,7 @@
 
     <!-- load jQuery ui -->
     <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js" type="text/javascript"></script>
-    <link rel="stylesheet" href="http://static.jquery.com/ui/css/demo-docs-theme/ui.theme.css" type="text/css"></link>
+    <link rel="stylesheet" href="http://static.jquery.com/ui/css/demo-docs-theme/ui.theme.css" type="text/css" />
     <link href="jquery-ui-bootstrap.css" rel="stylesheet" />
 
     <!-- load custom scripts and styles -->
@@ -57,6 +59,7 @@
     <script src="util.js" type="text/javascript"></script>
     <script src="components/Avatar.js" type="text/javascript"></script>
     <script src="components/Column.js" type="text/javascript"></script>
+    <script src="components/ColumnEditor.js" type="text/javascript"></script>
     <script src="components/Issue.js" type="text/javascript"></script>
     <script src="components/Bucket.js" type="text/javascript"></script>
     <script src="components/Board.js" type="text/javascript"></script>
@@ -70,6 +73,7 @@
 
         if(boardId) {
             body.addClass("board");
+            $('title').text(boardId + ' - Etherboard')
             Board(body, boardId);
         } else {
             body.removeClass("board");
@@ -78,8 +82,7 @@
                 url: "/board",
                 success: function (names) {
                     $('body').append(
-                        tmpl("newBoardTemplate",
-                             {boards: names})
+                        tmpl("newBoardTemplate", {boards: names});
                     );
 
                     $("#createNewBoardButton").button().click(function () {
@@ -182,5 +185,10 @@
     </div>
 </script>
 
+<script type="x/template" id="columnEditor">
+    <div class="stickyeditor" style="display:none;">
+        <input type="text" class="content" placeholder="Column Heading" />
+    </div>
+</script>
 </body>
 </html>
