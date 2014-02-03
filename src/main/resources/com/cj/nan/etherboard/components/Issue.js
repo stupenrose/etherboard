@@ -1,5 +1,5 @@
 /*jslint newcap: false*/
-/*global $ console window confirm tmpl StickyEditor */
+/*global $ console window confirm tmpl StickyEditor showdown */
 
 /*
  * Copyright (C) 2011, 2012 Commission Junction
@@ -97,11 +97,11 @@ function Issue(issue, parent, boardId, webSocketClient) {
         bugHtml = elementText.replace(/(Bug:[\s]*(\d+))/gi, "<a href=\"https://bugzilla.vclk.net/show_bug.cgi?id=$2\" target=\"top\">$1</a>");
         html = bugHtml + bugLinks(bugs);
         return html;
-    }    
+    }
 
     function update() {
-        widget.find(".stickyContent").html(setupLinks(issue.name));
-        widget.find(".extraNotes").html(setupLinks(issue.extraNotes));
+        widget.find(".stickyContent").html(showdown.makeHtml(setupLinks(issue.name)));
+        widget.find(".extraNotes").html(showdown.makeHtml(setupLinks(issue.extraNotes)));
     }
 
     update();
