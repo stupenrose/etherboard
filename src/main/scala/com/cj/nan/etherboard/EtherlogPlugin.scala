@@ -106,13 +106,19 @@ class EtherlogPlugin()  extends Plugin {
         }else {
             firstLine
         }
-        val stickyContent = s"""
-          <a href="http://cjtools101.wl.cj.com:43180/backlog/${sourceId}" style="
+        val stickyContentHTML = s"""<a href="http://cjtools101.wl.cj.com:43180/backlog/${sourceId}" style="
                       background: #418F3A;
                       color: white;
                       display: block;">${backlogName}</a>
           <div style="white-space:pre-line;">${truncatedName} </div>
         """
+          .replace(System.getProperty("line.separator"), " ")
+          .replaceAll("  *", " ")
+
+      // Markdown does not support css classes or styles, so I put the html back, but one day...
+        val stickyContentMarkDown = s"""[${backlogName}](http://cjtools101.wl.cj.com:43180/backlog/${sourceId})\n${truncatedName}"""
+
+        val stickyContent = stickyContentHTML
         val externalItem = new ExternalItemSuggestion(externalId = etherlogItem.id,
                                                       name = etherlogItem.name,
                                                       content = stickyContent )

@@ -1,5 +1,5 @@
 /*jslint newcap: false*/
-/*global $ console window confirm tmpl StickyEditor showdown */
+/*global $ console window confirm tmpl StickyEditor marked */
 
 /*
  * Copyright (C) 2011, 2012 Commission Junction
@@ -100,8 +100,8 @@ function Issue(issue, parent, boardId, ws) {
     }
 
     function update() {
-        widget.find(".stickyContent").html(showdown.makeHtml(setupLinks(issue.name)));
-        widget.find(".extraNotes").html(showdown.makeHtml(setupLinks(issue.extraNotes)));
+        widget.find(".stickyContent").html(marked(setupLinks(issue.name)));
+        widget.find(".extraNotes").html(marked(setupLinks(issue.extraNotes)));
     }
 
     update();
