@@ -106,7 +106,8 @@ class EtherlogPlugin()  extends Plugin {
         }else {
             firstLine
         }
-        val stickyContentHTML = s"""<a href="http://cjtools101.wl.cj.com:43180/backlog/${sourceId}" style="
+        val stickyContentHTML =
+          s"""<a href="http://cjtools101.wl.cj.com:43180/backlog/${sourceId}" style="
                       background: #418F3A;
                       color: white;
                       display: block;">${backlogName}</a>
