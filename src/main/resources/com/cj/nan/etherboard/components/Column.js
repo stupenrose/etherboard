@@ -52,6 +52,10 @@ function Column(column, where, boardId, webSocketClient){
 	columnParent = columnHeader.parent();
 	img = columnParent.find('img');
 
+  columnHeader.bind("setHeader", function(event, header) {
+    columnHeader.text(header.headerText);
+  });
+
 	columnParent.hover(
 		function(e) { img.css('display', 'inline'); },
 		function(e) { img.css('display', 'none'); }
@@ -66,7 +70,7 @@ function Column(column, where, boardId, webSocketClient){
 				var msg = {
 					type: "columnChanged",
 					widgetId: "column" + createdObject.id,
-					content: createdObject.name
+					headerText: createdObject.name
 				};
 
 				columnHeader.text(createdObject.name);
@@ -79,6 +83,7 @@ function Column(column, where, boardId, webSocketClient){
 			}
 		});
 	}
+
 
 	img.click(
 		function(e) {

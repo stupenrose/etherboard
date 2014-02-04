@@ -39,7 +39,7 @@
  * exception statement from your version.
  */
 
-function Issue(issue, parent, boardId, webSocketClient) {
+function Issue(issue, parent, boardId, ws) {
     var widgetId = "widget" + issue.id,
         html = tmpl("stickyTemplate", {id: widgetId}),
         widget;
@@ -63,7 +63,7 @@ function Issue(issue, parent, boardId, webSocketClient) {
                 console.log("doSave: ");
                 console.dir(createdObject);
 
-                webSocketClient.send(JSON.stringify(msg));
+                ws.send(JSON.stringify(msg));
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 console.log("ERROR:" + textStatus);
@@ -115,7 +115,7 @@ function Issue(issue, parent, boardId, webSocketClient) {
                     widgetId: widgetId,
                     position: widget.offset()
                 };
-                webSocketClient.send(JSON.stringify(msg));
+                ws.send(JSON.stringify(msg));
             },
             stop: function (event, ui) {
                 if (widget.data("living")) {
@@ -135,6 +135,14 @@ function Issue(issue, parent, boardId, webSocketClient) {
     });
 
     widget.find(".stickyFlipButton").click(function (e) {
+        widget.trigger("flip");
+        ws.send(JSON.stringify({
+          type: "flip",
+          widgetId: widgetId
+        }));
+    });
+
+    widget.bind("flip", function(event) {
         widget.toggleClass("flip");
     });
 
@@ -157,7 +165,7 @@ function Issue(issue, parent, boardId, webSocketClient) {
                     type: "deleteWidget",
                     widgetId: widgetId
                 };
-                webSocketClient.send(JSON.stringify(msg));
+                ws.send(JSON.stringify(msg));
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 console.log("ERROR:" + textStatus);

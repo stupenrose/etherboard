@@ -180,6 +180,12 @@ function Board(parent, boardId) {
                             } else if (msg.type === 'bucketContentChanged') {
                                 widgetId = msg.widgetId;
                                 $("#" + widgetId).trigger("setContents", msg);
+                            } else if (msg.type === 'columnChanged') {
+                                widgetId = msg.widgetId;
+                                $("#" + widgetId).trigger("setHeader", msg);
+                            } else if (msg.type === 'flip') {
+                                widgetId = msg.widgetId;
+                                $("#" + widgetId).trigger("flip");
                             } else {
                                 console.log("unknown message type");
                             }
