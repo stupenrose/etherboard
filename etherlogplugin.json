@@ -1,4 +1,6 @@
 {
-    "url": "http://cjtools101.wl.cj.com:43180/api/backlogs/"
+    "protocol": "http",
+    "serverHost": "cjtools101.wl.cj.com:43180",
+    "backlogs": "/api/backlogs/"
 }
 

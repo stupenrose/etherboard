@@ -17,7 +17,7 @@ case class EtherlogExternalItems (id:String, name:String, memo:String, items: Li
 
 case class EtherlogOverview (id:String, name:String)
 
-case class EtherlogPluginConfig (url:String)
+case class EtherlogPluginConfig (protocol:String, serverHost: String, backlogs: String)
 
 class EtherlogPlugin()  extends Plugin {
 
@@ -33,7 +33,8 @@ class EtherlogPlugin()  extends Plugin {
 
 
     private def fetchBacklogList() = {
-        val request = new GetMethod(config.url)
+        val url: String = config.protocol + "://" + config.serverHost + config.backlogs
+        val request = new GetMethod(url)
         val client = new HttpClient()
         val response = client.executeMethod(request)
 
@@ -62,7 +63,7 @@ class EtherlogPlugin()  extends Plugin {
 
     override def listItemSuggestions(externalSourceId:String):List[ExternalItemSuggestion] = {
         println("Somebody asked me to list items for this source: " + externalSourceId)
-        val request = new GetMethod(config.url + externalSourceId)
+        val request = new GetMethod(config.protocol + "://" + config.serverHost + config.backlogs + externalSourceId)
         val client = new HttpClient()
         val response = client.executeMethod(request)
         var body = ""
@@ -106,8 +107,9 @@ class EtherlogPlugin()  extends Plugin {
         }else {
             firstLine
         }
+        val itemLink = s"${config.protocol}://${config.serverHost}/backlog/${sourceId}#${etherlogItem.id}"
         val stickyContentHTML =
-          s"""<a href="http://cjtools101.wl.cj.com:43180/backlog/${sourceId}" style="
+          s"""<a href="${itemLink}" style="
                       background: #418F3A;
                       color: white;
                       display: block;">${backlogName}</a>
@@ -117,7 +119,7 @@ class EtherlogPlugin()  extends Plugin {
           .replaceAll("  *", " ")
 
       // Markdown does not support css classes or styles, so I put the html back, but one day...
-        val stickyContentMarkDown = s"""[${backlogName}](http://cjtools101.wl.cj.com:43180/backlog/${sourceId})\n${truncatedName}"""
+        val stickyContentMarkDown = s"""[${backlogName}](${itemLink})\n${truncatedName}"""
 
         val stickyContent = stickyContentHTML
         val externalItem = new ExternalItemSuggestion(externalId = etherlogItem.id,

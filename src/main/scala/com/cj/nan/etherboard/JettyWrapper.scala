@@ -246,6 +246,16 @@ object JettyWrapper {
     }
   }
 
+    //todo: remove this duplication
+    def readJson[T](path:File, clazz:Class[T]):T = {
+        val mapper = new ObjectMapper()
+        mapper.registerModule(DefaultScalaModule)
+        mapper.readValue(path, clazz)
+    }
+    case class EtherlogPluginConfig (protocol:String, serverHost: String, backlogs: String)
+    val config:EtherlogPluginConfig = readJson(new File("etherlogplugin.json"), classOf[EtherlogPluginConfig])
+    // end of bad duplication
+
   def createMessage(boardObject: BoardObject, sourceName: String, msgContent: String) = {
     def quotesAround(field: String): String = {
       val quote = """""""
@@ -256,6 +266,7 @@ object JettyWrapper {
     }
 
     val backlogId = boardObject.backlogId
+    val storyUUID = boardObject.storyId
     val firstLine = msgContent
     val truncatedName = if (firstLine.length > 100) {
       firstLine.substring(0, 100) + "..."
@@ -263,7 +274,11 @@ object JettyWrapper {
       firstLine
     }
 
-    val stickyContent = s"""<a href="http://cjtools101.wl.cj.com:43180/backlog/$backlogId" style="background: #418F3A; color: white; display: block;"> $sourceName </a><div style="white-space:pre-line;"> $truncatedName </div>""".replaceAllLiterally( """"""", """\"""")
+      //todo: This should probably be a concern of the etherlog plugin.
+      // at this point, are we certain that it is an etherlog item?
+    val itemLink = s"${config.protocol}://${config.serverHost}/backlog/${boardObject.getStoryId}#${boardObject.id}"
+
+      val stickyContent = s"""<a href="${itemLink}"} style="background: #418F3A; color: white; display: block;"> $sourceName </a><div style="white-space:pre-line;"> $truncatedName </div>""".replaceAllLiterally( """"""", """\"""")
 
     val message = s"""{${quoteField("type", "stickyContentChanged")},${quoteField("widgetId", "widget" + boardObject.id.toString)},${quoteField("content", stickyContent)},${quoteField("extraNotes", "")}}"""
 
