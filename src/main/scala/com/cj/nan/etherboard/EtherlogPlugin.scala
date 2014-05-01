@@ -10,11 +10,14 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 case class EtherlogEstimate (id:String, currency:String, value:Int, when: Long)
+
 @JsonIgnoreProperties(ignoreUnknown = true)
 case class EtherlogItem (id:String, name:String, kind:String, estimates:List[EtherlogEstimate], isComplete:Boolean)
+
 @JsonIgnoreProperties(ignoreUnknown = true)
 case class EtherlogExternalItems (id:String, name:String, memo:String, items: List[EtherlogItem])
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 case class EtherlogOverview (id:String, name:String)
 
 case class EtherlogPluginConfig (protocol:String, serverHost: String, backlogs: String)
