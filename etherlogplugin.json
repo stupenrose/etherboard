@@ -1,6 +1,4 @@
 {
-    "protocol": "http",
-    "serverHost": "cjtools101.wl.cj.com:43180",
-    "backlogs": "/api/backlogs/"
+    "url": "http://my-etherlog-server:43180"
 }
 

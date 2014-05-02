@@ -6,7 +6,11 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import java.io.File
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
-
+import org.apache.commons.httpclient.methods.EntityEnclosingMethod
+import org.apache.commons.httpclient.HttpMethodBase
+import com.fasterxml.jackson.annotation.JsonValue
+import com.fasterxml.jackson.core.`type`.TypeReference
+import scala.collection.JavaConversions._
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 case class EtherlogEstimate (id:String, currency:String, value:Int, when: Long)
@@ -18,9 +22,13 @@ case class EtherlogItem (id:String, name:String, kind:String, estimates:List[Eth
 case class EtherlogExternalItems (id:String, name:String, memo:String, items: List[EtherlogItem])
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-case class EtherlogOverview (id:String, name:String)
+case class EtherlogOverview (id:String, name:String, whenArchived:Option[Long])
 
-case class EtherlogPluginConfig (protocol:String, serverHost: String, backlogs: String)
+@JsonIgnoreProperties(ignoreUnknown = true)
+case class EtherlogHistoryEntry(version: String, when:Long, memo:String)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+case class EtherlogPluginConfig (url: String)
 
 class EtherlogPlugin()  extends Plugin {
 
@@ -29,15 +37,19 @@ class EtherlogPlugin()  extends Plugin {
         mapper.registerModule(DefaultScalaModule)
         mapper.readValue(path, clazz)
     }
-
+    
+    val jackson = new ObjectMapper()
+    jackson.registerModule(DefaultScalaModule)
+    
     val config:EtherlogPluginConfig = readJson(new File("etherlogplugin.json"), classOf[EtherlogPluginConfig])
-
+    
     var backlogNamesCache = List[EtherlogOverview]()
 
-
+    def backlogsUrl = config.url + "/api/backlogs/"
+    def historyUrl(backlogId:Int) =  s"${config.url}/api/backlogs/${backlogId}/history?showLatestEvenIfWip=false"
     private def fetchBacklogList() = {
-        val url: String = config.protocol + "://" + config.serverHost + config.backlogs
-        val request = new GetMethod(url)
+        
+        val request = new GetMethod(backlogsUrl)
         val client = new HttpClient()
         val response = client.executeMethod(request)
 
@@ -55,34 +67,68 @@ class EtherlogPlugin()  extends Plugin {
     }
 
     override def listSources():List[ExternalSource] = {
-
         val sources = fetchBacklogList()
         backlogNamesCache = sources;
-
-        return sources.map{backlogInfo=>
+        println(sources)
+        return sources.filter(!_.whenArchived.isDefined).map{backlogInfo=>
             ExternalSource(externalId = backlogInfo.id, name= "etherlog: " + backlogInfo.name)
         }
     }
+    
+    private def readResponseJson[T](request: HttpMethodBase, clazz:Class[T]):T = {
+      jackson.readValue(request.getResponseBodyAsStream(), clazz)
+    }
+    
+    
+    // yucky duplication!
+    private def getJson[T](url:String, clazz:Class[T]):Option[T] = {
+      val request = new GetMethod(url)
+      val client = new HttpClient()
+      val response = client.executeMethod(request)
+      response match {
+        case 200=>Some(jackson.readValue(request.getResponseBodyAsStream(), clazz))
+        case _ => None
+      }
+    }
+    
+    private def getJson[T](url:String, clazz:TypeReference[T]):Option[T] = {
+      val request = new GetMethod(url)
+      val client = new HttpClient()
+      val response = client.executeMethod(request)
+      response match {
+        case 200=>Some(jackson.readValue(request.getResponseBodyAsStream(), clazz))
+        case _ => None
+      }
+    }
+    // end yucky duplication
 
+    def getHistory(id:Int) = {
+      getJson(historyUrl(id), new TypeReference[java.util.List[EtherlogHistoryEntry]](){})
+    }
+    
+    def getLatestPublishedVersion(id:Int):Option[EtherlogExternalItems] = {
+      getHistory(id) match {
+        case None=> {
+          println("no history for " + id) 
+          None
+        }
+        case Some(history)=>{
+          val lastPublishedVersionId = history.head.version
+          val url = s"${config.url}/api/backlogs/${id}/history/${lastPublishedVersionId}"
+          getJson(url, classOf[EtherlogExternalItems])
+        }
+      }
+    }
+    
     override def listItemSuggestions(externalSourceId:String):List[ExternalItemSuggestion] = {
-        println("Somebody asked me to list items for this source: " + externalSourceId)
-        val request = new GetMethod(config.protocol + "://" + config.serverHost + config.backlogs + externalSourceId)
-        val client = new HttpClient()
-        val response = client.executeMethod(request)
-        var body = ""
-        if (response == 200) {
-            val mapper = new ObjectMapper()
-            mapper.registerModule(DefaultScalaModule)
-            body = request.getResponseBodyAsString()
-            val etherlogItemWrapper = mapper.readValue(body, classOf[EtherlogExternalItems])
-
-            return etherlogItemWrapper
-                            .items
+      
+      getLatestPublishedVersion(externalSourceId.toInt) match {
+        case None => List()
+        case Some(backlog)=> backlog.items
                             .filter(_.kind == "story")
                             .filter(_.isComplete == false)
                             .map(parseEtherlogItem(_, externalSourceId))
-        }
-        null
+      }
     }
 
     def canHandle(pluginType:String): Boolean = {
@@ -110,7 +156,7 @@ class EtherlogPlugin()  extends Plugin {
         }else {
             firstLine
         }
-        val itemLink = s"${config.protocol}://${config.serverHost}/backlog/${sourceId}#${etherlogItem.id}"
+        val itemLink = s"${config.url}/backlog/${sourceId}#${etherlogItem.id}"
         val stickyContentHTML =
           s"""<a href="${itemLink}" style="
                       background: #418F3A;

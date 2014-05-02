@@ -252,7 +252,6 @@ object JettyWrapper {
         mapper.registerModule(DefaultScalaModule)
         mapper.readValue(path, clazz)
     }
-    case class EtherlogPluginConfig (protocol:String, serverHost: String, backlogs: String)
     val config:EtherlogPluginConfig = readJson(new File("etherlogplugin.json"), classOf[EtherlogPluginConfig])
     // end of bad duplication
 
@@ -276,7 +275,7 @@ object JettyWrapper {
 
       //todo: This should probably be a concern of the etherlog plugin.
       // at this point, are we certain that it is an etherlog item?
-    val itemLink = s"${config.protocol}://${config.serverHost}/backlog/${boardObject.getStoryId}#${boardObject.id}"
+     val itemLink = s"${config.url}/backlog/${boardObject.getStoryId}#${boardObject.id}"
 
       val stickyContent = s"""<a href="${itemLink}"} style="background: #418F3A; color: white; display: block;"> $sourceName </a><div style="white-space:pre-line;"> $truncatedName </div>""".replaceAllLiterally( """"""", """\"""")
 
