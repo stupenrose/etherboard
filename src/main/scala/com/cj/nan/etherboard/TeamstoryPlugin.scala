@@ -92,6 +92,7 @@ class TeamstoryPlugin  extends Plugin {
         val client = new HttpClient()
         val sessionId = maybeAlreadyDefinedSessionId match {
           case None =>{
+            println("Starting a new TeamStory session")
             val httpRequest = new PostMethod(config.url + "/api/sessions")
             val authRequest = TeamstoryAuthRequest(email=config.username, password=config.password)
             
@@ -100,6 +101,7 @@ class TeamstoryPlugin  extends Plugin {
             val responseCode = client.executeMethod(httpRequest)
             val sessionURI = httpRequest.getResponseHeader("Location").getValue()
             val sessionId = sessionURI.replaceAllLiterally("/api/sessions/", "");
+            maybeAlreadyDefinedSessionId = Some(sessionId)
             sessionId
           }
           case Some(sessionId) => sessionId
