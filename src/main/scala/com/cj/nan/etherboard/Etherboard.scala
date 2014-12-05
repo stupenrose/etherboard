@@ -40,7 +40,6 @@ package com.cj.nan.etherboard
 
 import java.io.{File => Path}
 import scala.collection.JavaConversions._
-import reflect.BeanProperty
 import com.fasterxml.jackson.annotation.{JsonSubTypes, JsonTypeInfo}
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As
 import org.apache.http.impl.client.DefaultHttpClient
@@ -52,6 +51,7 @@ import org.apache.log4j.Logger
 import org.apache.log4j.Level
 import scala.xml.XML
 import scala.util.Random
+import scala.beans.BeanProperty
 
 class Position(@BeanProperty var left: Int = 0, @BeanProperty var top: Int = 0) {
     def this() = this(left = 0, top = 0)

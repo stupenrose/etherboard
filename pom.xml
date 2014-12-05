@@ -7,10 +7,10 @@
     <version>0.0.2-SNAPSHOT</version>
 
     <properties>
-        <httpobjects-version>0.5.0</httpobjects-version>
+        <httpobjects-version>0.7.0</httpobjects-version>
         <maven.compiler.source>1.6</maven.compiler.source>
         <maven.compiler.target>1.6</maven.compiler.target>
-        <jackson-version>2.3.0</jackson-version>
+        <jackson-version>2.4.4</jackson-version>
     </properties>
 
 
@@ -94,7 +94,7 @@
                 <version>1.4.4</version>
                 <executions>
                     <execution>
-                        <configuration>
+                        <configuration>new HttpClient()
                             <onejarVersion>0.97</onejarVersion>
                             <attachToBuild>true</attachToBuild>
                             <classifier>onejar</classifier>
@@ -252,13 +252,18 @@
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.module</groupId>
-            <artifactId>jackson-module-scala_2.10</artifactId>
+            <artifactId>jackson-module-scala_2.11</artifactId>
             <version>${jackson-version}</version>
         </dependency>
         <dependency>
             <groupId>org.scala-lang</groupId>
             <artifactId>scala-library</artifactId>
-            <version>2.10.0</version>
+            <version>2.11.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.scala-lang.modules</groupId>
+            <artifactId>scala-xml_2.11</artifactId>
+            <version>1.0.3</version>
         </dependency>
         <dependency>
             <groupId>org.scala-lang</groupId>

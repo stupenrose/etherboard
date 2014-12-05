@@ -11,6 +11,9 @@ trait Plugin  {
     def listItemSuggestions(externalSourceId:String):List[ExternalItemSuggestion]
     def canHandle(sourceType:String):Boolean
     def getSourceName(externalSourceId:String):String
+    def createMessage(boardObject:BoardObject, externalSourceId: String, msgContent: String):String
+    
+    
 }
 
 

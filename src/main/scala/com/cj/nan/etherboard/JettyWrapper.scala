@@ -54,14 +54,16 @@ import org.httpobjects.util.ClasspathResourcesObject
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.httpobjects.util.MimeTypeTool
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
-
+import scala.collection.JavaConversions._
 
 object JettyWrapper {
 
+  val configuration: Configuration = Configuration.read("configuration.json")
+  val sourcePlugins: List[Plugin] = configuration.pluginClasses.map(Class.forName(_).newInstance().asInstanceOf[Plugin])
+  
   def launchServer(boardDao: BoardDao) {
     BasicConfigurator.configure();
     val freemarker = freemarkerConfig();
-    val configuration: Configuration = Configuration.read("configuration.json")
     val websocketsEnabled = configuration.websocketsEnabled
     val websocketPort = configuration.websocketPort
 
@@ -70,7 +72,6 @@ object JettyWrapper {
     }
     val lock = new Object()
 
-    val sourcePlugins: List[Plugin] = configurePlugins(configuration)
 
     HttpObjectsJettyHandler.launchServer(configuration.port,
       new HttpObject("/") {
@@ -82,16 +83,14 @@ object JettyWrapper {
           val sourceId = req.path().valueFor("sourceId")
           val mapper = new ObjectMapper()
           mapper.registerModule(DefaultScalaModule)
-          val sourceItems = sourcePlugins.flatMap {
-            plugin =>
-              if (plugin.canHandle(sourceType)) {
-                println("Can Handle")
-                Some(plugin.listItemSuggestions(sourceId))
-              }
-              else None
+          sourcePlugins.find(_.canHandle(sourceType)) match {
+            case None=> BAD_REQUEST(Text("No plugin for " + sourceType))
+            case Some(plugin) => {
+                val sourceItems = plugin.listItemSuggestions(sourceId)
+                notifyClientsOfUpdates(sourceType, plugin, sourceId, sourceItems)
+                OK(Text("OK"));
+            }
           }
-          syncBoardsWithSourceChanges(sourceType, sourceId, sourceItems(0))
-          OK(Text("OK"));
         }
       },
       new ClasspathResourcesObject("/{resource*}", EtherboardMain.getClass()),
@@ -209,79 +208,25 @@ object JettyWrapper {
     )
   }
 
-  def getSourceName(sourceType: String, externalSourceId: String): String = {
-    val configuration: Configuration = Configuration.read("configuration.json")
-    val sourcePlugins: List[Plugin] = configurePlugins(configuration)
-    var sourceName = "Unknown Source"
 
-    sourcePlugins.foreach(plugin => {
-      if (plugin.canHandle(sourceType)) {
-        sourceName = plugin.getSourceName(externalSourceId)
-      }
-    })
-    sourceName
-
-  }
-
-  def syncBoardsWithSourceChanges(sourceType: String, externalSourceId: String, sourceItems: List[ExternalItemSuggestion]) {
-    val sourceName = getSourceName(sourceType, externalSourceId)
+  def notifyClientsOfUpdates(sourceType: String, plugin:Plugin, externalSourceId: String, sourceItems: List[ExternalItemSuggestion]) {
     val boardIds = BoardDaoImpl.listBoards().toList
 
     for (name <- boardIds) {
       val board = BoardDaoImpl.getBoard(name)
-      val boardObjects: java.util.List[BoardObject] = board.objects
-
-      val iterator = boardObjects.iterator()
-      while (iterator.hasNext) {
-        val boardObject = iterator.next()
-        if (boardObject.kind.equalsIgnoreCase("sticky")) {
-          for (sourceItem <- sourceItems) {
-            if (boardObject.storyId == sourceItem.externalId) {
-              val message = createMessage(boardObject, sourceName, sourceItem.name)
-              BoardUpdatesActor ! MessageFromSource(name, message)
-            }
-          }
-        }
+      val boardStickies = board.objects.filter(_.kind.equalsIgnoreCase("sticky"))
+      val messages = sourceItems.map{externalItem=>
+          val sticky = boardStickies.find(_.storyId == externalItem.externalId).get
+          
+          val message = plugin.createMessage(sticky, externalSourceId, externalItem.name)
+          
+          MessageFromSource(name, message)
+      }
+      
+      messages.foreach{message=>
+          BoardUpdatesActor ! message
       }
     }
-  }
-
-    //todo: remove this duplication
-    def readJson[T](path:File, clazz:Class[T]):T = {
-        val mapper = new ObjectMapper()
-        mapper.registerModule(DefaultScalaModule)
-        mapper.readValue(path, clazz)
-    }
-    val config:EtherlogPluginConfig = readJson(new File("etherlogplugin.json"), classOf[EtherlogPluginConfig])
-    // end of bad duplication
-
-  def createMessage(boardObject: BoardObject, sourceName: String, msgContent: String) = {
-    def quotesAround(field: String): String = {
-      val quote = """""""
-      quote + field + quote
-    }
-    def quoteField(elementType: String, element: String): String = {
-      quotesAround(elementType) + ":" + quotesAround(element)
-    }
-
-    val backlogId = boardObject.backlogId
-    val storyUUID = boardObject.storyId
-    val firstLine = msgContent
-    val truncatedName = if (firstLine.length > 100) {
-      firstLine.substring(0, 100) + "..."
-    } else {
-      firstLine
-    }
-
-      //todo: This should probably be a concern of the etherlog plugin.
-      // at this point, are we certain that it is an etherlog item?
-     val itemLink = s"${config.url}/backlog/${boardObject.getStoryId}#${boardObject.id}"
-
-      val stickyContent = s"""<a href="${itemLink}"} style="background: #418F3A; color: white; display: block;"> $sourceName </a><div style="white-space:pre-line;"> $truncatedName </div>""".replaceAllLiterally( """"""", """\"""")
-
-    val message = s"""{${quoteField("type", "stickyContentChanged")},${quoteField("widgetId", "widget" + boardObject.id.toString)},${quoteField("content", stickyContent)},${quoteField("extraNotes", "")}}"""
-
-    message
   }
 
   def freemarkerConfig() = {
@@ -314,9 +259,6 @@ object JettyWrapper {
     }).toMap
   }
 
-  def configurePlugins(conf: Configuration): List[Plugin] = {
-    println("Loading " + conf.pluginClasses)
-    conf.pluginClasses.map(Class.forName(_).newInstance().asInstanceOf[Plugin])
-  }
+
 
 }

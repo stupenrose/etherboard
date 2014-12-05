@@ -11,27 +11,64 @@ import org.apache.commons.httpclient.HttpMethodBase
 import com.fasterxml.jackson.annotation.JsonValue
 import com.fasterxml.jackson.core.`type`.TypeReference
 import scala.collection.JavaConversions._
+import org.apache.commons.httpclient.methods.PostMethod
+import org.apache.commons.httpclient.Cookie
+import java.net.URL
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-case class EtherlogEstimate (id:String, currency:String, value:Int, when: Long)
+case class TeamstoryEstimate (id:String, currency:String, value:Int, when: Long)
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-case class EtherlogItem (id:String, name:String, kind:String, estimates:List[EtherlogEstimate], isComplete:Boolean)
+case class TeamstoryItem (id:String, name:String, kind:String, estimates:List[TeamstoryEstimate], isComplete:Boolean)
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-case class EtherlogExternalItems (id:String, name:String, memo:String, items: List[EtherlogItem])
+case class TeamstoryExternalItems (id:String, name:String, memo:String, items: List[TeamstoryItem])
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-case class EtherlogOverview (id:String, name:String, whenArchived:Option[Long])
+case class TeamstoryOverview (id:String, name:String, whenArchived:Option[Long])
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-case class EtherlogHistoryEntry(version: String, when:Long, memo:String)
+case class TeamstoryHistoryEntry(version: String, when:Long, memo:String)
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-case class EtherlogPluginConfig (url: String)
+case class TeamstoryPluginConfig (url: String, username:String, password:String)
 
-class EtherlogPlugin()  extends Plugin {
 
+@JsonIgnoreProperties(ignoreUnknown = true)
+case class TeamstoryAuthRequest (email:String, password:String)
+
+class TeamstoryPlugin  extends Plugin {
+  
+  override def createMessage(boardObject: BoardObject, externalSourceId: String, msgContent: String) = { 
+    val sourceName = getSourceName(externalSourceId)
+    def quotesAround(field: String): String = {
+      val quote = """""""
+      quote + field + quote
+    }
+    def quoteField(elementType: String, element: String): String = {
+      quotesAround(elementType) + ":" + quotesAround(element)
+    }
+
+    val backlogId = boardObject.backlogId
+    val storyUUID = boardObject.storyId
+    val firstLine = msgContent
+    val truncatedName = if (firstLine.length > 100) {
+      firstLine.substring(0, 100) + "..."
+    } else {
+      firstLine
+    }
+
+      //todo: This should probably be a concern of the etherlog plugin.
+      // at this point, are we certain that it is an etherlog item?
+    val itemLink = s"${config.url}/backlog/${boardObject.getStoryId}#${boardObject.id}"
+
+    val stickyContent = s"""<a href="${itemLink}"} style="background: #418F3A; color: white; display: block;"> $sourceName </a><div style="white-space:pre-line;"> $truncatedName </div>""".replaceAllLiterally( """"""", """\"""")
+
+    val message = s"""{${quoteField("type", "stickyContentChanged")},${quoteField("widgetId", "widget" + boardObject.id.toString)},${quoteField("content", stickyContent)},${quoteField("extraNotes", "")}}"""
+
+    message
+  }
+  
     def readJson[T](path:File, clazz:Class[T]):T = {
         val mapper = new ObjectMapper()
         mapper.registerModule(DefaultScalaModule)
@@ -41,16 +78,50 @@ class EtherlogPlugin()  extends Plugin {
     val jackson = new ObjectMapper()
     jackson.registerModule(DefaultScalaModule)
     
-    val config:EtherlogPluginConfig = readJson(new File("etherlogplugin.json"), classOf[EtherlogPluginConfig])
+    val config:TeamstoryPluginConfig = readJson(new File("teamstory-plugin.json"), classOf[TeamstoryPluginConfig])
     
-    var backlogNamesCache = List[EtherlogOverview]()
+    var backlogNamesCache = List[TeamstoryOverview]()
 
     def backlogsUrl = config.url + "/api/backlogs/"
     def historyUrl(backlogId:Int) =  s"${config.url}/api/backlogs/${backlogId}/history?showLatestEvenIfWip=false"
+    
+    var maybeAlreadyDefinedSessionId:Option[String] = None
+    
+    private def authenticatedHttpClient() = {
+      
+        val client = new HttpClient()
+        val sessionId = maybeAlreadyDefinedSessionId match {
+          case None =>{
+            val httpRequest = new PostMethod(config.url + "/api/sessions")
+            val authRequest = TeamstoryAuthRequest(email=config.username, password=config.password)
+            
+            httpRequest.setRequestBody(jackson.writeValueAsString(authRequest))
+            
+            val responseCode = client.executeMethod(httpRequest)
+            val sessionURI = httpRequest.getResponseHeader("Location").getValue()
+            val sessionId = sessionURI.replaceAllLiterally("/api/sessions/", "");
+            sessionId
+          }
+          case Some(sessionId) => sessionId
+        }
+        
+        client.getState().addCookie(cookie(
+                            domain=new URL(config.url).getHost(), 
+                            name="session", 
+                            value=sessionId, 
+                            path="/",
+                            expires = null,
+                            secure = false))
+        client
+    }
+    
+    private def cookie(domain:String, name:String, value:String, 
+                       path:String, expires:java.util.Date , secure:Boolean) = new Cookie(domain, name, value, path, expires, secure)
+    
     private def fetchBacklogList() = {
         
         val request = new GetMethod(backlogsUrl)
-        val client = new HttpClient()
+        val client = authenticatedHttpClient()
         val response = client.executeMethod(request)
 
         var body = ""
@@ -62,7 +133,7 @@ class EtherlogPlugin()  extends Plugin {
         body = request.getResponseBodyAsString()
         val mapper = new ObjectMapper()
         mapper.registerModule(DefaultScalaModule)
-        mapper.readValue(body, classOf[Array[EtherlogOverview]]).toList
+        mapper.readValue(body, classOf[Array[TeamstoryOverview]]).toList
 
     }
 
@@ -83,7 +154,7 @@ class EtherlogPlugin()  extends Plugin {
     // yucky duplication!
     private def getJson[T](url:String, clazz:Class[T]):Option[T] = {
       val request = new GetMethod(url)
-      val client = new HttpClient()
+      val client = authenticatedHttpClient()
       val response = client.executeMethod(request)
       response match {
         case 200=>Some(jackson.readValue(request.getResponseBodyAsStream(), clazz))
@@ -93,7 +164,7 @@ class EtherlogPlugin()  extends Plugin {
     
     private def getJson[T](url:String, clazz:TypeReference[T]):Option[T] = {
       val request = new GetMethod(url)
-      val client = new HttpClient()
+      val client = authenticatedHttpClient()
       val response = client.executeMethod(request)
       response match {
         case 200=>Some(jackson.readValue(request.getResponseBodyAsStream(), clazz))
@@ -103,10 +174,10 @@ class EtherlogPlugin()  extends Plugin {
     // end yucky duplication
 
     def getHistory(id:Int) = {
-      getJson(historyUrl(id), new TypeReference[java.util.List[EtherlogHistoryEntry]](){})
+      getJson(historyUrl(id), new TypeReference[java.util.List[TeamstoryHistoryEntry]](){})
     }
     
-    def getLatestPublishedVersion(id:Int):Option[EtherlogExternalItems] = {
+    def getLatestPublishedVersion(id:Int):Option[TeamstoryExternalItems] = {
       getHistory(id) match {
         case None=> {
           println("no history for " + id) 
@@ -115,7 +186,7 @@ class EtherlogPlugin()  extends Plugin {
         case Some(history)=>{
           val lastPublishedVersionId = history.head.version
           val url = s"${config.url}/api/backlogs/${id}/history/${lastPublishedVersionId}"
-          getJson(url, classOf[EtherlogExternalItems])
+          getJson(url, classOf[TeamstoryExternalItems])
         }
       }
     }
@@ -148,7 +219,7 @@ class EtherlogPlugin()  extends Plugin {
         }
     }
 
-    def parseEtherlogItem(etherlogItem:EtherlogItem, sourceId:String):ExternalItemSuggestion = {
+    def parseEtherlogItem(etherlogItem:TeamstoryItem, sourceId:String):ExternalItemSuggestion = {
         val backlogName = getSourceName(sourceId)
         val firstLine = etherlogItem.name.lines.toList.headOption.getOrElse("")
         val truncatedName = if(firstLine.length>100){

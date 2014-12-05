@@ -2,5 +2,5 @@
 "port":40180,
 "websocketsEnabled":true,
 "websocketPort":40181,
-"pluginClasses":["com.cj.nan.etherboard.EtherlogPlugin"]
+"pluginClasses":["com.cj.nan.etherboard.TeamstoryPlugin"]
 }
