@@ -94,7 +94,7 @@
                 <version>1.4.4</version>
                 <executions>
                     <execution>
-                        <configuration>new HttpClient()
+                        <configuration>
                             <onejarVersion>0.97</onejarVersion>
                             <attachToBuild>true</attachToBuild>
                             <classifier>onejar</classifier>
