@@ -39,7 +39,7 @@
 package com.cj.nan.etherboard
 
 import org.scalatest.matchers.ShouldMatchers
-import org.scalatest.{FunSpec, GivenWhenThen, Spec}
+import org.scalatest.{Matchers, FunSpec, GivenWhenThen, Spec}
 import java.io.FileInputStream
 import java.io.File
 import org.junit.runner.RunWith
@@ -50,8 +50,10 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import scala.beans.BeanProperty
 
 @RunWith(classOf[JUnitRunner])
-class BoardDaoSpecification extends FunSpec with ShouldMatchers with GivenWhenThen {
-    
+class BoardDaoSpecification extends FunSpec with Matchers with GivenWhenThen {
+//class BoardDaoSpecification extends FunSpec with ShouldMatchers with GivenWhenThen {
+
+
     describe("A BoardDao") {
         it("should save a Board object") {
             Given("A BoardDao and a new Board to save")

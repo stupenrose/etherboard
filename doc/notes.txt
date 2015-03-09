@@ -1,0 +1,51 @@
+
+
+
+
+Testing
+
+First characterization test:
+- Make POST call to /board
+  - form data: name=name, syncType=simple
+- Response headers should contain "location" of new resource
+
+
+Analysis:
+
+
+Problem:  Interface too thick.
+Todo: Thin http interface  FooResource(fooService:FooService)( extends HttpObject(...)
+Todo: Resource layer (BoardResource)
+Todo: Service layer (BoardService)
+Todo: Business objects (Board, etc.  Already exists)
+
+
+Testing of httpObject (resource): Does it call foo service?  that is all.
+
+val boardService = ???
+
+val server = launchServer(httpPort,
+    "/board" -> new BoardResource(boardService),
+
+
+
+BoardResource(boardService:BoardService) extends HttpObject("/board")
+  def post(???) {
+    val name = parseFromInput
+    boardService.createBoard(name)
+  }
+
+
+
+
+BoardService
+  def createBoard(name:String) {
+    if exists throw exception
+    val thing = boardDao.createBoard(name)
+    return thing.id
+  }
+
+
+BoardDao
+  save() { save board }
+  listBoards() { ... }
