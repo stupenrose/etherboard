@@ -72,46 +72,49 @@
 
     <script type="text/javascript">
 
-      var showdown;
+        function frontPage(body, boardId){
 
-      $(document).ready(function () {
-        var body = $("body"),
-        boardId = getQueryParam("board");
+            showdown = new Showdown.converter();
 
-        showdown = new Showdown.converter();
+            if(boardId) {
+                body.addClass("board");
+                $('title').text(boardId + ' - Etherboard')
+                Board(body, boardId);
+            } else {
+                body.removeClass("board");
+                $.ajax({
+                    cache: false,
+                    url: "/board",
+                    success: function (names) {
+                        $('body').append(
+                                tmpl("newBoardTemplate", {boards: names})
+                        );
 
-        if(boardId) {
-            body.addClass("board");
-            $('title').text(boardId + ' - Etherboard')
-            Board(body, boardId);
-        } else {
-            body.removeClass("board");
-            $.ajax({
-                cache: false,
-                url: "/board",
-                success: function (names) {
-                    $('body').append(
-                        tmpl("newBoardTemplate", {boards: names})
-                    );
+                        $("#createNewBoardButton").button().click(function () {
+                            $("#newBoardForm").submit(function () {
+                                $(this).find(':input[value=""]').attr("disabled", "disabled");
+                            }).dialog({title: "New Board"});
+                        });
 
-                    $("#createNewBoardButton").button().click(function () {
-                        $("#newBoardForm").submit(function () {
-                            $(this).find(':input[value=""]').attr("disabled", "disabled");
-                        }).dialog({title: "New Board"});
-                    });
+                        $("#syncType").change(function () {
+                            $("#pivotalOptions").toggle();
+                        });
 
-                    $("#syncType").change(function () {
-                        $("#pivotalOptions").toggle();
-                    });
+                        $("#createNewBoardSubmit").button();
+                    },
+                    error: function (jqxhr, textStatus, errorThrown) {
+                        alert("ERROR:" + textStatus);
+                    }
+                });
+            }
 
-                    $("#createNewBoardSubmit").button();
-                },
-                error: function (jqxhr, textStatus, errorThrown) {
-                    alert("ERROR:" + textStatus);
-                }
-            });
         }
-    });
+
+        $(document).ready(function () {
+            var body = $("body"),
+                    boardId = getQueryParam("board");
+            frontPage(body,boardId)
+        })
 
 
     </script>
@@ -125,9 +128,9 @@
         $.each(boards, function(index, boardName) {
         var parsedName = decodeURIComponent(boardName);
         %>
-            <li>
-                <a href="?board=<%= boardName %>"><%= parsedName %></a>
-            </li>
+        <li>
+            <a href="?board=<%= boardName %>"><%= parsedName %></a>
+        </li>
         <% }); %>
 
         <input type="button" id="createNewBoardButton" value="Create New Board">
@@ -171,7 +174,7 @@
             <div class="stickyContent"></div>
         </div>
         <div class="stickyBack">
-        <div class="extraNotes"></div>
+            <div class="extraNotes"></div>
         </div>
     </div>
 </script>

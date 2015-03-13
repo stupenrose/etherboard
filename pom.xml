@@ -60,6 +60,7 @@
                     </execution>
                 </executions>
                 <configuration>
+                    <!--<webRoot>/main</webRoot>-->
                     <webPathToRequireDotJsConfig>/require-config.js</webPathToRequireDotJsConfig>
                     <extraPathsToServe>
                         <!--src/main/resources/com/cj/nan/etherboard-->
