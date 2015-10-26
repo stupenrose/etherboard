@@ -38,6 +38,8 @@
 
 package com.cj.nan.etherboard
 
+import java.util
+
 import org.httpobjects.jetty.HttpObjectsJettyHandler
 import org.httpobjects.{Request, HttpObject}
 import org.httpobjects.freemarker.FreemarkerDSL._
@@ -55,6 +57,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import org.httpobjects.util.MimeTypeTool
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import scala.collection.JavaConversions._
+import scala.util.{Failure, Success, Try}
 
 object JettyWrapper {
 
@@ -118,6 +121,18 @@ object JettyWrapper {
           board.addObject(result)
           boardDao.saveBoard(board)
           OK(Json(jackson.writeValueAsString(result)));
+        }
+      },
+      new HttpObject("/board/{boardId}/clone"){
+        override def post(req:Request) = lock.synchronized {
+          val boardId = req.path().valueFor("boardId")
+          val cloneName = req.query().valueFor("name")
+
+          val existingBoard = boardDao.getBoard(boardId)
+          val newBoard = new Board(cloneName)
+          newBoard.cloneObjectsFrom(existingBoard)
+          boardDao.saveBoard(newBoard)
+          SEE_OTHER(new LocationField("/?board=" + newBoard.name))
         }
       },
       new HttpObject("/board/{boardId}/objects/{objectId}") {

@@ -154,6 +154,12 @@ class Board(@BeanProperty var name: String, stuff: BoardObject*) {
         id_sequence += 1
         id_sequence
     }
+
+    def cloneObjectsFrom(otherBoard:Board) ={
+      for (existingObject <- otherBoard.objects){
+         this.addObject(new BoardObject(this.generateUniqueId(), existingObject))
+      }
+    }
 }
 
 class PivotalTrackerBoard(@BeanProperty name: String,  @BeanProperty var toolSyncId: String, @BeanProperty var toolSyncKey: String, stuff: BoardObject*) extends Board(name, stuff:_*) {

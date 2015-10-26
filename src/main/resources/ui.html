@@ -72,6 +72,13 @@
 
     <script type="text/javascript">
 
+        function validate(truthCond, errMessage, event){
+            if (!truthCond()){
+                alert(errMessage);
+                event.preventDefault();
+            }
+        }
+
         function frontPage(body, boardId){
 
             showdown = new Showdown.converter();
@@ -96,8 +103,29 @@
                             }).dialog({title: "New Board"});
                         });
 
+                        for (var i = 0; i < names.length; i++){
+                            $("#existingBoardName").append($("<option></option>").attr("value",names[i]).text(names[i]));
+                        }
+
+                        $("#cloneBoardButton").button().click(function(){
+                            $("#cloneBoardForm").dialog({
+                               title: "Clone Board",
+                               modal: true,
+                               closeText: "Cancel"
+                            });
+                        });
+
                         $("#syncType").change(function () {
                             $("#pivotalOptions").toggle();
+                        });
+
+                        $("#createCloneBoardSubmit").button().click(function(e){
+                            var name = $("#cloneBoardName").val(),
+                                existingBoard = $("#existingBoardName").val();
+                            var trimmedAndSpaceReplacedName = $.trim(name).replace(/\s/g,"+");
+                            validate(function(){ return trimmedAndSpaceReplacedName.length > 0; }, "Please enter a name for the cloned board", e);
+                            validate(function(){ return $.inArray(trimmedAndSpaceReplacedName,names) === -1; }, "This is a duplicate board name!  Please select another ...", e);
+                            $("#cloneBoardForm").prop("action", "/board/"+existingBoard+"/clone?name="+encodeURIComponent(trimmedAndSpaceReplacedName));
                         });
 
                         $("#createNewBoardSubmit").button();
@@ -134,6 +162,17 @@
         <% }); %>
 
         <input type="button" id="createNewBoardButton" value="Create New Board">
+        <input type="button" id="cloneBoardButton" value="Clone Board">
+
+        <form id="cloneBoardForm" style="display:none;" action="/board/{boardId}/clone" method="POST" >
+             <label for="existingBoardName">Existing Board: </label>
+             <select id="existingBoardName"></select>
+             <br />
+            <label for="cloneBoardName">Name: </label>
+            <input type="text" id="cloneBoardName"  placeholder="New Board Name">
+            <br />
+            <input type="submit" value="Create" id="createCloneBoardSubmit"/>
+        </form>
 
         <form id="newBoardForm" style="display:none;" action="/board" method="POST">
             <label for="newBoardName">Name: </label>
