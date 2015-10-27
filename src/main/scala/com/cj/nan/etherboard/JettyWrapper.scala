@@ -123,10 +123,14 @@ object JettyWrapper {
           OK(Json(jackson.writeValueAsString(result)));
         }
       },
-      new HttpObject("/board/{boardId}/clone"){
+      new HttpObject("/board/{boardId}/cloneBoard"){
         override def post(req:Request) = lock.synchronized {
           val boardId = req.path().valueFor("boardId")
-          val cloneName = req.query().valueFor("name")
+          val baos = new ByteArrayOutputStream()
+          req.representation().write(baos)
+          val body = baos.toString
+          val parsedBody = parseHttpForm(body)
+          val cloneName = parsedBody("cloneName")
 
           val existingBoard = boardDao.getBoard(boardId)
           val newBoard = new Board(cloneName)

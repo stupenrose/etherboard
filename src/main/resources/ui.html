@@ -122,10 +122,10 @@
                         $("#createCloneBoardSubmit").button().click(function(e){
                             var name = $("#cloneBoardName").val(),
                                 existingBoard = $("#existingBoardName").val();
-                            var trimmedAndSpaceReplacedName = $.trim(name).replace(/\s/g,"+");
-                            validate(function(){ return trimmedAndSpaceReplacedName.length > 0; }, "Please enter a name for the cloned board", e);
-                            validate(function(){ return $.inArray(trimmedAndSpaceReplacedName,names) === -1; }, "This is a duplicate board name!  Please select another ...", e);
-                            $("#cloneBoardForm").prop("action", "/board/"+existingBoard+"/clone?name="+encodeURIComponent(trimmedAndSpaceReplacedName));
+                            var trimmedName = $.trim(name);
+                            validate(function(){ return trimmedName.length > 0; }, "Please enter a name for the cloned board", e);
+                            validate(function(){ return $.inArray(trimmedName,names) === -1; }, "This is a duplicate board name!  Please select another ...", e);
+                            $("#cloneBoardForm").prop("action", "/board/"+existingBoard+"/cloneBoard");
                         });
 
                         $("#createNewBoardSubmit").button();
@@ -164,12 +164,12 @@
         <input type="button" id="createNewBoardButton" value="Create New Board">
         <input type="button" id="cloneBoardButton" value="Clone Board">
 
-        <form id="cloneBoardForm" style="display:none;" action="/board/{boardId}/clone" method="POST" >
+        <form id="cloneBoardForm" style="display:none;" action="/board/{boardId}/cloneBoard" method="POST" >
              <label for="existingBoardName">Existing Board: </label>
              <select id="existingBoardName"></select>
              <br />
             <label for="cloneBoardName">Name: </label>
-            <input type="text" id="cloneBoardName"  placeholder="New Board Name">
+            <input type="text" id="cloneBoardName" name="cloneName" placeholder="New Board Name">
             <br />
             <input type="submit" value="Create" id="createCloneBoardSubmit"/>
         </form>
