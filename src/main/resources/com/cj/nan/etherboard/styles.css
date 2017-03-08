@@ -138,13 +138,11 @@ div.bucket {
 }
 
 div.bucket .stickyContent {
-    margin-top: 10%;
     font-size: 1.3em;
-    padding: 2px;
-    border-radius: 10px;
-    width: 70%;
+    padding: 10px;
+    margin:0px;
+    width: 100%;
     display: inline-block;
-    background-color: hsla(357, 62%, 50%, 0.41);
 }
 
 div.stickyeditor textarea {
@@ -180,7 +178,7 @@ div.stickyHeader {
 }
 
 .bucket > .stickyHeader {
-  background:#FF0000;
+  background:#aaaaaa;
 }
 
 div.bucket:hover .stickyHeader {
@@ -339,18 +337,33 @@ div.sticky.flip div.stickyBack {
 
 
 div.bucket {
-    background-repeat: no-repeat;
-    background-image: url('bucket.png');
-    background-size:100% 100%;
-    border: none;
+    border: 1px solid gray;
+    border-radius:5px;
+    background:white;
+    overflow:auto;
+    box-shadow: 10px 10px 5px #888888;
 }
-
+.bucketlist {
+	max-height:10px;
+    margin-top: 10px;
+    display:block;
+}
 div.bucket li {
-    list-style-image: url('bucket-entry.gif');
 }
 
+.bucketList li {
+    display: block;
+    overflow: hidden;
+    text-align: left;
+    padding: 4px;
+    padding-left: 10px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+   	padding-top:10px;
+}
 div.bucket .bucketList .remove{
     padding-left: .5em;
+    float:right;
 }
 
 div.header {

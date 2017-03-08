@@ -67,7 +67,7 @@ function Bucket(bucket, parent, boardId, createIssueCallback, webSocketClient) {
     function bucketSave() {
         bucket.contents = [];
         widget.find(".bucketList > li > span").each(function () {
-            bucket.contents.push({ name: $(this).html(), extraNotes: $(this).data("extraNotes") });
+            bucket.contents.push({ name: $(this).data("content"), extraNotes: $(this).data("extraNotes") });
         });
         doSave();
     }
@@ -84,9 +84,15 @@ function Bucket(bucket, parent, boardId, createIssueCallback, webSocketClient) {
         widget.width(bucket.width || 150);
 
         for (i = 0; i < bucket.contents.length; i++) {
-            $("<li></li>").append(
-			    $("<span></span>").html(bucket.contents[i].name)
-		    ).append("<a href='#' class='remove'>--&gt;</a>").appendTo(bucketList).find("span").data("extraNotes", bucket.contents[i].extraNotes);
+        	
+        	var text = $(bucket.contents[i].name).text()
+        	var content = text.split("\n")[0];
+        	
+            var item = $("<li></li>").append(
+			    $("<span></span>").html(content)
+		    ).append("<a href='#' class='remove'>--&gt;</a>").appendTo(bucketList).find("span");
+            item.data("extraNotes", bucket.contents[i].extraNotes);
+            item.data("content", bucket.contents[i].name);
         }
 
         bucketList.find(".remove").click(function (e) {
