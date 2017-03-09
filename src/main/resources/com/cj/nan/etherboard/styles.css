@@ -177,12 +177,45 @@ div.stickyHeader {
   transition: all 0.3s ease-in-out;
 }
 
-.bucket > .stickyHeader {
-  background:#aaaaaa;
+.bucketControls {
+  box-shadow: #ccc 2px 2px 2px;  
+  opacity:0;
+  -webkit-transition: all 0.3s ease-in-out;
+  -moz-transition: all 0.3s ease-in-out;
+  -o-transition: all 0.3s ease-in-out;
+  transition: all 0.3s ease-in-out;
+   position: absolute;
+   width: 100%;
 }
 
-div.bucket:hover .stickyHeader {
+
+div.bucket:hover .bucketControls {
   opacity: 0.3;
+}
+
+.bucketControls img {
+	width:16px;
+	height:16px;
+}
+
+.bucketControls {
+	
+    height:30px;
+}
+
+.bucketHeader {
+    color: white;
+    position: absolute;
+    width: 100%;
+    font-weight: bold;
+    background: #aaaaaa;
+    height:20px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+.bucket > .stickyHeader {
+  background:#aaaaaa;
 }
 
 div.sticky:hover > .stickyHeader {
@@ -340,13 +373,18 @@ div.bucket {
     border: 1px solid gray;
     border-radius:5px;
     background:white;
-    overflow:auto;
+    overflow:hidden;
     box-shadow: 10px 10px 5px #888888;
 }
-.bucketlist {
-	max-height:10px;
-    margin-top: 10px;
+.bucketListHolder {
+    margin-top: 0px;
     display:block;
+    overflow:scroll;
+    height: 100%;
+    
+}
+.bucketList {
+    padding-top: 30px;
 }
 div.bucket li {
 }
