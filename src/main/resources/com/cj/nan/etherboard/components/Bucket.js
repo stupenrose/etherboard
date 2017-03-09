@@ -110,6 +110,8 @@ function Bucket(bucket, parent, boardId, createIssueCallback, webSocketClient) {
             }));
 
             bucketSave();
+            
+            e.preventDefault();
         });
     }
 
