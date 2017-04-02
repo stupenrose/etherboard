@@ -97,7 +97,7 @@ function Bucket(bucket, parent, boardId, createIssueCallback, webSocketClient) {
 
         bucketList.find(".remove").click(function (e) {
             var sticky = $(this).parent().find("span"),
-                name = sticky.html(),
+                name = sticky.data("content"),
                 extraNotes = sticky.data("extraNotes");
 
             createIssueCallback({ name: name, extraNotes: extraNotes, kind: "sticky", pos: { top: $(this).offset().top - 75, left: $(this).offset().left - 75 } });
