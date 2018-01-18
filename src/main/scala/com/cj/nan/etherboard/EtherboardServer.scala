@@ -59,7 +59,7 @@ import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import scala.collection.JavaConversions._
 import scala.util.{Failure, Success, Try}
 
-class JettyWrapper(configuration:Configuration, boardDao: BoardDao) {
+class EtherboardServer(configuration:Configuration, boardDao: BoardDao) {
 
   val sourcePlugins: List[Plugin] = configuration.pluginClasses.map(Class.forName(_).newInstance().asInstanceOf[Plugin])
   

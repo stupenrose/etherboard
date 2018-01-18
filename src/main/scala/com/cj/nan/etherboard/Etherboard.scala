@@ -65,7 +65,7 @@ object EtherboardMain {
     	}
     	println("Using data at " + dataPath)
       val data = new BoardDaoImpl(dataPath)
-      new JettyWrapper(configuration, data).launchServer()
+      new EtherboardServer(configuration, data).launchServer()
     }
 }
 
