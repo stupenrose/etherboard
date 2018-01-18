@@ -65,7 +65,7 @@ class BoardDaoSpecification extends FunSpec with Matchers with GivenWhenThen {
             When("saving the board")
                 boardDao.saveBoard(aBoard)
             Then("a text file with the board contents should be saved")
-                val file:File = new File("target/data", boardName)
+                val file:File = new File("target/test-data", boardName)
                 file.exists() should  be (true)
                 val jackson = new ObjectMapper()
                 val retrievedBoard = jackson.readValue(new FileInputStream(file), classOf[Board])
@@ -87,7 +87,7 @@ class BoardDaoSpecification extends FunSpec with Matchers with GivenWhenThen {
                 val retrievedBoardObject:BoardObject = retrievedBoard.findObject(1).get
                 retrievedBoardObject.name should equal ("some name")
                 retrievedBoardObject.kind should equal ("some kind")
-                val file:File = new File("target/data", boardName)
+                val file:File = new File("target/test-data", boardName)
                 file.exists() should  be (true)
                 file.delete() should  be (true)
         }
@@ -109,7 +109,7 @@ class BoardDaoSpecification extends FunSpec with Matchers with GivenWhenThen {
             Then("the board's stickie should now be a sticky")
                 val retrievedBoardObject:BoardObject = retrievedBoard.findObject(1).get
                 retrievedBoardObject.kind should equal ("sticky")
-                val file:File = new File("target/data", boardName)
+                val file:File = new File("target/test-data", boardName)
                 file.exists() should  be (true)
                 file.delete() should  be (true)
         }

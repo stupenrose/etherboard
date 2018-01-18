@@ -57,8 +57,13 @@ import scala.beans.BeanProperty
 object EtherboardMain {
     def main(args: Array[String]) {
     	Logger.getLogger("org.apache").setLevel(Level.ERROR)
-    	val dataPath = new Path("target/data")
       val configuration: Configuration = Configuration.read("configuration.json")
+      
+    	val dataPath = Option(configuration.dataDir) match {
+    	  case Some(path) => new Path(path)
+    	  case None => new Path("target/data")
+    	}
+    	println("Using data at " + dataPath)
       val data = new BoardDaoImpl(dataPath)
       new JettyWrapper(configuration, data).launchServer()
     }
