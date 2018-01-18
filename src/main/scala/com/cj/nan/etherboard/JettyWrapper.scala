@@ -59,12 +59,11 @@ import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import scala.collection.JavaConversions._
 import scala.util.{Failure, Success, Try}
 
-object JettyWrapper {
+class JettyWrapper(configuration:Configuration, boardDao: BoardDao) {
 
-  val configuration: Configuration = Configuration.read("configuration.json")
   val sourcePlugins: List[Plugin] = configuration.pluginClasses.map(Class.forName(_).newInstance().asInstanceOf[Plugin])
   
-  def launchServer(boardDao: BoardDao) {
+  def launchServer() {
     BasicConfigurator.configure();
     val freemarker = freemarkerConfig();
     val websocketsEnabled = configuration.websocketsEnabled
@@ -229,10 +228,10 @@ object JettyWrapper {
 
 
   def notifyClientsOfUpdates(sourceType: String, plugin:Plugin, externalSourceId: String, sourceItems: List[ExternalItemSuggestion]) {
-    val boardIds = BoardDaoImpl.listBoards().toList
+    val boardIds = boardDao.listBoards().toList
 
     for (name <- boardIds) {
-      val board = BoardDaoImpl.getBoard(name)
+      val board = boardDao.getBoard(name)
       val boardStickies = board.objects.filter(_.kind.equalsIgnoreCase("sticky"))
       val messages = sourceItems.map{externalItem=>
           val sticky = boardStickies.find(_.storyId == externalItem.externalId).get

@@ -19,8 +19,6 @@ import org.scalatest.{GivenWhenThen, Matchers, FunSuite}
 class BoardResourceTest extends FunSuite with Matchers with GivenWhenThen {
 
 
-  // boardDao:BoardDao, boardService:BoardServiceImpl
-
   class MockBoardService extends BoardService {
 
     override def makeBoard(requestBodyString: String): Response = {
@@ -32,7 +30,7 @@ class BoardResourceTest extends FunSuite with Matchers with GivenWhenThen {
 
 
   def setupWiring():ApplicationWiring = {
-    val boardDao:BoardDao = BoardDaoImpl()
+    val boardDao:BoardDao = new BoardDaoImpl()
     val boardService:BoardService = new MockBoardService
     val util = new Util()
     val wiring = ApplicationWiring(

@@ -61,7 +61,7 @@ class BoardDaoSpecification extends FunSpec with Matchers with GivenWhenThen {
                 val boardName:String = Random.alphanumeric take 30 mkString
     
                 val aBoard = new Board(boardName, boardObject)
-                val boardDao = BoardDaoImpl()
+                val boardDao = new BoardDaoImpl()
             When("saving the board")
                 boardDao.saveBoard(aBoard)
             Then("a text file with the board contents should be saved")
@@ -79,9 +79,9 @@ class BoardDaoSpecification extends FunSpec with Matchers with GivenWhenThen {
                 val boardName:String = Random.alphanumeric take 30 mkString
 
                 val aBoard = new Board(boardName, boardObject)
-                BoardDaoImpl().saveBoard(aBoard)
+                new BoardDaoImpl().saveBoard(aBoard)
             When("getting the saved board")
-                val retrievedBoard:Board = BoardDaoImpl().getBoard(boardName)
+                val retrievedBoard:Board = new BoardDaoImpl().getBoard(boardName)
             Then("the board should be retrieved successfully")
                 retrievedBoard.name should equal (aBoard.name)
                 val retrievedBoardObject:BoardObject = retrievedBoard.findObject(1).get
@@ -103,9 +103,9 @@ class BoardDaoSpecification extends FunSpec with Matchers with GivenWhenThen {
                 boardObject.kind should equal ("stickie")
 
                 val aBoard: Board = new Board(boardName, boardObject)
-                BoardDaoImpl().saveBoard(aBoard)
+                new BoardDaoImpl().saveBoard(aBoard)
             When("getting the saved board")
-                val retrievedBoard:Board = BoardDaoImpl().getBoard(boardName)
+                val retrievedBoard:Board = new BoardDaoImpl().getBoard(boardName)
             Then("the board's stickie should now be a sticky")
                 val retrievedBoardObject:BoardObject = retrievedBoard.findObject(1).get
                 retrievedBoardObject.kind should equal ("sticky")
