@@ -2,5 +2,6 @@
 "port":40180,
 "websocketsEnabled":true,
 "websocketPort":40181,
-"pluginClasses":[]
+"pluginClasses":[],
+"dataDir":"etherboard-data"
 }
