@@ -38,5 +38,4 @@ case class Configuration (
     websocketsEnabled:Boolean = true, 
     websocketPort:Int = 40181, 
     pluginClasses:List[String]=List(), 
-    dataDir:String="etherboard-data",
-    hostname:Option[String] = None)
+    dataDir:String="etherboard-data")
