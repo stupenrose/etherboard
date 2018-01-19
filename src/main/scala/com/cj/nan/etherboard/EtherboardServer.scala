@@ -228,7 +228,6 @@ class EtherboardServer(configuration:Configuration, boardDao: BoardDao) {
   def notifyClientsOfUpdates(sourceType: String, plugin:Plugin, externalSourceId: String, sourceItems: List[ExternalItemSuggestion]) {
     val boardIds = boardDao.listBoards().toList
 
-    println("Notifying")
     for (name <- boardIds) {
       val board = boardDao.getBoard(name)
       val boardStickies = board.objects.filter(_.kind.equalsIgnoreCase("sticky"))

@@ -52,10 +52,13 @@ import org.apache.log4j.Level
 import scala.xml.XML
 import scala.util.Random
 import scala.beans.BeanProperty
+import org.apache.log4j.BasicConfigurator
 
 
 object EtherboardMain {
     def main(args: Array[String]) {
+      BasicConfigurator.configure();
+    	Logger.getRootLogger.setLevel(Level.INFO)
     	Logger.getLogger("org.apache").setLevel(Level.ERROR)
       val configuration: Configuration = Configuration.read("configuration.json")
       
