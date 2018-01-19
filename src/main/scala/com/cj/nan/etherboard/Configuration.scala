@@ -33,4 +33,10 @@ object Configuration {
     }
 }
 
-case class Configuration (port:Int = 40180, websocketsEnabled:Boolean = true, websocketPort:Int = 40181, pluginClasses:List[String]=List(), dataDir:String="etherboard-data")
+case class Configuration (
+    port:Int = 40180, 
+    websocketsEnabled:Boolean = true, 
+    websocketPort:Int = 40181, 
+    pluginClasses:List[String]=List(), 
+    dataDir:String="etherboard-data",
+    hostname:Option[String] = None)

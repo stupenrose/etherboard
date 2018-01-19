@@ -59,13 +59,17 @@ object EtherboardMain {
     	Logger.getLogger("org.apache").setLevel(Level.ERROR)
       val configuration: Configuration = Configuration.read("configuration.json")
       
-    	val dataPath = Option(configuration.dataDir) match {
-    	  case Some(path) => new Path(path)
-    	  case None => new Path("target/data")
-    	}
+    	val dataPath = establishDataPathFromConfigurationOrPriorConvention(configuration)
     	println("Using data at " + dataPath)
+    	
       val data = new BoardDaoImpl(dataPath)
-      new EtherboardServer(configuration, data).launchServer()
+      val server = new EtherboardServer(configuration, data)
+    	
+    	server.launch()
+    }
+    
+    def establishDataPathFromConfigurationOrPriorConvention(configuration:Configuration):Path = {
+      new Path(Option(configuration.dataDir).getOrElse("target/data"))
     }
 }
 

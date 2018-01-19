@@ -58,14 +58,14 @@ import org.httpobjects.util.MimeTypeTool
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import scala.collection.JavaConversions._
 import scala.util.{Failure, Success, Try}
+import com.cj.nan.etherboard.pages.HomePage
 
 class EtherboardServer(configuration:Configuration, boardDao: BoardDao) {
 
   val sourcePlugins: List[Plugin] = configuration.pluginClasses.map(Class.forName(_).newInstance().asInstanceOf[Plugin])
   
-  def launchServer() {
+  def launch() {
     BasicConfigurator.configure();
-    val freemarker = freemarkerConfig();
     val websocketsEnabled = configuration.websocketsEnabled
     val websocketPort = configuration.websocketPort
 
@@ -76,9 +76,7 @@ class EtherboardServer(configuration:Configuration, boardDao: BoardDao) {
 
 
     HttpObjectsJettyHandler.launchServer(configuration.port,
-      new HttpObject("/") {
-        override def get(req: Request) = OK(FreemarkerTemplate("ui.html", null, freemarker))
-      },
+      new HomePage(),
       new HttpObject("/api/external/sourceType/{sourceType}/id/{sourceId}") {
         override def post(req: Request) = lock.synchronized {
           val sourceType = req.path().valueFor("sourceType")
@@ -98,12 +96,12 @@ class EtherboardServer(configuration:Configuration, boardDao: BoardDao) {
       new ClasspathResourcesObject("/{resource*}", EtherboardMain.getClass()),
       new HttpObject("/board/{boardId}/objects") {
         override def get(req: Request) = lock.synchronized {
-
+         
           val boardId = req.path().valueFor("boardId")
           val jackson = new ObjectMapper()
 
           val board = boardDao.getBoard(boardId)
-          board.boardUpdatesWebSocket = "ws://%s:%d/websocket?boardName=%s".format(InetAddress.getLocalHost.getHostName, websocketPort, board.name)
+          board.boardUpdatesWebSocket = "ws://REPLACE_ME_WITH_HOST:%d/websocket?boardName=%s".format(websocketPort, board.name)
           OK(Json(jackson.writeValueAsString(board)));
         }
 
@@ -230,6 +228,7 @@ class EtherboardServer(configuration:Configuration, boardDao: BoardDao) {
   def notifyClientsOfUpdates(sourceType: String, plugin:Plugin, externalSourceId: String, sourceItems: List[ExternalItemSuggestion]) {
     val boardIds = boardDao.listBoards().toList
 
+    println("Notifying")
     for (name <- boardIds) {
       val board = boardDao.getBoard(name)
       val boardStickies = board.objects.filter(_.kind.equalsIgnoreCase("sticky"))
@@ -247,28 +246,6 @@ class EtherboardServer(configuration:Configuration, boardDao: BoardDao) {
     }
   }
 
-  def freemarkerConfig() = {
-    val cfg = new freemarker.template.Configuration();
-    cfg.setTemplateLoader(new TemplateLoader() {
-
-      override def getReader(source: Object, encoding: String): Reader = {
-        new InputStreamReader(getClass().getClassLoader().getResourceAsStream(source.toString()), encoding);
-      }
-
-      override def getLastModified(arg0: Object) = {
-        System.currentTimeMillis();
-      }
-
-      override def findTemplateSource(name: String) = {
-        name.replaceAll(Pattern.quote("_en_US"), "");
-      }
-
-      override def closeTemplateSource(arg0: Object) {}
-    });
-    cfg.setEncoding(Locale.US, "UTF8");
-    cfg.setObjectWrapper(new DefaultObjectWrapper());
-    cfg
-  }
 
   //TODO: Refactor uses to use version in Util
   def parseHttpForm(input: String): Map[String, String] = {
