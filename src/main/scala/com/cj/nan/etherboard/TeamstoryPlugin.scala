@@ -222,8 +222,9 @@ class TeamstoryPlugin  extends Plugin {
     }
 
     def parseEtherlogItem(etherlogItem:TeamstoryItem, sourceId:String):ExternalItemSuggestion = {
+
         val backlogName = getSourceName(sourceId)
-        val firstLine = etherlogItem.name.lines.toList.headOption.getOrElse("")
+        val firstLine = etherlogItem.name.linesIterator.toList.headOption.getOrElse("")
         val truncatedName = if(firstLine.length>100){
             firstLine.substring(0, 100) + "..."
         }else {

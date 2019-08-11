@@ -43,11 +43,10 @@ import java.io.{File => Path, FileOutputStream, FileInputStream}
 import com.fasterxml.jackson.databind.ObjectMapper
 
 class BoardDaoImpl(dataPath:Path = new Path("target/test-data")) extends BoardDao {
-    
 
-    def apply(): BoardDao = {
-        dataPath.mkdirs()
-        this
+
+    if(!dataPath.exists() && !dataPath.mkdirs()){
+        throw new Exception(s"Could not create directory: ${dataPath.getAbsolutePath}")
     }
 
     def storagePathForBoard(id: String) = new Path(dataPath, id)
